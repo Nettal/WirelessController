@@ -5,8 +5,6 @@ import java.io.Serializable;
 
 public class Attribute implements Serializable{//属性   默认为横屏
     private static final long serialVersionUID = -8486594296615491973L;
- //   ExtraButton extraButton;
- //   WindowManager.LayoutParams layoutParam;
     private float alpha = 0.5F;
     private String text;
     private int keyCode;
@@ -37,20 +35,6 @@ public class Attribute implements Serializable{//属性   默认为横屏
         this.height = height;
         this.width = width;
     }
-  /*  /////////
-    public void setExtarbutton(ExtraButton exButton){
-        this.extraButton = exButton;
-    }
-    public ExtraButton getExtraButton(){
-        return extraButton;
-    }
-    public void setLayoutParam(WindowManager.LayoutParams lp){
-        this.layoutParam = lp;
-    }
-    public WindowManager.LayoutParams getLayoutParam(){
-        return this.layoutParam;
-    }
-    ////////  */
     public float getX(){
         return x;
     }
