@@ -16,20 +16,29 @@ public class TouchRelativeLayout extends RelativeLayout
     }
 
         float lastX ,lastY;
+		boolean isMoved = false;
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
-        boolean isMoved = false;
-
+        
         //  System.out.println(event);
         switch (event.getAction()){
             case event.ACTION_DOWN:
+				isMoved = false;
+			//	System.out.println("isMoved = false");
                 //    SocketClientService.eventQueue.addFirst(String.format("OMP%d" , KeyCode.BUTTON1_DOWN_MASK));
                 lastX=event.getX();
                 lastY=event.getY();
                 break;
             case event.ACTION_MOVE :
-                isMoved=true;
+                if(
+				!((event.getX()-lastX
+					+event.getY()-lastY)<2)
+					){
+					isMoved = true;
+			//		 System.out.println("isMoved = true");
+				}
+				
                 SocketClientService.eventQueue.addFirst(String.format("OMM%d,%d",(int)(event.getX()-lastX),(int)(event.getY()-lastY)));
                 lastX=event.getX();
 
@@ -40,6 +49,7 @@ public class TouchRelativeLayout extends RelativeLayout
                     SocketClientService.eventQueue.addFirst(String.format("OMP%d" , KeyCode.BUTTON1_DOWN_MASK));
                     SocketClientService.eventQueue.addFirst(String.format("OMR%d" , KeyCode.BUTTON1_DOWN_MASK));
                 }
+				isMoved = false;
                 break;
         }
 
