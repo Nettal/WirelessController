@@ -15,42 +15,62 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.TextView;
+import android.view.View.OnTouchListener;
+import android.view.View.OnLongClickListener;
 
-public class EditorActivity extends Activity implements OnClickListener
+public class EditorActivity extends Activity implements OnTouchListener , OnLongClickListener
 {
+
+	@Override
+	public boolean onLongClick(View p1)
+	{
+		
+		return false;
+	}
+	
+
+	@Override
+	public boolean onTouch(View p1, MotionEvent p2)
+	{
+		
+		return false;
+	}
+	
+
     public static ArrayList attributeList = new ArrayList<Attribute>();
     
+	//屏幕长宽
     int height ;
     int width;
     
+	TextView back_textview = null;
     boolean isSelected = false;
     boolean isToasted = false;
     float selectedX ;
     float selectedY;
 
-    @Override
-    public void onClick(View p1)
-    {
-        if(!isToasted){
-            Toast.makeText(this ,"点击以选取位置" , Toast.LENGTH_SHORT).show();
-            isToasted = true;}
-        isSelected = true;
-    }
+   
 
-    Button editButtton;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+		
+		//请求不要标题栏
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         height= this.getWindowManager().getDefaultDisplay().getHeight();
         width = this.getWindowManager().getDefaultDisplay().getWidth();
         setContentView(R.layout.edit);
-        editButtton = (Button) findViewById(R.id.editButton);
-        editButtton.setOnClickListener(this);
+		back_textview = findViewById(R.id.back_textview);
+        back_textview.setOnTouchListener(this);
+		back_textview.setOnLongClickListener(this);
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event)
+    
+    public boolean onTouchEven7t(MotionEvent event)
     {
         if(isSelected){
         switch (event.getAction()){
@@ -77,7 +97,7 @@ public class EditorActivity extends Activity implements OnClickListener
                             button.setText(KeyCode.getAllStringList()[which]);
                             EditorActivity.this.addContentView( button,new ViewGroup.LayoutParams(150 ,150));
                             attributeList.add(new Attribute(selectedX/width,selectedY/height,KeyCode.getAllCodeList()[which]));
-                            editButtton.setText("已添加"+attributeList.size()+"个");
+                            back_textview.setText("已添加"+attributeList.size()+"个按钮");
                         }
                     });
                 builder.show();
@@ -88,10 +108,15 @@ public class EditorActivity extends Activity implements OnClickListener
         return true;
     }
 
+	
+	
+	
     @Override
     protected void onStop()
     {
         super.onStop();
+		//退出时保存
+		
    //     String stringAttributeList = (new Gson()).toJson(attributeList);
         File file = this.getExternalFilesDir(null);
         File jsonfile = new File(file.toString()+"/model.obj");
