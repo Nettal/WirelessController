@@ -5,9 +5,9 @@ android {
     buildToolsVersion "21.1.0"
 
     defaultConfig {
-        applicationId "N2LF.wirelesscontroller"
-        minSdkVersion 14
-        targetSdkVersion 28
+        applicationId "n2lf.wirelesscontroller"
+        minSdkVersion 23
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0.0"
     }

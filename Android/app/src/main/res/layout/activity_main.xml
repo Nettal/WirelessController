@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:gravity="center">
+
+	<Button
+        android:id="@+id/activity_mainButton_modelManager"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="模板管理"/>
+
+	<EditText
+        android:id="@+id/activity_mainEditText_ip_port"
+		android:layout_width="wrap_content"
+		android:ems="10"
+		android:layout_height="wrap_content"/>
+
+	<Button
+        android:id="@+id/activity_mainButton_start"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="启动"/>
+
+	<Spinner
+        android:id="@+id/activity_mainSpinner_selector"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"/>
+
+</LinearLayout>
+

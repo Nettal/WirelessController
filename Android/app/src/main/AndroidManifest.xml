@@ -1,26 +1,23 @@
 <?xml version='1.0' encoding='utf-8'?>
 <manifest
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	package="N2LF.wirelesscontroller">
-	<uses-permission android:name="android.permission.INTERNET"/>
+	package="n2lf.wirelesscontroller">
 	<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<application
 		android:allowBackup="true"
 		android:icon="@mipmap/ic_launcher"
 		android:label="@string/app_name"
 		android:supportsRtl="true"
 		android:theme="@style/AppTheme">
-		<activity android:name=".MainActivity">
+		<activity android:name=".activity.MainActivity">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 		</activity>
-		<activity android:name=".EditorActivity"/>
-		<service
-			android:name=".FloatWindowService"
-			android:configChanges="orientation|screenSize"/>
-		<service android:name=".SocketClientService"/>
+        <activity android:name=".activity.ModelCreatorActivity">
+        </activity>
+        <activity android:name=".activity.ModelManagerActivity">
+        </activity>
 	</application>
 </manifest>
