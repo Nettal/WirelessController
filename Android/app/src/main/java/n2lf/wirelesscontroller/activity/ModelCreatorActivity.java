@@ -7,7 +7,6 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.view.View.OnTouchListener;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,40 +15,122 @@ import android.view.Menu;
 import android.view.MenuItem;
 import n2lf.wirelesscontroller.utilities.Utilities;
 import android.widget.PopupMenu.OnDismissListener;
-import android.widget.AbsListView.LayoutParams;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.TextView;
+import android.view.ViewGroup;
+import android.graphics.Color;
+import android.widget.RelativeLayout;
+import android.app.AlertDialog;
 
 public class ModelCreatorActivity extends Activity
 {
-    LinearLayout linearLayout ;
+    private RelativeLayout relativeLayout;
+    private TextView textView;
+    private boolean isOnAddEvent = false;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         this.getActionBar().hide();
-        this.setContentView(linearLayout = new LinearLayout(this));
-        linearLayout.post(new CreatFloatButton(this));
+        this.setContentView(relativeLayout = new RelativeLayout(this));
+        textView = new TextView(this);
+        textView.setTextSize(Utilities.字体大小);
+        textView.setGravity(Gravity.CENTER);
+        RelativeLayout.LayoutParams rLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        rLP.addRule(RelativeLayout.CENTER_VERTICAL);
+        relativeLayout.addView(textView,rLP);
+        relativeLayout.post(new CreatFloatButton(this));//延时添加按钮，否则会throw
     }
     
-    class CreatFloatButton extends Button implements Runnable,OnDismissListener,OnMenuItemClickListener
+    private boolean addButtonStarted(){
+        isOnAddEvent = true;
+        textView.setText(Utilities.点击选取位置[0]);//点击以选取按钮位置
+        relativeLayout.setBackgroundColor(Utilities.CreatorBackgroundColor);
+        relativeLayout.setOnTouchListener(new onButtonAddTouchListener());
+        return true;
+    }
+    
+    private boolean addFinished(){
+        isOnAddEvent = false;
+        textView.setText("");
+        relativeLayout.setBackgroundColor(Color.alpha(0));
+        relativeLayout.setOnTouchListener(null);//it is ok
+        return true;
+    }
+    
+    
+    private class onButtonAddTouchListener implements OnTouchListener
+    {
+        private int lastX;//你可以用float，但会出现按键漂移问题
+        private int lastY;
+        private float onDownX;
+        private float onDownY;
+        Button tempButton;
+        int buttonSize;
+        @Override
+        public boolean onTouch(View p1, MotionEvent event)
+        {
+            switch(event.getAction()){
+                case event.ACTION_DOWN:
+                    lastX = (int) (onDownX = event.getX());
+                    lastY = (int) (onDownY = event.getY());
+                    tempButton = new Button(ModelCreatorActivity.this);
+           /*       tempButton.setHeight(Utilities.getDefaultButtonSize(ModelCreatorActivity.this));
+                    tempButton.setWidth(Utilities.getDefaultButtonSize(ModelCreatorActivity.this));
+                    这个不行*/
+                    buttonSize = Utilities.getDefaultButtonSize(ModelCreatorActivity.this);
+                    tempButton.setHeight(buttonSize);//用来保存大小
+                    tempButton.setWidth(buttonSize);
+                    tempButton.setX(onDownX-buttonSize/2);//否则按钮会在点击位置的右下角
+                    tempButton.setY(onDownY-buttonSize/2);    
+                    relativeLayout.addView(tempButton,buttonSize,buttonSize);
+                    return true;
+                case event.ACTION_MOVE:
+                    tempButton.setX(event.getX()-buttonSize/2);
+                    tempButton.setY(event.getY()-buttonSize/2);
+                    return true;
+                case event.ACTION_UP:
+                    if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.偏移量){//判断是否点击按钮
+                        //builder
+                        
+                        return true;
+                    }
+                default:
+                    return false;
+            }
+        }   
+    }
+    
+    private class onButtonTouchDialog extends AlertDialog.Builder{
+        onButtonTouchDialog(Context context){
+            super(context);
+        }
+    }
+    
+    
+    private class CreatFloatButton extends Button implements Runnable,OnDismissListener,OnMenuItemClickListener
     {
         Context context;
         WindowManager windowManager;
         WindowManager.LayoutParams layoutParams;
         PopupMenu popuMenu;
-        CreatFloatButton(Context context){
+        CreatFloatButton(Context context){//创建button对象 & 为后来的悬浮按钮做准备
             super(context);
             this.context = context;
             windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
             layoutParams = new WindowManager.LayoutParams();
             popuMenu = new PopupMenu(ModelCreatorActivity.this , this);
-            popuMenu.getMenu().add("返回");
+            for(String i :Utilities.添加界面的按键文字){
+                popuMenu.getMenu().add(i);
+            }
             popuMenu.setOnDismissListener(this);
             popuMenu.setOnMenuItemClickListener(this);
         }
        
         
-        private int lastX;//你不可以用float，会出现按键漂移问题
+        //处理按钮移动和按钮单击操作
+        private int lastX;//你可以用float，但会出现按键漂移问题
         private int lastY;
         private float onDownX;
         private float onDownY;
@@ -69,8 +150,9 @@ public class ModelCreatorActivity extends Activity
                     windowManager.updateViewLayout(this , layoutParams);
                     return true;
                 case event.ACTION_UP:
-                    if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.偏移量){
+                    if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.偏移量){//判断是否点击按钮
                         popuMenu.show();
+                        return true;
                     }
                     return false;
             }
@@ -80,19 +162,25 @@ public class ModelCreatorActivity extends Activity
         
         
         //implements
+        
+        //运行此方法时添加按键
         @Override
         public void run()
         {
-            int maxInt = Math.max(windowManager.getDefaultDisplay().getWidth() , windowManager.getDefaultDisplay().getHeight());
             layoutParams.type = layoutParams.FIRST_SUB_WINDOW+5;
+            /*
+             如果没有设置FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方不能点击。
+             如果设置了FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方能够点击、但是弹窗上的EditText无法输入、键盘也不会弹出来。
+             如果设置了FLAG_NOT_TOUCH_MODAL，那么屏幕上弹窗之外的地方能够点击、弹窗上的EditText也可以输入、键盘能够弹出来。
+             FLAG_FULLSCREEN Activity窗口全屏，状态栏不显示。
+            */
             layoutParams.flags = layoutParams.FLAG_NOT_TOUCH_MODAL|layoutParams.FLAG_NOT_FOCUSABLE|layoutParams.FLAG_FULLSCREEN;
             layoutParams.gravity=Gravity.TOP|Gravity.LEFT;
             layoutParams.format= PixelFormat.RGBA_8888;
             layoutParams.alpha= Utilities.按钮默认透明度;
             layoutParams.x = windowManager.getDefaultDisplay().getWidth()>>1;
             layoutParams.y = windowManager.getDefaultDisplay().getHeight()>>1;//除2
-            layoutParams.width = maxInt/Utilities.按钮默认大小的除数;
-            layoutParams.height = maxInt/Utilities.按钮默认大小的除数;
+            layoutParams.width = (layoutParams.height = Utilities.getDefaultButtonSize(ModelCreatorActivity.this));
             windowManager.addView(this , layoutParams);
         }  
         
@@ -104,10 +192,16 @@ public class ModelCreatorActivity extends Activity
         @Override
         public boolean onMenuItemClick(MenuItem p1)
         {
-            switch(p1.getTitle().toString()){
-               case "返回":
-                   ModelCreatorActivity.this.finish();
-                   return true;
+            if(p1.getTitle().toString()==Utilities.添加界面的按键文字[0]){//完成
+                if(isOnAddEvent){
+                    addFinished();//处理背景变化和 onTouchEvent
+                }else{
+                    ModelCreatorActivity.this.finish();//此时应该保存模板
+                    }
+            }else if(p1.getTitle().toString()==Utilities.添加界面的按键文字[1]){//添加按钮
+                addButtonStarted();
+            }else{//添加触摸板
+                
             }
             return false;
         }
