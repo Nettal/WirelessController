@@ -1,4 +1,5 @@
 package n2lf.wirelesscontroller.activity;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.PixelFormat;
@@ -66,7 +67,7 @@ public class ModelCreatorActivity extends Activity
         private int lastY;
         private float onDownX;
         private float onDownY;
-        Button tempButton;
+        OverviewButton overviewButton;
         int buttonSize;
         @Override
         public boolean onTouch(View p1, MotionEvent event)
@@ -75,38 +76,72 @@ public class ModelCreatorActivity extends Activity
                 case event.ACTION_DOWN:
                     lastX = (int) (onDownX = event.getX());
                     lastY = (int) (onDownY = event.getY());
-                    tempButton = new Button(ModelCreatorActivity.this);
+                    overviewButton = new OverviewButton(ModelCreatorActivity.this);
            /*       tempButton.setHeight(Utilities.getDefaultButtonSize(ModelCreatorActivity.this));
                     tempButton.setWidth(Utilities.getDefaultButtonSize(ModelCreatorActivity.this));
                     这个不行*/
                     buttonSize = Utilities.getDefaultButtonSize(ModelCreatorActivity.this);
-                    tempButton.setHeight(buttonSize);//用来保存大小
-                    tempButton.setWidth(buttonSize);
-                    tempButton.setX(onDownX-buttonSize/2);//否则按钮会在点击位置的右下角
-                    tempButton.setY(onDownY-buttonSize/2);    
-                    relativeLayout.addView(tempButton,buttonSize,buttonSize);
+                    overviewButton.setHeight(buttonSize);//用来保存大小，后面直接获取按钮大小
+                    overviewButton.setWidth(buttonSize);
+                    overviewButton.setX(onDownX-buttonSize/2);//否则按钮会在点击位置的右下角
+                    overviewButton.setY(onDownY-buttonSize/2);    
+                    relativeLayout.addView(overviewButton,buttonSize,buttonSize);
                     return true;
                 case event.ACTION_MOVE:
-                    tempButton.setX(event.getX()-buttonSize/2);
-                    tempButton.setY(event.getY()-buttonSize/2);
+                    overviewButton.setX(event.getX()-buttonSize/2);
+                    overviewButton.setY(event.getY()-buttonSize/2);
                     return true;
                 case event.ACTION_UP:
-                    if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.偏移量){//判断是否点击按钮
-                        //builder
-                        
-                        return true;
-                    }
+                    overviewButton.editThis();
+                    return true;
                 default:
                     return false;
             }
         }   
     }
     
-    private class onButtonTouchDialog extends AlertDialog.Builder{
-        onButtonTouchDialog(Context context){
+    
+    private class OverviewButton extends Button{
+        Context context;
+        OverviewButton(Context context){
             super(context);
+            this.context = context;
+        }
+
+        
+        private int lastX;//你可以用float，但会出现按键漂移问题
+        private int lastY;
+        private float onDownX;
+        private float onDownY;
+        @Override
+        public boolean onTouchEvent(MotionEvent event)
+        {
+            switch(event.getAction()){
+                case event.ACTION_DOWN:
+                    lastX = (int) (onDownX = event.getRawX());
+                    lastY = (int) (onDownY = event.getRawY());
+                    return true;
+                case event.ACTION_MOVE:
+                    this.setX(-lastX+(int)event.getRawX()+(int)this.getX());
+                    this.setY(-lastY+(int)event.getRawY()+(int)this.getY());
+                    lastX = (int) event.getRawX();
+                    lastY = (int) event.getRawY();
+                    return true;
+                case event.ACTION_UP:
+                    if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.偏移量){//判断是否点击按钮
+                        this.editThis();//call edit dialog
+                        return true;
+                    }
+                default:
+                    return false;
+            }
+        }
+        
+        public void editThis(){
+            System.out.println("Called editThis method");
         }
     }
+    
     
     
     private class CreatFloatButton extends Button implements Runnable,OnDismissListener,OnMenuItemClickListener
