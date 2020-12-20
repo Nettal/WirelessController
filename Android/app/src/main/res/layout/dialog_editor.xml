@@ -10,7 +10,8 @@
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
 		android:layout_gravity="center"
-		android:textSize="40sp">
+		android:textSize="40sp"
+		android:id="@+id/dialog_editor_textView_title">
 
 	</TextView>
 
@@ -22,16 +23,17 @@
 		<Button
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:text="设置按键映射"
-			android:id="@+id/dialogeditorButton1">
+			android:text="设置按钮映射"
+			android:id="@+id/dialog_editor_button_mapping">
 
 		</Button>
 
 		<EditText
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:layout_toRightOf="@id/dialogeditorButton1"
-			android:hint="默认按钮文字">
+			android:layout_toRightOf="@id/dialog_editor_button_mapping"
+			android:hint="按钮名称"
+			android:id="@+id/dialog_editor_editText_defaultButtonName">
 
 		</EditText>
 
@@ -45,16 +47,17 @@
 		<Button
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:text="选择按钮颜色"
-			android:id="@+id/dialogeditorButton2">
+			android:text="设置按钮颜色"
+			android:id="@+id/dialog_editor_button_color">
 
 		</Button>
 
 		<EditText
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:layout_toRightOf="@id/dialogeditorButton2"
-			android:hint="#ARGB">
+			android:layout_toRightOf="@id/dialog_editor_button_color"
+			android:hint="#ARGB"
+			android:id="@+id/dialog_editor_editText_ARGB">
 
 		</EditText>
 
@@ -68,18 +71,17 @@
 		<EditText
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:id="@+id/dialogeditorEditText1"
-			android:hint="默认按钮高度"
-			>
+			android:id="@+id/dialog_editor_editText_defaultButtonHeight"
+			android:hint="按钮高度">
 
 		</EditText>
 
 		<EditText
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:layout_toRightOf="@id/dialogeditorEditText1"
-			android:hint="默认按钮宽度"
-			>
+			android:layout_toRightOf="@id/dialog_editor_editText_defaultButtonHeight"
+			android:hint="按钮宽度"
+			android:id="@+id/dialog_editor_editText_defaultButtonWidth">
 
 		</EditText>
 

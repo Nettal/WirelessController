@@ -26,6 +26,9 @@ import n2lf.wirelesscontroller.R;
 import android.content.DialogInterface;
 import android.widget.ScrollView;
 import android.view.LayoutInflater;
+import android.widget.EditText;
+import n2lf.wirelesscontroller.utilities.colorpicker.ColorPickerView;
+import n2lf.wirelesscontroller.utilities.colorpicker.ColorUtil;
 
 
 public class ModelEditorActivity extends Activity
@@ -106,28 +109,55 @@ public class ModelEditorActivity extends Activity
     }
     
     
-    private class OverviewButton extends Button{
+    private class OverviewButton extends Button implements OnClickListener , ColorPickerView.OnColorChangedListener
+    {
         Context context;
-        AlertDialog.Builder builder;
+        AlertDialog.Builder buttonEditBuilder;
+        AlertDialog.Builder tempBuilder;
+        ColorPickerView colorPickerView;
+        int buttonColor;
+        
+        Button colorButton;
+        Button mappingButton;
+        EditText buttonHeightEditText;
+        EditText buttonWidthEditText;
+        EditText buttonNameEditText;
+        EditText argbEditText;
+        TextView titleTextView;
+        
         OverviewButton(Context context){
             super(context);
             this.context = context;
-            /**
-            编辑按钮的dialog
-            */
-            builder = new AlertDialog.Builder(context);
-            ScrollView sv = new ScrollView(context);//使其可以上下滚动
-            sv.addView(LayoutInflater.from(context).inflate(R.layout.dialog_editor,null));
-            builder.setView(sv);
-            builder.setPositiveButton(Utilities.确定删除[0],//确定
+            //颜色选择
+            colorPickerView = new ColorPickerView(context);
+            colorPickerView.setOnColorChangedListener(this);
+            colorPickerView.setAlphaSliderVisible(true);//这个不能去掉，否则会出现error
+            tempBuilder = new AlertDialog.Builder(context);
+            buttonEditBuilder = new AlertDialog.Builder(context);
+            
+            //获取编辑dialog的控件
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_editor,null);
+            
+            (colorButton = dialogView.findViewById(R.id.dialog_editor_button_color)).setOnClickListener(this);
+            (mappingButton = dialogView.findViewById(R.id.dialog_editor_button_mapping)).setOnClickListener(this);
+            buttonHeightEditText = dialogView.findViewById(R.id.dialog_editor_editText_defaultButtonHeight);
+            buttonWidthEditText = dialogView.findViewById(R.id.dialog_editor_editText_defaultButtonWidth);
+            buttonNameEditText = dialogView.findViewById(R.id.dialog_editor_editText_defaultButtonName);
+            argbEditText = dialogView.findViewById(R.id.dialog_editor_editText_ARGB);
+            titleTextView = dialogView.findViewById(R.id.dialog_editor_textView_title);
+            
+            ScrollView scrollView = new ScrollView(context);//使其可以上下滚动
+            scrollView.addView(dialogView);
+            buttonEditBuilder.setView(scrollView);
+            buttonEditBuilder.setPositiveButton(Utilities.确定删除[0],//确定
                 new android.content.DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface p1, int p2)
                     {
-                        builder.create().dismiss();
+                        buttonEditBuilder.create().dismiss();
                     }
                 });
-            builder.setNegativeButton(Utilities.确定删除[1],//删除
+            buttonEditBuilder.setNegativeButton(Utilities.确定删除[1],//删除
                 new android.content.DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface p1, int p2)
@@ -136,14 +166,37 @@ public class ModelEditorActivity extends Activity
                     }
                 });
         }
+        
+        
+        @Override
+        public void onClick(View p1)
+        {
+            if(p1==colorButton){
+                colorPickerView.setColor(buttonColor == 0 ? Color.WHITE : buttonColor);
+                tempBuilder.setView(colorPickerView);
+                tempBuilder.show();
+            }else if(p1==mappingButton){
+                
+            }
+        }
+        
 
+        @Override
+        public void onColorChanged(int color)
+        {
+         //   this.setBackgroundColor(color);
+            this.setOutlineSpotShadowColor(color);
+            argbEditText.setHint(ColorUtil.convertToARGB(color).toString());
+            this.setOutlineAmbientShadowColor(color);
+        }
+        
         
         private float lastX;
         private float lastY;
         private float onDownX;
         private float onDownY;
         @Override
-        public boolean onTouchEvent(MotionEvent event)
+        public boolean onTouchEvent(MotionEvent event)//处理按钮移动
         {
             switch(event.getAction()){
                 case event.ACTION_DOWN:
@@ -165,9 +218,17 @@ public class ModelEditorActivity extends Activity
                     return false;
             }
         }
+
+        
+        @Override
+        public void setBackgroundColor(int color)
+        {
+            super.setBackgroundColor(buttonColor = color);
+        }
+        
         
         public void editThis(){
-            builder.create().show();
+            buttonEditBuilder.create().show();
         }
     }
     
@@ -191,7 +252,7 @@ public class ModelEditorActivity extends Activity
             popuMenu.setOnDismissListener(this);
             popuMenu.setOnMenuItemClickListener(this);
         }
-       
+        
         
         //处理按钮移动和按钮单击操作
         private int lastX;//你可以用float，但会出现按键漂移问题
@@ -222,7 +283,7 @@ public class ModelEditorActivity extends Activity
             }
             return false;
         }  
- 
+        
         
         
         //implements
@@ -252,7 +313,7 @@ public class ModelEditorActivity extends Activity
         public void onDismiss(PopupMenu p1)
         {
         }
-
+        
         @Override
         public boolean onMenuItemClick(MenuItem p1)
         {

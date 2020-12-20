@@ -7,25 +7,25 @@
 	android:gravity="center">
 
 	<Button
-        android:id="@+id/activity_mainButton_modelManager"
+		android:id="@+id/activity_main_button_modelManager"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="模板管理"/>
 
 	<EditText
-        android:id="@+id/activity_mainEditText_ip_port"
+		android:id="@+id/activity_main_editText_ip_port"
 		android:layout_width="wrap_content"
 		android:ems="10"
 		android:layout_height="wrap_content"/>
 
 	<Button
-        android:id="@+id/activity_mainButton_start"
+		android:id="@+id/activity_main_button_start"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="启动"/>
 
 	<Spinner
-        android:id="@+id/activity_mainSpinner_selector"
+		android:id="@+id/activity_main_spinner_selector"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"/>
 

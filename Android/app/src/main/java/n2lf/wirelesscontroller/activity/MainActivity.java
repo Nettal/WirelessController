@@ -22,10 +22,10 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        modelManagerButton = (Button) findViewById(R.id.activity_mainButton_modelManager);     
-        ip_port_EditText = (EditText) findViewById(R.id.activity_mainEditText_ip_port);  
-        startButton = (Button) findViewById(R.id.activity_mainButton_start);
-        modelListSelector = (Spinner) findViewById(R.id.activity_mainSpinner_selector);
+        modelManagerButton = findViewById(R.id.activity_main_button_modelManager);     
+        ip_port_EditText = findViewById(R.id.activity_main_editText_ip_port);  
+        startButton = findViewById(R.id.activity_main_button_start);
+        modelListSelector = findViewById(R.id.activity_main_spinner_selector);
         
         
         startButton.setOnClickListener(new OnClickListener(){
