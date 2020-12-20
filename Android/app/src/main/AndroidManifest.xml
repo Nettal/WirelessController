@@ -15,7 +15,7 @@
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 		</activity>
-        <activity android:name=".activity.ModelCreatorActivity">
+        <activity android:name=".activity.ModelEditorActivity">
         </activity>
         <activity android:name=".activity.ModelManagerActivity">
         </activity>

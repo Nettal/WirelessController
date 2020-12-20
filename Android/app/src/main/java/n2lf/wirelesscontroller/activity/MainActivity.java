@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void onClick(View p1)
                 {
-                    startActivity(new Intent(MainActivity.this,ModelCreatorActivity.class));
+                    startActivity(new Intent(MainActivity.this,ModelEditorActivity.class));
                 }
             });
     }

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
+
+	<TextView
+		android:text="编辑按钮"
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:layout_gravity="center"
+		android:textSize="40sp">
+
+	</TextView>
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center">
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="设置按键映射"
+			android:id="@+id/dialogeditorButton1">
+
+		</Button>
+
+		<EditText
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_toRightOf="@id/dialogeditorButton1"
+			android:hint="默认按钮文字">
+
+		</EditText>
+
+	</RelativeLayout>
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center">
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="选择按钮颜色"
+			android:id="@+id/dialogeditorButton2">
+
+		</Button>
+
+		<EditText
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_toRightOf="@id/dialogeditorButton2"
+			android:hint="#ARGB">
+
+		</EditText>
+
+	</RelativeLayout>
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center">
+
+		<EditText
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:id="@+id/dialogeditorEditText1"
+			android:hint="默认按钮高度"
+			>
+
+		</EditText>
+
+		<EditText
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_toRightOf="@id/dialogeditorEditText1"
+			android:hint="默认按钮宽度"
+			>
+
+		</EditText>
+
+	</RelativeLayout>
+
+</LinearLayout>
+

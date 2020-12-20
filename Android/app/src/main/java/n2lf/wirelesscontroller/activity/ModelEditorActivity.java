@@ -22,8 +22,13 @@ import android.view.ViewGroup;
 import android.graphics.Color;
 import android.widget.RelativeLayout;
 import android.app.AlertDialog;
+import n2lf.wirelesscontroller.R;
+import android.content.DialogInterface;
+import android.widget.ScrollView;
+import android.view.LayoutInflater;
 
-public class ModelCreatorActivity extends Activity
+
+public class ModelEditorActivity extends Activity
 {
     private RelativeLayout relativeLayout;
     private TextView textView;
@@ -47,7 +52,7 @@ public class ModelCreatorActivity extends Activity
     private boolean addButtonStarted(){
         isOnAddEvent = true;
         textView.setText(Utilities.点击选取位置[0]);//点击以选取按钮位置
-        relativeLayout.setBackgroundColor(Utilities.CreatorBackgroundColor);
+        relativeLayout.setBackgroundColor(Utilities.EditorBackgroundColor);
         relativeLayout.setOnTouchListener(new onButtonAddTouchListener());
         return true;
     }
@@ -76,11 +81,11 @@ public class ModelCreatorActivity extends Activity
                 case event.ACTION_DOWN:
                     lastX = (int) (onDownX = event.getX());
                     lastY = (int) (onDownY = event.getY());
-                    overviewButton = new OverviewButton(ModelCreatorActivity.this);
+                    overviewButton = new OverviewButton(ModelEditorActivity.this);
            /*       tempButton.setHeight(Utilities.getDefaultButtonSize(ModelCreatorActivity.this));
                     tempButton.setWidth(Utilities.getDefaultButtonSize(ModelCreatorActivity.this));
                     这个不行*/
-                    buttonSize = Utilities.getDefaultButtonSize(ModelCreatorActivity.this);
+                    buttonSize = Utilities.getDefaultButtonSize(ModelEditorActivity.this);
                     overviewButton.setHeight(buttonSize);//用来保存大小，后面直接获取按钮大小
                     overviewButton.setWidth(buttonSize);
                     overviewButton.setX(onDownX-buttonSize/2);//否则按钮会在点击位置的右下角
@@ -92,7 +97,7 @@ public class ModelCreatorActivity extends Activity
                     overviewButton.setY(event.getY()-buttonSize/2);
                     return true;
                 case event.ACTION_UP:
-                    overviewButton.editThis();
+                    overviewButton.editThis();//must edit at once
                     return true;
                 default:
                     return false;
@@ -103,14 +108,38 @@ public class ModelCreatorActivity extends Activity
     
     private class OverviewButton extends Button{
         Context context;
+        AlertDialog.Builder builder;
         OverviewButton(Context context){
             super(context);
             this.context = context;
+            /**
+            编辑按钮的dialog
+            */
+            builder = new AlertDialog.Builder(context);
+            ScrollView sv = new ScrollView(context);//使其可以上下滚动
+            sv.addView(LayoutInflater.from(context).inflate(R.layout.dialog_editor,null));
+            builder.setView(sv);
+            builder.setPositiveButton(Utilities.确定删除[0],//确定
+                new android.content.DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface p1, int p2)
+                    {
+                        builder.create().dismiss();
+                    }
+                });
+            builder.setNegativeButton(Utilities.确定删除[1],//删除
+                new android.content.DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface p1, int p2)
+                    {
+                        relativeLayout.removeView(ModelEditorActivity.OverviewButton.this);
+                    }
+                });
         }
 
         
-        private int lastX;//你可以用float，但会出现按键漂移问题
-        private int lastY;
+        private float lastX;
+        private float lastY;
         private float onDownX;
         private float onDownY;
         @Override
@@ -118,14 +147,14 @@ public class ModelCreatorActivity extends Activity
         {
             switch(event.getAction()){
                 case event.ACTION_DOWN:
-                    lastX = (int) (onDownX = event.getRawX());
-                    lastY = (int) (onDownY = event.getRawY());
+                    lastX = onDownX = event.getRawX();
+                    lastY = onDownY = event.getRawY();
                     return true;
                 case event.ACTION_MOVE:
-                    this.setX(-lastX+(int)event.getRawX()+(int)this.getX());
-                    this.setY(-lastY+(int)event.getRawY()+(int)this.getY());
-                    lastX = (int) event.getRawX();
-                    lastY = (int) event.getRawY();
+                    this.setX(-(int)lastX+(int)event.getRawX()+(int)this.getX());//转换成int以防止出现过大的误差，导致按钮漂移
+                    this.setY(-(int)lastY+(int)event.getRawY()+(int)this.getY());
+                    lastX = event.getRawX();
+                    lastY = event.getRawY();
                     return true;
                 case event.ACTION_UP:
                     if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.偏移量){//判断是否点击按钮
@@ -138,7 +167,7 @@ public class ModelCreatorActivity extends Activity
         }
         
         public void editThis(){
-            System.out.println("Called editThis method");
+            builder.create().show();
         }
     }
     
@@ -155,7 +184,7 @@ public class ModelCreatorActivity extends Activity
             this.context = context;
             windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
             layoutParams = new WindowManager.LayoutParams();
-            popuMenu = new PopupMenu(ModelCreatorActivity.this , this);
+            popuMenu = new PopupMenu(ModelEditorActivity.this , this);//按钮点击时的菜单
             for(String i :Utilities.添加界面的按键文字){
                 popuMenu.getMenu().add(i);
             }
@@ -215,7 +244,7 @@ public class ModelCreatorActivity extends Activity
             layoutParams.alpha= Utilities.按钮默认透明度;
             layoutParams.x = windowManager.getDefaultDisplay().getWidth()>>1;
             layoutParams.y = windowManager.getDefaultDisplay().getHeight()>>1;//除2
-            layoutParams.width = (layoutParams.height = Utilities.getDefaultButtonSize(ModelCreatorActivity.this));
+            layoutParams.width = (layoutParams.height = Utilities.getDefaultButtonSize(ModelEditorActivity.this));
             windowManager.addView(this , layoutParams);
         }  
         
@@ -231,7 +260,7 @@ public class ModelCreatorActivity extends Activity
                 if(isOnAddEvent){
                     addFinished();//处理背景变化和 onTouchEvent
                 }else{
-                    ModelCreatorActivity.this.finish();//此时应该保存模板
+                    ModelEditorActivity.this.finish();//此时应该保存模板
                     }
             }else if(p1.getTitle().toString()==Utilities.添加界面的按键文字[1]){//添加按钮
                 addButtonStarted();
