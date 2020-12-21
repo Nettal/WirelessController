@@ -29,6 +29,7 @@ import android.view.LayoutInflater;
 import android.widget.EditText;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorPickerView;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorUtil;
+import android.graphics.PorterDuff;
 
 
 public class ModelEditorActivity extends Activity
@@ -171,11 +172,11 @@ public class ModelEditorActivity extends Activity
         @Override
         public void onClick(View p1)
         {
-            if(p1==colorButton){
-                colorPickerView.setColor(buttonColor == 0 ? Color.WHITE : buttonColor);
+            if(p1==colorButton){//设置颜色
+                colorPickerView.setColor(buttonColor == 0 ?  Utilities.DefaultButtonColor : buttonColor);
                 tempBuilder.setView(colorPickerView);
                 tempBuilder.show();
-            }else if(p1==mappingButton){
+            }else if(p1==mappingButton){//设置按钮映射
                 
             }
         }
@@ -184,10 +185,26 @@ public class ModelEditorActivity extends Activity
         @Override
         public void onColorChanged(int color)
         {
+            buttonColor = color;
+            argbEditText.setText(ColorUtil.convertToARGB(color).toString());
          //   this.setBackgroundColor(color);
-            this.setOutlineSpotShadowColor(color);
-            argbEditText.setHint(ColorUtil.convertToARGB(color).toString());
-            this.setOutlineAmbientShadowColor(color);
+            this.getBackground().setColorFilter(color , PorterDuff.Mode.SRC);
+         //   this.getBackground().setTint(color); 会出现所有按钮颜色都改变的问题
+            /**
+            SRC SRC_IN  OK
+            ADD 按钮不会透明
+            SRC_OVER 同上
+            SRC_ATOP 同上
+            SCREEN 同上
+            LIGHTEN 同上
+            CLEAR 按钮只是透明，且有阴影
+            SRC_OUT 同上
+            DARKEN 是真的黑，没法用
+            DST 同上
+            OVERLAY 同上
+            MULTIPLY 有透明，无颜色
+            XOR 同上
+            */
         }
         
         
@@ -217,13 +234,6 @@ public class ModelEditorActivity extends Activity
                 default:
                     return false;
             }
-        }
-
-        
-        @Override
-        public void setBackgroundColor(int color)
-        {
-            super.setBackgroundColor(buttonColor = color);
         }
         
         
