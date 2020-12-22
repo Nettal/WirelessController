@@ -187,8 +187,9 @@ public class ModelEditorActivity extends Activity
         {
             buttonColor = color;
             argbEditText.setText(ColorUtil.convertToARGB(color).toString());
-         //   this.setBackgroundColor(color);
+         //   this.setBackgroundColor(color);//不好看
             this.getBackground().setColorFilter(color , PorterDuff.Mode.SRC);
+            this.getBackground().setAlpha(0);//按钮阴影便会消除
          //   this.getBackground().setTint(color); 会出现所有按钮颜色都改变的问题
             /**
             SRC SRC_IN  OK
@@ -197,7 +198,7 @@ public class ModelEditorActivity extends Activity
             SRC_ATOP 同上
             SCREEN 同上
             LIGHTEN 同上
-            CLEAR 按钮只是透明，且有阴影
+            CLEAR 按钮只是透明
             SRC_OUT 同上
             DARKEN 是真的黑，没法用
             DST 同上
