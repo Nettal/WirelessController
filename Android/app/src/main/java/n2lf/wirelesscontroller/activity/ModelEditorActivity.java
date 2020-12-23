@@ -30,6 +30,7 @@ import android.widget.EditText;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorPickerView;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorUtil;
 import android.graphics.PorterDuff;
+import android.text.Editable;
 
 
 public class ModelEditorActivity extends Activity
@@ -110,12 +111,12 @@ public class ModelEditorActivity extends Activity
     }
     
     
-    private class OverviewButton extends Button implements OnClickListener , ColorPickerView.OnColorChangedListener
+    private class OverviewButton extends Button implements OnClickListener , ColorPickerView.OnColorChangedListener 
     {
         Context context;
-        AlertDialog.Builder buttonEditBuilder;
-        AlertDialog.Builder tempBuilder;
-        ColorPickerView colorPickerView;
+        AlertDialog.Builder buttonEditBuilder;//多次使用
+        AlertDialog.Builder tempBuilder;//每次setView()
+        ColorPickerView colorPickerView;//多次使用
         int buttonColor;
         
         Button colorButton;
@@ -129,6 +130,8 @@ public class ModelEditorActivity extends Activity
         OverviewButton(Context context){
             super(context);
             this.context = context;
+            
+            this.getBackground().setAlpha(0);//按钮阴影便会消除
             //颜色选择
             colorPickerView = new ColorPickerView(context);
             colorPickerView.setOnColorChangedListener(this);
@@ -144,7 +147,7 @@ public class ModelEditorActivity extends Activity
             buttonHeightEditText = dialogView.findViewById(R.id.dialog_editor_editText_defaultButtonHeight);
             buttonWidthEditText = dialogView.findViewById(R.id.dialog_editor_editText_defaultButtonWidth);
             buttonNameEditText = dialogView.findViewById(R.id.dialog_editor_editText_defaultButtonName);
-            argbEditText = dialogView.findViewById(R.id.dialog_editor_editText_ARGB);
+            (argbEditText = dialogView.findViewById(R.id.dialog_editor_editText_ARGB)).addTextChangedListener(new argbEditTextWatcher(argbEditText,this));
             titleTextView = dialogView.findViewById(R.id.dialog_editor_textView_title);
             
             ScrollView scrollView = new ScrollView(context);//使其可以上下滚动
@@ -170,7 +173,7 @@ public class ModelEditorActivity extends Activity
         
         
         @Override
-        public void onClick(View p1)
+        public void onClick(View p1)//按钮单击
         {
             if(p1==colorButton){//设置颜色
                 colorPickerView.setColor(buttonColor == 0 ?  Utilities.DefaultButtonColor : buttonColor);
@@ -183,28 +186,32 @@ public class ModelEditorActivity extends Activity
         
 
         @Override
-        public void onColorChanged(int color)
+        public void onColorChanged(int color)//colorpicker的颜色变化
+        {
+            argbEditText.setText(ColorUtil.convertToARGB(color).toString());
+            this.setButtonColor(color);
+        }
+        
+        private void setButtonColor(int color)
         {
             buttonColor = color;
-            argbEditText.setText(ColorUtil.convertToARGB(color).toString());
-         //   this.setBackgroundColor(color);//不好看
+            //   this.setBackgroundColor(color);//不好看
             this.getBackground().setColorFilter(color , PorterDuff.Mode.SRC);
-            this.getBackground().setAlpha(0);//按钮阴影便会消除
-         //   this.getBackground().setTint(color); 会出现所有按钮颜色都改变的问题
+            //   this.getBackground().setTint(color); 会出现所有按钮颜色都改变的问题
             /**
-            SRC SRC_IN  OK
-            ADD 按钮不会透明
-            SRC_OVER 同上
-            SRC_ATOP 同上
-            SCREEN 同上
-            LIGHTEN 同上
-            CLEAR 按钮只是透明
-            SRC_OUT 同上
-            DARKEN 是真的黑，没法用
-            DST 同上
-            OVERLAY 同上
-            MULTIPLY 有透明，无颜色
-            XOR 同上
+             SRC SRC_IN  OK
+             ADD 按钮不会透明
+             SRC_OVER 同上
+             SRC_ATOP 同上
+             SCREEN 同上
+             LIGHTEN 同上
+             CLEAR 按钮只是透明
+             SRC_OUT 同上
+             DARKEN 是真的黑，没法用
+             DST 同上
+             OVERLAY 同上
+             MULTIPLY 有透明，无颜色
+             XOR 同上
             */
         }
         
@@ -240,6 +247,66 @@ public class ModelEditorActivity extends Activity
         
         public void editThis(){
             buttonEditBuilder.create().show();
+        }
+        
+        
+        /**
+        针对editText的事件处理，使不正确的文本更改为红色
+        */
+        
+        private class argbEditTextWatcher implements android.text.TextWatcher{
+            EditText editText;
+            OverviewButton button;
+            
+            argbEditTextWatcher(EditText editText , OverviewButton button){
+                this.editText = editText;
+                this.button = button;
+            }
+            
+            @Override
+            public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4){
+            }
+
+            @Override
+            public void onTextChanged(CharSequence p1, int p2, int p3, int p4){
+            }
+
+            @Override
+            public void afterTextChanged(Editable p1)
+            {
+                try
+                {
+                    button.setButtonColor(ColorUtil.convertToColorInt(p1.toString()));
+                    editText.setTextColor(Color.WHITE);
+                }
+                catch (Exception e)
+                {
+                    editText.setTextColor(Utilities.ErrorTextColor);
+                }
+            }
+        }
+        
+        private class buttonSizeEditTextWatcher implements android.text.TextWatcher{
+            EditText editText;
+            OverviewButton button;
+            buttonSizeEditTextWatcher(EditText editText , OverviewButton button){
+                this.editText = editText;
+                this.button = button;
+            }
+            
+            @Override
+            public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4){
+            }
+
+            @Override
+            public void onTextChanged(CharSequence p1, int p2, int p3, int p4){
+            }
+
+            @Override
+            public void afterTextChanged(Editable p1)
+            {
+                
+            }
         }
     }
     
