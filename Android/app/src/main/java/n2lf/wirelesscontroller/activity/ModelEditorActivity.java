@@ -2,7 +2,6 @@ package n2lf.wirelesscontroller.activity;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -15,8 +14,6 @@ import android.widget.PopupMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import n2lf.wirelesscontroller.utilities.Utilities;
-import android.widget.PopupMenu.OnDismissListener;
-import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.view.ViewGroup;
 import android.graphics.Color;
@@ -29,7 +26,6 @@ import android.view.LayoutInflater;
 import android.widget.EditText;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorPickerView;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorUtil;
-import android.graphics.PorterDuff;
 import android.text.Editable;
 
 
@@ -131,7 +127,6 @@ public class ModelEditorActivity extends Activity
             super(context);
             this.context = context;
             
-            this.getBackground().setAlpha(0);//按钮阴影便会消除
             //颜色选择
             colorPickerView = new ColorPickerView(context);
             colorPickerView.setOnColorChangedListener(this);
@@ -195,8 +190,9 @@ public class ModelEditorActivity extends Activity
         private void setButtonColor(int color)
         {
             buttonColor = color;
+            this.getBackground().setAlpha(0);//按钮阴影便会消除
             //   this.setBackgroundColor(color);//不好看
-            this.getBackground().setColorFilter(color , PorterDuff.Mode.SRC);
+            this.getBackground().setColorFilter(color , android.graphics.PorterDuff.Mode.SRC);
             //   this.getBackground().setTint(color); 会出现所有按钮颜色都改变的问题
             /**
              SRC SRC_IN  OK
@@ -312,7 +308,7 @@ public class ModelEditorActivity extends Activity
     
     
     
-    private class CreatFloatButton extends Button implements Runnable,OnDismissListener,OnMenuItemClickListener
+    private class CreatFloatButton extends Button implements Runnable , android.widget.PopupMenu.OnDismissListener ,android.widget.PopupMenu.OnMenuItemClickListener
     {
         Context context;
         WindowManager windowManager;
@@ -379,7 +375,7 @@ public class ModelEditorActivity extends Activity
             */
             layoutParams.flags = layoutParams.FLAG_NOT_TOUCH_MODAL|layoutParams.FLAG_NOT_FOCUSABLE|layoutParams.FLAG_FULLSCREEN;
             layoutParams.gravity=Gravity.TOP|Gravity.LEFT;
-            layoutParams.format= PixelFormat.RGBA_8888;
+            layoutParams.format= android.graphics.PixelFormat.RGBA_8888;
             layoutParams.alpha= Utilities.按钮默认透明度;
             layoutParams.x = windowManager.getDefaultDisplay().getWidth()>>1;
             layoutParams.y = windowManager.getDefaultDisplay().getHeight()>>1;//除2
