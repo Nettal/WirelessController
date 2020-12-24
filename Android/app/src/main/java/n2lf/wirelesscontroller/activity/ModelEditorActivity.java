@@ -108,7 +108,7 @@ public class ModelEditorActivity extends Activity
     }
     
     
-    private class OverviewButton extends Button implements OnClickListener , ColorPickerView.OnColorChangedListener 
+    private class OverviewButton extends Button implements OnClickListener
     {
         private Context context;
         private AlertDialog.Builder buttonEditBuilder;//多次使用
@@ -116,12 +116,15 @@ public class ModelEditorActivity extends Activity
         private ColorPickerView colorPickerView;//多次使用
         private int buttonColor;
         
-        private Button colorButton;
-        private Button mappingButton;
+        
+        private Button textColorButton;
+        private Button buttonColorButton;
+        private Button buttonMappingButton;
         private EditText buttonHeightEditText;
         private EditText buttonWidthEditText;
         private EditText buttonNameEditText;
-        private EditText argbEditText;
+        private EditText buttonARGBEditText;
+        private EditText stringARGBEditText;
         private TextView titleTextView;
         
         OverviewButton(Context context){
@@ -132,7 +135,6 @@ public class ModelEditorActivity extends Activity
             
             //颜色选择
             colorPickerView = new ColorPickerView(context);
-            colorPickerView.setOnColorChangedListener(this);
             colorPickerView.setAlphaSliderVisible(true);//这个不能去掉，否则会出现error
             tempBuilder = new AlertDialog.Builder(context);
             buttonEditBuilder = new AlertDialog.Builder(context);
@@ -140,12 +142,24 @@ public class ModelEditorActivity extends Activity
             //获取编辑dialog的控件
             View dialogView = getLayoutInflater().inflate(R.layout.dialog_editor,null);
             
-            (colorButton = dialogView.findViewById(R.id.dialog_editor_button_color)).setOnClickListener(this);
-            (mappingButton = dialogView.findViewById(R.id.dialog_editor_button_mapping)).setOnClickListener(this);
-            buttonHeightEditText = dialogView.findViewById(R.id.dialog_editor_editText_defaultButtonHeight);
-            buttonWidthEditText = dialogView.findViewById(R.id.dialog_editor_editText_defaultButtonWidth);
-            (buttonNameEditText = dialogView.findViewById(R.id.dialog_editor_editText_defaultButtonName)).addTextChangedListener(new buttonNameEditTextWatcher(buttonNameEditText,this));
-            (argbEditText = dialogView.findViewById(R.id.dialog_editor_editText_ARGB)).addTextChangedListener(new argbEditTextWatcher(argbEditText,this));
+            (textColorButton = dialogView.findViewById(R.id.dialog_editor_button_textColor)).setOnClickListener(this);
+            (buttonColorButton = dialogView.findViewById(R.id.dialog_editor_button_buttonColor)).setOnClickListener(this);
+            (buttonMappingButton = dialogView.findViewById(R.id.dialog_editor_button_buttonMapping)).setOnClickListener(this);
+            buttonHeightEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonHeight);
+            buttonWidthEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonWidth);
+            (buttonNameEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonName)).addTextChangedListener(new buttonNameEditTextWatcher(buttonNameEditText,this));
+            (buttonARGBEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonARGB)).addTextChangedListener(new argbEditTextWatcher(buttonARGBEditText, new ColorPickerView.OnColorChangedListener(){
+                                                                                                                      @Override
+                                                                                                                      public void onColorChanged(int color){
+                                                                                                                          OverviewButton.this.setButtonColor(color);
+                                                                                                                      }
+                                                                                                                  }));
+            (stringARGBEditText = dialogView.findViewById(R.id.dialog_editor_editText_textARGB)).addTextChangedListener(new argbEditTextWatcher(stringARGBEditText, new ColorPickerView.OnColorChangedListener(){
+                                                                                                                       @Override
+                                                                                                                       public void onColorChanged(int color){
+                                                                                                                           OverviewButton.this.setTextColor(color);
+                                                                                                                       }
+                                                                                                                   }));;
             titleTextView = dialogView.findViewById(R.id.dialog_editor_textView_title);
             
             ScrollView scrollView = new ScrollView(context);//使其可以上下滚动
@@ -173,22 +187,33 @@ public class ModelEditorActivity extends Activity
         @Override
         public void onClick(View p1)//按钮单击
         {
-            if(p1==colorButton){//设置颜色
+            if(p1==buttonColorButton){//设置颜色
+                colorPickerView.setOnColorChangedListener(new ColorPickerView.OnColorChangedListener(){
+                        @Override
+                        public void onColorChanged(int color){
+                            buttonARGBEditText.setText(ColorUtil.convertToARGB(color).toString());
+                            OverviewButton.this.setButtonColor(color);
+                        }
+                    });
                 colorPickerView.setColor(buttonColor == 0 ?  Utilities.DefaultButtonColor : buttonColor);
                 tempBuilder.setView(colorPickerView);
                 tempBuilder.show();
-            }else if(p1==mappingButton){//设置按钮映射
+            }else if(p1==textColorButton){
+                colorPickerView.setOnColorChangedListener(new ColorPickerView.OnColorChangedListener(){
+                        @Override
+                        public void onColorChanged(int color){
+                            stringARGBEditText.setText(ColorUtil.convertToARGB(color).toString());
+                            OverviewButton.this.setTextColor(color);
+                        }
+                    });
+                colorPickerView.setColor(buttonColor == 0 ?  Utilities.DefaultStringColor : buttonColor);
+                tempBuilder.setView(colorPickerView);
+                tempBuilder.show();
+            }else if(p1==buttonMappingButton){//设置按钮映射
                 
             }
         }
-        
-
-        @Override
-        public void onColorChanged(int color)//colorpicker的颜色变化
-        {
-            argbEditText.setText(ColorUtil.convertToARGB(color).toString());
-            this.setButtonColor(color);
-        }
+     
         
         private void setButtonColor(int color)
         {
@@ -255,11 +280,11 @@ public class ModelEditorActivity extends Activity
         
         private class argbEditTextWatcher implements android.text.TextWatcher{
             EditText editText;
-            OverviewButton button;
+            ColorPickerView.OnColorChangedListener onColorChangedListener;
             
-            argbEditTextWatcher(EditText editText , OverviewButton button){
+            argbEditTextWatcher(EditText editText , ColorPickerView.OnColorChangedListener onColorChangedListener){
                 this.editText = editText;
-                this.button = button;
+                this.onColorChangedListener = onColorChangedListener;
             }
             
             @Override
@@ -275,7 +300,7 @@ public class ModelEditorActivity extends Activity
             {
                 try
                 {
-                    button.setButtonColor(ColorUtil.convertToColorInt(p1.toString()));
+                    onColorChangedListener.onColorChanged(ColorUtil.convertToColorInt(p1.toString()));
                     editText.setTextColor(Color.WHITE);
                 }
                 catch (Exception e)

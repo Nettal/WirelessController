@@ -10,7 +10,7 @@
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
 		android:layout_gravity="center"
-		android:textSize="40sp"
+		android:textSize="30sp"
 		android:id="@+id/dialog_editor_textView_title">
 
 	</TextView>
@@ -24,16 +24,16 @@
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:text="设置按钮映射"
-			android:id="@+id/dialog_editor_button_mapping">
+			android:id="@+id/dialog_editor_button_buttonMapping">
 
 		</Button>
 
 		<EditText
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:layout_toRightOf="@id/dialog_editor_button_mapping"
+			android:layout_toRightOf="@id/dialog_editor_button_buttonMapping"
 			android:hint="按钮名称"
-			android:id="@+id/dialog_editor_editText_defaultButtonName">
+			android:id="@+id/dialog_editor_editText_buttonName">
 
 		</EditText>
 
@@ -48,16 +48,40 @@
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:text="设置按钮颜色"
-			android:id="@+id/dialog_editor_button_color">
+			android:id="@+id/dialog_editor_button_buttonColor">
 
 		</Button>
 
 		<EditText
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:layout_toRightOf="@id/dialog_editor_button_color"
+			android:layout_toRightOf="@id/dialog_editor_button_buttonColor"
 			android:hint="#ARGB"
-			android:id="@+id/dialog_editor_editText_ARGB">
+			android:id="@+id/dialog_editor_editText_buttonARGB">
+
+		</EditText>
+
+	</RelativeLayout>
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center">
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="设置文本颜色"
+			android:id="@+id/dialog_editor_button_textColor">
+
+		</Button>
+
+		<EditText
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_toRightOf="@id/dialog_editor_button_textColor"
+			android:hint="#ARGB"
+			android:id="@+id/dialog_editor_editText_textARGB">
 
 		</EditText>
 
@@ -71,7 +95,7 @@
 		<EditText
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:id="@+id/dialog_editor_editText_defaultButtonHeight"
+			android:id="@+id/dialog_editor_editText_buttonHeight"
 			android:hint="按钮高度">
 
 		</EditText>
@@ -79,9 +103,9 @@
 		<EditText
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:layout_toRightOf="@id/dialog_editor_editText_defaultButtonHeight"
+			android:layout_toRightOf="@id/dialog_editor_editText_buttonHeight"
 			android:hint="按钮宽度"
-			android:id="@+id/dialog_editor_editText_defaultButtonWidth">
+			android:id="@+id/dialog_editor_editText_buttonWidth">
 
 		</EditText>
 
