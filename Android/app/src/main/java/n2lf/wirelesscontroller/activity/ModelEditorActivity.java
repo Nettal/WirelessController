@@ -27,12 +27,13 @@ import android.widget.EditText;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorPickerView;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorUtil;
 import android.text.Editable;
+import android.text.TextWatcher;
 
 
 public class ModelEditorActivity extends Activity
 {
     private RelativeLayout relativeLayout;
-    private TextView textView;
+    private TextView onEditTextView;
     private boolean isOnAddEvent = false;
     
     @Override
@@ -41,18 +42,18 @@ public class ModelEditorActivity extends Activity
         super.onCreate(savedInstanceState);
         this.getActionBar().hide();
         this.setContentView(relativeLayout = new RelativeLayout(this));
-        textView = new TextView(this);
-        textView.setTextSize(Utilities.字体大小);
-        textView.setGravity(Gravity.CENTER);
+        onEditTextView = new TextView(this);
+        onEditTextView.setTextSize(Utilities.字体大小);
+        onEditTextView.setGravity(Gravity.CENTER);
         RelativeLayout.LayoutParams rLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         rLP.addRule(RelativeLayout.CENTER_VERTICAL);
-        relativeLayout.addView(textView,rLP);
+        relativeLayout.addView(onEditTextView,rLP);
         relativeLayout.post(new CreatFloatButton(this));//延时添加按钮，否则会throw
     }
     
     private boolean addButtonStarted(){
         isOnAddEvent = true;
-        textView.setText(Utilities.点击选取位置[0]);//点击以选取按钮位置
+        onEditTextView.setText(Utilities.点击选取位置[0]);//点击以选取按钮位置
         relativeLayout.setBackgroundColor(Utilities.EditorBackgroundColor);
         relativeLayout.setOnTouchListener(new onButtonAddTouchListener());
         return true;
@@ -60,7 +61,7 @@ public class ModelEditorActivity extends Activity
     
     private boolean addFinished(){
         isOnAddEvent = false;
-        textView.setText("");
+        onEditTextView.setText("");
         relativeLayout.setBackgroundColor(Color.alpha(0));
         relativeLayout.setOnTouchListener(null);//it is ok
         return true;
@@ -109,23 +110,25 @@ public class ModelEditorActivity extends Activity
     
     private class OverviewButton extends Button implements OnClickListener , ColorPickerView.OnColorChangedListener 
     {
-        Context context;
-        AlertDialog.Builder buttonEditBuilder;//多次使用
-        AlertDialog.Builder tempBuilder;//每次setView()
-        ColorPickerView colorPickerView;//多次使用
-        int buttonColor;
+        private Context context;
+        private AlertDialog.Builder buttonEditBuilder;//多次使用
+        private AlertDialog.Builder tempBuilder;//每次setView()
+        private ColorPickerView colorPickerView;//多次使用
+        private int buttonColor;
         
-        Button colorButton;
-        Button mappingButton;
-        EditText buttonHeightEditText;
-        EditText buttonWidthEditText;
-        EditText buttonNameEditText;
-        EditText argbEditText;
-        TextView titleTextView;
+        private Button colorButton;
+        private Button mappingButton;
+        private EditText buttonHeightEditText;
+        private EditText buttonWidthEditText;
+        private EditText buttonNameEditText;
+        private EditText argbEditText;
+        private TextView titleTextView;
         
         OverviewButton(Context context){
             super(context);
             this.context = context;
+            //原生按钮
+            this.setAllCaps(false);
             
             //颜色选择
             colorPickerView = new ColorPickerView(context);
@@ -141,7 +144,7 @@ public class ModelEditorActivity extends Activity
             (mappingButton = dialogView.findViewById(R.id.dialog_editor_button_mapping)).setOnClickListener(this);
             buttonHeightEditText = dialogView.findViewById(R.id.dialog_editor_editText_defaultButtonHeight);
             buttonWidthEditText = dialogView.findViewById(R.id.dialog_editor_editText_defaultButtonWidth);
-            buttonNameEditText = dialogView.findViewById(R.id.dialog_editor_editText_defaultButtonName);
+            (buttonNameEditText = dialogView.findViewById(R.id.dialog_editor_editText_defaultButtonName)).addTextChangedListener(new buttonNameEditTextWatcher(buttonNameEditText,this));
             (argbEditText = dialogView.findViewById(R.id.dialog_editor_editText_ARGB)).addTextChangedListener(new argbEditTextWatcher(argbEditText,this));
             titleTextView = dialogView.findViewById(R.id.dialog_editor_textView_title);
             
@@ -302,6 +305,29 @@ public class ModelEditorActivity extends Activity
             public void afterTextChanged(Editable p1)
             {
                 
+            }
+        }
+        
+        private class buttonNameEditTextWatcher implements android.text.TextWatcher{
+            EditText editText;
+            OverviewButton button;
+            buttonNameEditTextWatcher(EditText editText , OverviewButton button){
+                this.editText = editText;
+                this.button = button;
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4){
+            }
+
+            @Override
+            public void onTextChanged(CharSequence p1, int p2, int p3, int p4){
+            }
+
+            @Override
+            public void afterTextChanged(Editable p1)
+            {
+                button.setText(p1);
             }
         }
     }
