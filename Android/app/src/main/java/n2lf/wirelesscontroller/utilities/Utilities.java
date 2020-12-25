@@ -10,8 +10,9 @@ import android.graphics.Color;
 public class Utilities
 {
     public static float 偏移量 = 5;
-    public static float 按钮默认大小的乘数 = 0.06f;
+    public static float 按钮默认大小的比例 = 0.06f;
     public static float 按钮默认透明度 = 0.7f;
+    public static float ColorPickerView的屏幕比例 = 0.8f;
     public static String[] 添加界面的按键文字 = {"完成","添加按钮","添加触摸板"};//逻辑实现在ModelCreatorActivity
     public static String[] 点击选取位置 = {"点击以选取按钮位置","拖动以划定触摸区域"};
     public static String[] 确定删除 = {"确定","删除"};
@@ -27,8 +28,11 @@ public class Utilities
     public static int getScreenHeight(Context context){
         return ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getHeight();
     }
+    public static int getMinScreenSize(Context context){
+        return (int) (Math.min(getScreenHeight(context),getScreenWidth(context)));
+    }  
     public static int getDefaultButtonSize(Context context){
-        return (int) (Math.max(getScreenHeight(context),getScreenWidth(context))*按钮默认大小的乘数);
+        return (int) (Math.max(getScreenHeight(context),getScreenWidth(context))*按钮默认大小的比例);
     }  
     public static boolean checkAndAllowOverlayPermission(Context context){
         if(Settings.canDrawOverlays(context)){

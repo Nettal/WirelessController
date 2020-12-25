@@ -111,7 +111,7 @@ public class ModelEditorActivity extends Activity
     private class OverviewButton extends Button implements OnClickListener
     {
         private Context context;
-        private AlertDialog.Builder buttonEditBuilder;//多次使用
+        private AlertDialog.Builder buttonEditorBuilder;//多次使用
         private AlertDialog.Builder tempBuilder;//每次setView()
         private ColorPickerView colorPickerView;//多次使用
         private int buttonColor;
@@ -137,7 +137,7 @@ public class ModelEditorActivity extends Activity
             colorPickerView = new ColorPickerView(context);
             colorPickerView.setAlphaSliderVisible(true);//这个不能去掉，否则会出现error
             tempBuilder = new AlertDialog.Builder(context);
-            buttonEditBuilder = new AlertDialog.Builder(context);
+            buttonEditorBuilder = new AlertDialog.Builder(context);
             
             //获取编辑dialog的控件
             View dialogView = getLayoutInflater().inflate(R.layout.dialog_editor,null);
@@ -164,16 +164,16 @@ public class ModelEditorActivity extends Activity
             
             ScrollView scrollView = new ScrollView(context);//使其可以上下滚动
             scrollView.addView(dialogView);
-            buttonEditBuilder.setView(scrollView);
-            buttonEditBuilder.setPositiveButton(Utilities.确定删除[0],//确定
+            buttonEditorBuilder.setView(scrollView);
+            buttonEditorBuilder.setPositiveButton(Utilities.确定删除[0],//确定
                 new android.content.DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface p1, int p2)
                     {
-                        buttonEditBuilder.create().dismiss();
+                        buttonEditorBuilder.create().dismiss();
                     }
                 });
-            buttonEditBuilder.setNegativeButton(Utilities.确定删除[1],//删除
+            buttonEditorBuilder.setNegativeButton(Utilities.确定删除[1],//删除
                 new android.content.DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface p1, int p2)
@@ -197,7 +197,7 @@ public class ModelEditorActivity extends Activity
                     });
                 colorPickerView.setColor(buttonColor == 0 ?  Utilities.DefaultButtonColor : buttonColor);
                 tempBuilder.setView(colorPickerView);
-                tempBuilder.show();
+                tempBuilder.show().getWindow().setLayout((int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerView的屏幕比例),(int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerView的屏幕比例));
             }else if(p1==textColorButton){
                 colorPickerView.setOnColorChangedListener(new ColorPickerView.OnColorChangedListener(){
                         @Override
@@ -208,7 +208,7 @@ public class ModelEditorActivity extends Activity
                     });
                 colorPickerView.setColor(buttonColor == 0 ?  Utilities.DefaultStringColor : buttonColor);
                 tempBuilder.setView(colorPickerView);
-                tempBuilder.show();
+                tempBuilder.show().getWindow().setLayout((int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerView的屏幕比例), (int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerView的屏幕比例));
             }else if(p1==buttonMappingButton){//设置按钮映射
                 
             }
@@ -270,7 +270,7 @@ public class ModelEditorActivity extends Activity
         
         
         public void editThis(){
-            buttonEditBuilder.create().show();
+            buttonEditorBuilder.show();
         }
         
         
