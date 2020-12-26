@@ -27,7 +27,7 @@ import android.widget.EditText;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorPickerView;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorUtil;
 import android.text.Editable;
-import android.text.TextWatcher;
+
 
 
 public class ModelEditorActivity extends Activity
@@ -46,7 +46,7 @@ public class ModelEditorActivity extends Activity
         onEditTextView.setTextSize(Utilities.字体大小);
         onEditTextView.setGravity(Gravity.CENTER);
         RelativeLayout.LayoutParams rLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        rLP.addRule(RelativeLayout.CENTER_VERTICAL);
+        rLP.addRule(RelativeLayout.CENTER_VERTICAL);//线性布局在action_down时不会显示button bug？
         relativeLayout.addView(onEditTextView,rLP);
         relativeLayout.post(new CreatFloatButton(this));//延时添加按钮，否则会throw
     }
@@ -84,12 +84,7 @@ public class ModelEditorActivity extends Activity
                     lastX = (int) (onDownX = event.getX());
                     lastY = (int) (onDownY = event.getY());
                     overviewButton = new OverviewButton(ModelEditorActivity.this);
-           /*       tempButton.setHeight(Utilities.getDefaultButtonSize(ModelCreatorActivity.this));
-                    tempButton.setWidth(Utilities.getDefaultButtonSize(ModelCreatorActivity.this));
-                    这个不行*/
-                    buttonSize = Utilities.getDefaultButtonSize(ModelEditorActivity.this);
-                    overviewButton.setHeight(buttonSize);//用来保存大小，后面直接获取按钮大小
-                    overviewButton.setWidth(buttonSize);
+                    buttonSize = Utilities.getButtonSize(ModelEditorActivity.this , Utilities.DefaultButtonScreenRatio);
                     overviewButton.setX(onDownX-buttonSize/2);//否则按钮会在点击位置的右下角
                     overviewButton.setY(onDownY-buttonSize/2);    
                     relativeLayout.addView(overviewButton,buttonSize,buttonSize);
@@ -110,13 +105,15 @@ public class ModelEditorActivity extends Activity
     
     private class OverviewButton extends Button implements OnClickListener
     {
+        private float widthScreenRatio;
+        private float heightScreenRatio;
         private Context context;
         private AlertDialog.Builder buttonEditorBuilder;//多次使用
         private AlertDialog.Builder tempBuilder;//每次setView()
         private ColorPickerView colorPickerView;//多次使用
         private int buttonColor;
         
-        
+        //dialog 控件
         private Button textColorButton;
         private Button buttonColorButton;
         private Button buttonMappingButton;
@@ -130,9 +127,10 @@ public class ModelEditorActivity extends Activity
         OverviewButton(Context context){
             super(context);
             this.context = context;
+            this.widthScreenRatio = this.heightScreenRatio = Utilities.DefaultButtonScreenRatio;
             //原生按钮
-            this.setAllCaps(false);
-            
+            this.setAllCaps(false);//字母自动大写
+            this.setAutoSizeTextTypeWithDefaults(Button.AUTO_SIZE_TEXT_TYPE_UNIFORM);//根据文字多少改变字体大小
             //颜色选择
             colorPickerView = new ColorPickerView(context);
             colorPickerView.setAlphaSliderVisible(true);//这个不能去掉，否则会出现error
@@ -145,8 +143,22 @@ public class ModelEditorActivity extends Activity
             (textColorButton = dialogView.findViewById(R.id.dialog_editor_button_textColor)).setOnClickListener(this);
             (buttonColorButton = dialogView.findViewById(R.id.dialog_editor_button_buttonColor)).setOnClickListener(this);
             (buttonMappingButton = dialogView.findViewById(R.id.dialog_editor_button_buttonMapping)).setOnClickListener(this);
-            buttonHeightEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonHeight);
-            buttonWidthEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonWidth);
+            (buttonWidthEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonWidth)).addTextChangedListener(
+                new buttonSizeEditTextWatcher(buttonWidthEditText , new Utilities.FloatChangeListener(){
+                        @Override
+                        public void onFloatChange(float f){
+                            widthScreenRatio = f;  /*不能太小，不然不会显示*/
+                            relativeLayout.updateViewLayout(OverviewButton.this , new RelativeLayout.LayoutParams((int)(f*Utilities.getScreenWidth(OverviewButton.this.context)),OverviewButton.this.getHeight()));
+                        }
+                    }));
+            (buttonHeightEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonHeight)).addTextChangedListener(
+                new buttonSizeEditTextWatcher(buttonHeightEditText , new Utilities.FloatChangeListener(){
+                        @Override
+                        public void onFloatChange(float f){
+                            heightScreenRatio = f;   /*不能太小*/
+                            relativeLayout.updateViewLayout(OverviewButton.this , new RelativeLayout.LayoutParams(OverviewButton.this.getWidth(),(int)(f*Utilities.getScreenHeight(OverviewButton.this.context))));
+                        }
+                    }));
             (buttonNameEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonName)).addTextChangedListener(new buttonNameEditTextWatcher(buttonNameEditText,this));
             (buttonARGBEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonARGB)).addTextChangedListener(new argbEditTextWatcher(buttonARGBEditText, new ColorPickerView.OnColorChangedListener(){
                                                                                                                       @Override
@@ -159,7 +171,7 @@ public class ModelEditorActivity extends Activity
                                                                                                                        public void onColorChanged(int color){
                                                                                                                            OverviewButton.this.setTextColor(color);
                                                                                                                        }
-                                                                                                                   }));;
+                                                                                                                   }));
             titleTextView = dialogView.findViewById(R.id.dialog_editor_textView_title);
             
             ScrollView scrollView = new ScrollView(context);//使其可以上下滚动
@@ -197,7 +209,7 @@ public class ModelEditorActivity extends Activity
                     });
                 colorPickerView.setColor(buttonColor == 0 ?  Utilities.DefaultButtonColor : buttonColor);
                 tempBuilder.setView(colorPickerView);
-                tempBuilder.show().getWindow().setLayout((int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerView的屏幕比例),(int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerView的屏幕比例));
+                tempBuilder.show().getWindow().setLayout((int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerViewScreenRatio),(int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerViewScreenRatio));
             }else if(p1==textColorButton){
                 colorPickerView.setOnColorChangedListener(new ColorPickerView.OnColorChangedListener(){
                         @Override
@@ -206,39 +218,14 @@ public class ModelEditorActivity extends Activity
                             OverviewButton.this.setTextColor(color);
                         }
                     });
-                colorPickerView.setColor(buttonColor == 0 ?  Utilities.DefaultStringColor : buttonColor);
+                colorPickerView.setColor(this.getTextColors().getDefaultColor());
                 tempBuilder.setView(colorPickerView);
-                tempBuilder.show().getWindow().setLayout((int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerView的屏幕比例), (int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerView的屏幕比例));
+                tempBuilder.show().getWindow().setLayout((int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerViewScreenRatio), (int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerViewScreenRatio));
             }else if(p1==buttonMappingButton){//设置按钮映射
                 
             }
         }
      
-        
-        private void setButtonColor(int color)
-        {
-            buttonColor = color;
-            this.getBackground().setAlpha(0);//按钮阴影便会消除
-            //   this.setBackgroundColor(color);//不好看
-            this.getBackground().setColorFilter(color , android.graphics.PorterDuff.Mode.SRC);
-            //   this.getBackground().setTint(color); 会出现所有按钮颜色都改变的问题
-            /**
-             SRC SRC_IN  OK
-             ADD 按钮不会透明
-             SRC_OVER 同上
-             SRC_ATOP 同上
-             SCREEN 同上
-             LIGHTEN 同上
-             CLEAR 按钮只是透明
-             SRC_OUT 同上
-             DARKEN 是真的黑，没法用
-             DST 同上
-             OVERLAY 同上
-             MULTIPLY 有透明，无颜色
-             XOR 同上
-            */
-        }
-        
         
         private float lastX;
         private float lastY;
@@ -266,6 +253,31 @@ public class ModelEditorActivity extends Activity
                 default:
                     return false;
             }
+        }
+    
+
+        private void setButtonColor(int color)
+        {
+            buttonColor = color;
+            this.getBackground().setAlpha(0);//按钮阴影便会消除
+            //   this.setBackgroundColor(color);//不好看
+            this.getBackground().setColorFilter(color , android.graphics.PorterDuff.Mode.SRC);
+            //   this.getBackground().setTint(color); 会出现所有按钮颜色都改变的问题
+            /**
+             SRC SRC_IN  OK
+             ADD 按钮不会透明
+             SRC_OVER 同上
+             SRC_ATOP 同上
+             SCREEN 同上
+             LIGHTEN 同上
+             CLEAR 按钮只是透明
+             SRC_OUT 同上
+             DARKEN 是真的黑，没法用
+             DST 同上
+             OVERLAY 同上
+             MULTIPLY 有透明，无颜色
+             XOR 同上
+            */
         }
         
         
@@ -312,10 +324,10 @@ public class ModelEditorActivity extends Activity
         
         private class buttonSizeEditTextWatcher implements android.text.TextWatcher{
             EditText editText;
-            OverviewButton button;
-            buttonSizeEditTextWatcher(EditText editText , OverviewButton button){
+            Utilities.FloatChangeListener floatChangeListener;
+            buttonSizeEditTextWatcher(EditText editText , Utilities.FloatChangeListener floatChangeListener){
                 this.editText = editText;
-                this.button = button;
+                this.floatChangeListener = floatChangeListener;
             }
             
             @Override
@@ -329,7 +341,19 @@ public class ModelEditorActivity extends Activity
             @Override
             public void afterTextChanged(Editable p1)
             {
-                
+                try{
+                    float f = Float.valueOf(p1.toString()); 
+                    System.out.println(f);
+                    if(f >= 1.0f || f < 0.029999999){
+                        editText.setTextColor(Utilities.ErrorTextColor);
+                        return;
+                    }
+                    floatChangeListener.onFloatChange(f);
+                    editText.setTextColor(Color.WHITE);
+               }catch(Exception e){
+                   e.printStackTrace();
+                   editText.setTextColor(Utilities.ErrorTextColor);
+               }
             }
         }
         
@@ -427,10 +451,10 @@ public class ModelEditorActivity extends Activity
             layoutParams.flags = layoutParams.FLAG_NOT_TOUCH_MODAL|layoutParams.FLAG_NOT_FOCUSABLE|layoutParams.FLAG_FULLSCREEN;
             layoutParams.gravity=Gravity.TOP|Gravity.LEFT;
             layoutParams.format= android.graphics.PixelFormat.RGBA_8888;
-            layoutParams.alpha= Utilities.按钮默认透明度;
+            layoutParams.alpha= Utilities.DefaultButtonAlpha;
             layoutParams.x = windowManager.getDefaultDisplay().getWidth()>>1;
             layoutParams.y = windowManager.getDefaultDisplay().getHeight()>>1;//除2
-            layoutParams.width = (layoutParams.height = Utilities.getDefaultButtonSize(ModelEditorActivity.this));
+            layoutParams.width = (layoutParams.height = Utilities.getButtonSize(ModelEditorActivity.this , Utilities.DefaultButtonScreenRatio));
             windowManager.addView(this , layoutParams);
         }  
         

@@ -96,7 +96,7 @@
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:id="@+id/dialog_editor_editText_buttonHeight"
-			android:hint="按钮高度">
+			android:hint="高之比">
 
 		</EditText>
 
@@ -104,7 +104,7 @@
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:layout_toRightOf="@id/dialog_editor_editText_buttonHeight"
-			android:hint="按钮宽度"
+			android:hint="宽之比"
 			android:id="@+id/dialog_editor_editText_buttonWidth">
 
 		</EditText>
