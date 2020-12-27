@@ -57,7 +57,9 @@
 			android:layout_width="wrap_content"
 			android:layout_toRightOf="@id/dialog_editor_button_buttonColor"
 			android:hint="#ARGB"
-			android:id="@+id/dialog_editor_editText_buttonARGB">
+			android:id="@+id/dialog_editor_editText_buttonARGB"
+			android:maxLines="1"
+			android:inputType="text">
 
 		</EditText>
 
@@ -81,7 +83,9 @@
 			android:layout_width="wrap_content"
 			android:layout_toRightOf="@id/dialog_editor_button_textColor"
 			android:hint="#ARGB"
-			android:id="@+id/dialog_editor_editText_textARGB">
+			android:id="@+id/dialog_editor_editText_textARGB"
+			android:maxLines="1"
+			android:inputType="text">
 
 		</EditText>
 
@@ -96,7 +100,8 @@
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:id="@+id/dialog_editor_editText_buttonHeight"
-			android:hint="高之比">
+			android:hint="高之比"
+			android:inputType="numberDecimal">
 
 		</EditText>
 
@@ -105,7 +110,8 @@
 			android:layout_width="wrap_content"
 			android:layout_toRightOf="@id/dialog_editor_editText_buttonHeight"
 			android:hint="宽之比"
-			android:id="@+id/dialog_editor_editText_buttonWidth">
+			android:id="@+id/dialog_editor_editText_buttonWidth"
+			android:inputType="numberDecimal">
 
 		</EditText>
 
