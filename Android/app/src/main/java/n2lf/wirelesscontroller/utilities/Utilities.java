@@ -10,7 +10,8 @@ import android.graphics.Color;
 public class Utilities
 {
     public static float 偏移量 = 5;
-    public static float DefaultButtonScreenRatio = 0.06f;
+    public static float DefaultButtonSizeScreenRatio = 0.06f;
+    public static float MiniButtonSizeScreenRatio = 0.04f;
     public static float DefaultButtonAlpha = 0.7f;
     public static float ColorPickerViewScreenRatio = 0.8f;
     public static String[] 添加界面的按键文字 = {"完成","添加按钮","添加触摸板"};//逻辑实现在ModelCreatorActivity
@@ -45,7 +46,7 @@ public class Utilities
     }
     
     public interface FloatChangeListener{
-        public void onFloatChange(float f)
+        public boolean onFloatChange(float f)
     }
     
 }

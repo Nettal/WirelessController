@@ -2,12 +2,24 @@ package n2lf.wirelesscontroller.utilities;
 
 public class KeyCode {
     
+    public static String[] getAllKeyName(){
+        String string[] = new String[KeyCode.getKeyBoardCodeList().length+KeyCode.getMouseCodeList().length];
+        for(int i = 0;i<KeyCode.getKeyBoardCodeList().length;i++){
+            string[i] = KeyCode.getKeyBoardKeyName(KeyCode.getKeyBoardCodeList()[i]);
+        }
+        for(int i = 0; i <KeyCode.getMouseCodeList().length;i++){
+            string[i+KeyCode.getKeyBoardCodeList().length] = KeyCode.getMouseKeyName(KeyCode.getMouseCodeList()[i]);
+        }
+        return string;
+    }
     
     
-    
-    
-    
-    
+    public static int[] getAllKeyCode(){
+        int[] keyCode = new int[getKeyBoardCodeList().length+getMouseCodeList().length];
+        System.arraycopy(getKeyBoardCodeList() , 0 , keyCode , 0 , getKeyBoardCodeList().length);
+        System.arraycopy(getMouseCodeList() , 0 , keyCode , getKeyBoardCodeList().length , getMouseCodeList().length);
+        return keyCode;
+    }
     
     
     /**

@@ -27,7 +27,7 @@ import android.widget.EditText;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorPickerView;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorUtil;
 import android.text.Editable;
-
+import n2lf.wirelesscontroller.utilities.KeyCode;
 
 
 public class ModelEditorActivity extends Activity
@@ -50,6 +50,7 @@ public class ModelEditorActivity extends Activity
         relativeLayout.addView(onEditTextView,rLP);
         relativeLayout.post(new CreatFloatButton(this));//延时添加按钮，否则会throw
     }
+    
     
     private boolean addButtonStarted(){
         isOnAddEvent = true;
@@ -84,7 +85,7 @@ public class ModelEditorActivity extends Activity
                     lastX = (int) (onDownX = event.getX());
                     lastY = (int) (onDownY = event.getY());
                     overviewButton = new OverviewButton(ModelEditorActivity.this);
-                    buttonSize = Utilities.getButtonSize(ModelEditorActivity.this , Utilities.DefaultButtonScreenRatio);
+                    buttonSize = Utilities.getButtonSize(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio);
                     overviewButton.setX(onDownX-buttonSize/2);//否则按钮会在点击位置的右下角
                     overviewButton.setY(onDownY-buttonSize/2);    
                     relativeLayout.addView(overviewButton,buttonSize,buttonSize);
@@ -103,16 +104,17 @@ public class ModelEditorActivity extends Activity
     }
     
     
-    private class OverviewButton extends Button implements OnClickListener
+    private class OverviewButton extends Button
     {
         private float widthScreenRatio;
         private float heightScreenRatio;
         private Context context;
         private AlertDialog.Builder buttonEditorBuilder;//多次使用
         private AlertDialog.Builder tempBuilder;//每次setView()
+        private AlertDialog.Builder buttonMappingBuilder;//
         private ColorPickerView colorPickerView;//多次使用
         private int buttonColor;
-        
+        private int keyCodeIndex;
         //dialog 控件
         private Button textColorButton;
         private Button buttonColorButton;
@@ -127,8 +129,9 @@ public class ModelEditorActivity extends Activity
         OverviewButton(Context context){
             super(context);
             this.context = context;
-            this.widthScreenRatio = this.heightScreenRatio = Utilities.DefaultButtonScreenRatio;
+            keyCodeIndex = -1;
             //原生按钮
+            this.widthScreenRatio = this.heightScreenRatio = Utilities.DefaultButtonSizeScreenRatio;
             this.setAllCaps(false);//字母自动大写
             this.setAutoSizeTextTypeWithDefaults(Button.AUTO_SIZE_TEXT_TYPE_UNIFORM);//根据文字多少改变字体大小
             //颜色选择
@@ -136,96 +139,141 @@ public class ModelEditorActivity extends Activity
             colorPickerView.setAlphaSliderVisible(true);//这个不能去掉，否则会出现error
             tempBuilder = new AlertDialog.Builder(context);
             buttonEditorBuilder = new AlertDialog.Builder(context);
+            buttonMappingBuilder = new AlertDialog.Builder(context);
             
             //获取编辑dialog的控件
             View dialogView = getLayoutInflater().inflate(R.layout.dialog_editor,null);
             
-            (textColorButton = dialogView.findViewById(R.id.dialog_editor_button_textColor)).setOnClickListener(this);
-            (buttonColorButton = dialogView.findViewById(R.id.dialog_editor_button_buttonColor)).setOnClickListener(this);
-            (buttonMappingButton = dialogView.findViewById(R.id.dialog_editor_button_buttonMapping)).setOnClickListener(this);
+            (textColorButton = dialogView.findViewById(R.id.dialog_editor_button_textColor)).setOnClickListener(
+                new OnClickListener(){
+                    @Override
+                    public void onClick(View p1){
+                        colorPickerView.setOnColorChangedListener(new ColorPickerView.OnColorChangedListener(){
+                                @Override
+                                public void onColorChanged(int color){
+                                    stringARGBEditText.setText(ColorUtil.convertToARGB(color).toString());
+                                    OverviewButton.this.setTextColor(color);
+                                }
+                            });
+                        colorPickerView.setColor(OverviewButton.this.getTextColors().getDefaultColor());
+                        tempBuilder.setView(colorPickerView);
+                        int dialogSize = (int)(Utilities.getMinScreenSize(OverviewButton.this.getContext())*Utilities.ColorPickerViewScreenRatio);
+                        tempBuilder.show().getWindow().setLayout(dialogSize ,dialogSize);
+                    }
+                });
+                
+            (buttonColorButton = dialogView.findViewById(R.id.dialog_editor_button_buttonColor)).setOnClickListener(
+                new OnClickListener(){
+                    @Override
+                    public void onClick(View p1){
+                        colorPickerView.setOnColorChangedListener(new ColorPickerView.OnColorChangedListener(){
+                                @Override
+                                public void onColorChanged(int color){
+                                    buttonARGBEditText.setText(ColorUtil.convertToARGB(color).toString());
+                                    OverviewButton.this.setButtonColor(color);
+                                }
+                            });
+                        colorPickerView.setColor(buttonColor == 0 ?  Utilities.DefaultButtonColor : buttonColor);
+                        tempBuilder.setView(colorPickerView);
+                        int dialogSize = (int)(Utilities.getMinScreenSize(OverviewButton.this.getContext())*Utilities.ColorPickerViewScreenRatio);
+                        tempBuilder.show().getWindow().setLayout(dialogSize , dialogSize);
+                    }
+                });
+                
+            (buttonMappingButton = dialogView.findViewById(R.id.dialog_editor_button_buttonMapping)).setOnClickListener(
+                new OnClickListener(){
+                    @Override
+                    public void onClick(View p1){
+                        buttonMappingBuilder.show();
+                    }
+                });
+            buttonMappingButton.setAllCaps(false);
+            
             (buttonWidthEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonWidth)).addTextChangedListener(
                 new buttonSizeEditTextWatcher(buttonWidthEditText , new Utilities.FloatChangeListener(){
                         @Override
-                        public void onFloatChange(float f){
-                            widthScreenRatio = f;  /*不能太小，不然不会显示*/
+                        public boolean onFloatChange(float f){
+                            if(f*Utilities.getScreenWidth(OverviewButton.this.context)>=Utilities.MiniButtonSizeScreenRatio*Utilities.getMinScreenSize(OverviewButton.this.getContext())){//判断是否过小
+                            widthScreenRatio = f;  /*不能太小，不然不会显示，此处为大小合适*/
                             relativeLayout.updateViewLayout(OverviewButton.this , new RelativeLayout.LayoutParams((int)(f*Utilities.getScreenWidth(OverviewButton.this.context)),OverviewButton.this.getHeight()));
+                            return true;}
+                            return false;
                         }
                     }));
+                    
             (buttonHeightEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonHeight)).addTextChangedListener(
                 new buttonSizeEditTextWatcher(buttonHeightEditText , new Utilities.FloatChangeListener(){
                         @Override
-                        public void onFloatChange(float f){
-                            heightScreenRatio = f;   /*不能太小*/
+                        public boolean onFloatChange(float f){
+                            if(f*Utilities.getScreenHeight(OverviewButton.this.context)>=Utilities.MiniButtonSizeScreenRatio*Utilities.getMinScreenSize(OverviewButton.this.getContext())){//判断是否过小
+                            heightScreenRatio = f;   /*不能太小，此时大小合适*/
                             relativeLayout.updateViewLayout(OverviewButton.this , new RelativeLayout.LayoutParams(OverviewButton.this.getWidth(),(int)(f*Utilities.getScreenHeight(OverviewButton.this.context))));
+                            return true;}
+                            return false;
                         }
                     }));
+                    
             (buttonNameEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonName)).addTextChangedListener(new buttonNameEditTextWatcher(buttonNameEditText,this));
-            (buttonARGBEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonARGB)).addTextChangedListener(new argbEditTextWatcher(buttonARGBEditText, new ColorPickerView.OnColorChangedListener(){
-                                                                                                                      @Override
-                                                                                                                      public void onColorChanged(int color){
-                                                                                                                          OverviewButton.this.setButtonColor(color);
-                                                                                                                      }
-                                                                                                                  }));
-            (stringARGBEditText = dialogView.findViewById(R.id.dialog_editor_editText_textARGB)).addTextChangedListener(new argbEditTextWatcher(stringARGBEditText, new ColorPickerView.OnColorChangedListener(){
-                                                                                                                       @Override
-                                                                                                                       public void onColorChanged(int color){
-                                                                                                                           OverviewButton.this.setTextColor(color);
-                                                                                                                       }
-                                                                                                                   }));
-            titleTextView = dialogView.findViewById(R.id.dialog_editor_textView_title);
             
+            (buttonARGBEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonARGB)).addTextChangedListener(
+                new argbEditTextWatcher(buttonARGBEditText, new ColorPickerView.OnColorChangedListener(){
+                        @Override
+                        public void onColorChanged(int color){
+                            OverviewButton.this.setButtonColor(color);
+                        }
+                    }));
+                                                                                                                  
+            (stringARGBEditText = dialogView.findViewById(R.id.dialog_editor_editText_textARGB)).addTextChangedListener(
+                new argbEditTextWatcher(stringARGBEditText, new ColorPickerView.OnColorChangedListener(){
+                        @Override
+                        public void onColorChanged(int color){
+                            OverviewButton.this.setTextColor(color);
+                        }
+                    }));
+                                                                                                                   
+            titleTextView = dialogView.findViewById(R.id.dialog_editor_textView_title);
+            /*
+            dialog 编辑按钮
+            */
             ScrollView scrollView = new ScrollView(context);//使其可以上下滚动
             scrollView.addView(dialogView);
             buttonEditorBuilder.setView(scrollView);
             buttonEditorBuilder.setPositiveButton(Utilities.确定删除[0],//确定
-                new android.content.DialogInterface.OnClickListener(){
+                new DialogInterface.OnClickListener(){
                     @Override
-                    public void onClick(DialogInterface p1, int p2)
-                    {
+                    public void onClick(DialogInterface p1, int p2){
                         buttonEditorBuilder.create().dismiss();
                     }
                 });
             buttonEditorBuilder.setNegativeButton(Utilities.确定删除[1],//删除
-                new android.content.DialogInterface.OnClickListener(){
+                new DialogInterface.OnClickListener(){
                     @Override
-                    public void onClick(DialogInterface p1, int p2)
-                    {
+                    public void onClick(DialogInterface p1, int p2){
                         relativeLayout.removeView(ModelEditorActivity.OverviewButton.this);
+                    }
+                });
+            /*
+            dialog 按钮映射
+            */
+            buttonMappingBuilder.setTitle("选择一个按钮映射");
+            buttonMappingBuilder.setSingleChoiceItems(KeyCode.getAllKeyName() , keyCodeIndex , 
+                new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface p1, int p2){
+                        keyCodeIndex = p2;
+                        buttonMappingButton.setText("已选："+KeyCode.getAllKeyName()[p2]);
+                        buttonNameEditText.setText(KeyCode.getAllKeyName()[p2]);
+                    }
+                });
+            buttonMappingBuilder.setPositiveButton(Utilities.确定删除[0],
+                new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface p1, int p2){
+                        buttonMappingBuilder.create().dismiss();
                     }
                 });
         }
         
-        
-        @Override
-        public void onClick(View p1)//按钮单击
-        {
-            if(p1==buttonColorButton){//设置颜色
-                colorPickerView.setOnColorChangedListener(new ColorPickerView.OnColorChangedListener(){
-                        @Override
-                        public void onColorChanged(int color){
-                            buttonARGBEditText.setText(ColorUtil.convertToARGB(color).toString());
-                            OverviewButton.this.setButtonColor(color);
-                        }
-                    });
-                colorPickerView.setColor(buttonColor == 0 ?  Utilities.DefaultButtonColor : buttonColor);
-                tempBuilder.setView(colorPickerView);
-                tempBuilder.show().getWindow().setLayout((int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerViewScreenRatio),(int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerViewScreenRatio));
-            }else if(p1==textColorButton){
-                colorPickerView.setOnColorChangedListener(new ColorPickerView.OnColorChangedListener(){
-                        @Override
-                        public void onColorChanged(int color){
-                            stringARGBEditText.setText(ColorUtil.convertToARGB(color).toString());
-                            OverviewButton.this.setTextColor(color);
-                        }
-                    });
-                colorPickerView.setColor(this.getTextColors().getDefaultColor());
-                tempBuilder.setView(colorPickerView);
-                tempBuilder.show().getWindow().setLayout((int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerViewScreenRatio), (int)(Utilities.getMinScreenSize(context)*Utilities.ColorPickerViewScreenRatio));
-            }else if(p1==buttonMappingButton){//设置按钮映射
-                
-            }
-        }
-     
         
         private float lastX;
         private float lastY;
@@ -342,16 +390,13 @@ public class ModelEditorActivity extends Activity
             public void afterTextChanged(Editable p1)
             {
                 try{
-                    float f = Float.valueOf(p1.toString()); 
-                    System.out.println(f);
-                    if(f >= 1.0f || f < 0.029999999){
+                    float f = Float.valueOf(p1.toString());
+                    if(f >= 1.0f || f < 0 || !floatChangeListener.onFloatChange(f)){//注意此时是短路或
                         editText.setTextColor(Utilities.ErrorTextColor);
                         return;
                     }
-                    floatChangeListener.onFloatChange(f);
                     editText.setTextColor(Color.WHITE);
-               }catch(Exception e){
-                   e.printStackTrace();
+               }catch(Exception ignored){
                    editText.setTextColor(Utilities.ErrorTextColor);
                }
             }
@@ -454,7 +499,7 @@ public class ModelEditorActivity extends Activity
             layoutParams.alpha= Utilities.DefaultButtonAlpha;
             layoutParams.x = windowManager.getDefaultDisplay().getWidth()>>1;
             layoutParams.y = windowManager.getDefaultDisplay().getHeight()>>1;//除2
-            layoutParams.width = (layoutParams.height = Utilities.getButtonSize(ModelEditorActivity.this , Utilities.DefaultButtonScreenRatio));
+            layoutParams.width = (layoutParams.height = Utilities.getButtonSize(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio));
             windowManager.addView(this , layoutParams);
         }  
         
