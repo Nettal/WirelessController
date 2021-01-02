@@ -184,6 +184,15 @@ public class ModelEditorActivity extends Activity
                 new OnClickListener(){
                     @Override
                     public void onClick(View p1){
+                        buttonMappingBuilder.setSingleChoiceItems(KeyCode.getAllKeyName() , keyCodeIndex , 
+                            new DialogInterface.OnClickListener(){/*此处使默认选项为上次所选的*/
+                                @Override
+                                public void onClick(DialogInterface p1, int p2){
+                                    keyCodeIndex = p2;
+                                    buttonMappingButton.setText("已选："+KeyCode.getAllKeyName()[p2]);
+                                    buttonNameEditText.setText(KeyCode.getAllKeyName()[p2]);
+                                }
+                            });
                         buttonMappingBuilder.show();
                     }
                 });
@@ -256,15 +265,6 @@ public class ModelEditorActivity extends Activity
             dialog 按钮映射
             */
             buttonMappingBuilder.setTitle("选择一个按钮映射");
-            buttonMappingBuilder.setSingleChoiceItems(KeyCode.getAllKeyName() , keyCodeIndex , 
-                new DialogInterface.OnClickListener(){
-                    @Override
-                    public void onClick(DialogInterface p1, int p2){
-                        keyCodeIndex = p2;
-                        buttonMappingButton.setText("已选："+KeyCode.getAllKeyName()[p2]);
-                        buttonNameEditText.setText(KeyCode.getAllKeyName()[p2]);
-                    }
-                });
             buttonMappingBuilder.setPositiveButton(Utilities.确定删除[0],
                 new DialogInterface.OnClickListener(){
                     @Override
