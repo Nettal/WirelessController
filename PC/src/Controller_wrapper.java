@@ -18,7 +18,7 @@ public class Controller_wrapper implements Runnable{
     while (true){
 
         if (bytesQueue.isEmpty()){
-            Thread.sleep(10);
+            Thread.sleep(5);
     //        System.out.println("DEBUG:Controller_wrapper: bytesQueue isEmpty");
             continue;
         }
@@ -111,7 +111,7 @@ public class Controller_wrapper implements Runnable{
         }//move or press
             //检查是否有多余
         if (b[true_length + 3+1] != 0){
-            System.out.println("DEBUG:Controller_wrapper: Too many data!");
+      //      System.out.println("DEBUG:Controller_wrapper: Too many data!");
              byte[] next = new byte[1024-true_length-3];
             for (int i = 0; i < next.length; i++) {
                 /*

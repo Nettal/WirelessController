@@ -7,13 +7,13 @@ public class BytesQueue {
             linkedList.addFirst(s);
         }
 
-        public byte[] get() {
+        public synchronized byte[] get() {
             byte[] temp = linkedList.getLast();
             linkedList.removeLast();
             return temp;
         }
 
-        public boolean isEmpty(){
+        public synchronized boolean isEmpty(){
             return linkedList.isEmpty();
         }
 }

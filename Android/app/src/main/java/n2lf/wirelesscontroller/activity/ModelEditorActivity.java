@@ -142,7 +142,7 @@ public class ModelEditorActivity extends Activity
             buttonMappingBuilder = new AlertDialog.Builder(context);
             
             //获取编辑dialog的控件
-            View dialogView = getLayoutInflater().inflate(R.layout.dialog_editor,null);
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_modelEditor_buttton,null);
             
             (textColorButton = dialogView.findViewById(R.id.dialog_editor_button_textColor)).setOnClickListener(
                 new OnClickListener(){
