@@ -459,13 +459,13 @@ public class KeyCode {
                 case VK_QUOTE: 
                     return "Quote";
                 case VK_KP_UP: 
-                    return "KpUp";//keypad
+                    return "KeyPadUp";//keypad
                 case VK_KP_DOWN: 
-                    return "KpDown";
+                    return "KeyPadDown";
                 case VK_KP_LEFT: 
-                    return "KpLeft";
+                    return "KeyPadLeft";
                 case VK_KP_RIGHT: 
-                    return "KpRight";
+                    return "KeyPadRight";
                 case VK_DEAD_GRAVE: 
                     return "DeadGrave";
                 case VK_DEAD_ACUTE: 

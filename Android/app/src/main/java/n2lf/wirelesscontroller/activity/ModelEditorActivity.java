@@ -154,8 +154,10 @@ public class ModelEditorActivity extends Activity
                             });
                         colorPickerView.setColor(OverviewButton.this.getTextColors().getDefaultColor());
                         tempBuilder.setView(colorPickerView);
-                        int dialogSize = Utilities.getMinSizeByRatio(OverviewButton.this.getContext(),Utilities.DialogScreenRatio);
-                        tempBuilder.show().getWindow().setLayout(dialogSize ,dialogSize);
+                        int size = Utilities.getMinSizeByRatio(OverviewButton.this.getContext(),Utilities.DialogScreenRatio);
+                        AlertDialog alertDialog = tempBuilder.show();
+						alertDialog.getWindow().setDimAmount(0f);//去除黑色遮罩;
+						alertDialog.getWindow().setLayout(size , size);
                     }
                 });
                 
@@ -172,8 +174,10 @@ public class ModelEditorActivity extends Activity
                             });
                         colorPickerView.setColor(buttonColor == 0 ?  Utilities.DefaultButtonColor : buttonColor);
                         tempBuilder.setView(colorPickerView);
-                        int dialogSize = Utilities.getMinSizeByRatio(OverviewButton.this.getContext(),Utilities.DialogScreenRatio);
-                        tempBuilder.show().getWindow().setLayout(dialogSize , dialogSize);
+                        int size = Utilities.getMinSizeByRatio(OverviewButton.this.getContext(),Utilities.DialogScreenRatio);
+                        AlertDialog alertDialog = tempBuilder.show();
+						alertDialog.getWindow().setDimAmount(0f);//去除黑色遮罩;
+						alertDialog.getWindow().setLayout(size , size);
                     }
                 });
                 
@@ -181,13 +185,20 @@ public class ModelEditorActivity extends Activity
                 new OnClickListener(){
                     @Override
                     public void onClick(View p1){
-                        SearchableDialog.showDialog(OverviewButton.this.getContext() , KeyCode.getAllKeyName() , keyCodeIndex);
+                        new SearchableDialog(OverviewButton.this.getContext() , KeyCode.getAllKeyName() , keyCodeIndex , new SearchableDialog.IndexChangeListener(){
+								@Override
+								public void onIndexChange(int index){
+									keyCodeIndex = index;
+									buttonMappingButton.setText("已选："+KeyCode.getAllKeyName()[index]);
+									buttonNameEditText.setText(KeyCode.getAllKeyName()[index]);
+								}
+							});
                     }
                 });
             buttonMappingButton.setAllCaps(false);
             
             (buttonWidthEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonWidth)).addTextChangedListener(
-                new buttonSizeEditTextWatcher(buttonWidthEditText , new Utilities.FloatChangeListener(){
+                new sizeEditTextWatcher(buttonWidthEditText , new Utilities.FloatChangeListener(){
                         @Override
                         public boolean onFloatChange(float f){
                             if(f*Utilities.getScreenWidth(OverviewButton.this.getContext())>=Utilities.getMinSizeByRatio(OverviewButton.this.getContext(),Utilities.MiniButtonSizeScreenRatio)){//判断是否过小
@@ -199,7 +210,7 @@ public class ModelEditorActivity extends Activity
                     }));
 			
             (buttonHeightEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonHeight)).addTextChangedListener(
-                new buttonSizeEditTextWatcher(buttonHeightEditText , new Utilities.FloatChangeListener(){
+                new sizeEditTextWatcher(buttonHeightEditText , new Utilities.FloatChangeListener(){
                         @Override
                         public boolean onFloatChange(float f){
                             if(f*Utilities.getScreenHeight(OverviewButton.this.getContext())>=Utilities.getMinSizeByRatio(OverviewButton.this.getContext(),Utilities.MiniButtonSizeScreenRatio)){//判断是否过小
@@ -210,7 +221,7 @@ public class ModelEditorActivity extends Activity
                         }
                     }));
                     
-            (buttonNameEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonName)).addTextChangedListener(new buttonNameEditTextWatcher(buttonNameEditText,this));
+            (buttonNameEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonName)).addTextChangedListener(new nameEditTextWatcher(buttonNameEditText,this));
 			
             (buttonARGBEditText = dialogView.findViewById(R.id.dialog_editor_editText_buttonARGB)).addTextChangedListener(
                 new argbEditTextWatcher(buttonARGBEditText, new ColorPickerView.OnColorChangedListener(){
@@ -308,117 +319,118 @@ public class ModelEditorActivity extends Activity
         
         public void editThis(){
 			int size = Utilities.getMinSizeByRatio(this.getContext(),Utilities.DialogScreenRatio);
-            buttonEditorBuilder.show().getWindow().setLayout(size , size);
-        }
-        
-        
-        /**
-        针对editText的事件处理，使不正确的文本更改为红色
-        */
-        
-        private class argbEditTextWatcher implements android.text.TextWatcher{
-            EditText editText;
-			int oriTextColor;
-            ColorPickerView.OnColorChangedListener onColorChangedListener;
-            
-            argbEditTextWatcher(EditText editText , ColorPickerView.OnColorChangedListener onColorChangedListener){
-                this.editText = editText;
-				this.oriTextColor = editText.getCurrentTextColor();
-                this.onColorChangedListener = onColorChangedListener;
-            }
-            
-            @Override
-            public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4){
-            }
-
-            @Override
-            public void onTextChanged(CharSequence p1, int p2, int p3, int p4){
-            }
-
-            @Override
-            public void afterTextChanged(Editable p1)
-            {
-                try
-                {
-                    onColorChangedListener.onColorChanged(ColorUtil.convertToColorInt(p1.toString()));
-                    editText.setTextColor(oriTextColor);//小心白色，导致白色主题无色
-                }
-                catch (Exception e)
-                {
-                    editText.setTextColor(Utilities.ErrorTextColor);
-                }
-            }
-        }
-        
-        private class buttonSizeEditTextWatcher implements android.text.TextWatcher{
-            EditText editText;
-			int oriTextColor;
-            Utilities.FloatChangeListener floatChangeListener;
-            buttonSizeEditTextWatcher(EditText editText , Utilities.FloatChangeListener floatChangeListener){
-                this.editText = editText;
-				this.oriTextColor = editText.getCurrentTextColor();
-                this.floatChangeListener = floatChangeListener;
-            }
-            
-            @Override
-            public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4){
-            }
-
-            @Override
-            public void onTextChanged(CharSequence p1, int p2, int p3, int p4){
-            }
-
-            @Override
-            public void afterTextChanged(Editable p1)
-            {
-                try{
-                    float f = Float.valueOf(p1.toString());
-                    if(f >= 1.0f || f < 0 || !floatChangeListener.onFloatChange(f)){//注意此时是短路或
-                        editText.setTextColor(Utilities.ErrorTextColor);
-                        return;
-                    }
-                    editText.setTextColor(oriTextColor);
-               }catch(Exception ignored){
-                   editText.setTextColor(Utilities.ErrorTextColor);
-               }
-            }
-        }
-        
-        private class buttonNameEditTextWatcher implements android.text.TextWatcher{
-            EditText editText;
-            OverviewButton button;
-            buttonNameEditTextWatcher(EditText editText , OverviewButton button){
-                this.editText = editText;
-                this.button = button;
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4){
-            }
-
-            @Override
-            public void onTextChanged(CharSequence p1, int p2, int p3, int p4){
-            }
-
-            @Override
-            public void afterTextChanged(Editable p1)
-            {
-                button.setText(p1);
-            }
+            AlertDialog alertDialog = buttonEditorBuilder.show();
+			alertDialog.getWindow().setDimAmount(0f);//去除黑色遮罩;
+			alertDialog.getWindow().setLayout(size , size);
         }
     }
     
-    
+	
+	/**
+	 针对editText的事件处理，使不正确的文本更改为红色
+	 */
+
+	private class argbEditTextWatcher implements android.text.TextWatcher{
+		EditText editText;
+		int oriTextColor;
+		ColorPickerView.OnColorChangedListener onColorChangedListener;
+
+		argbEditTextWatcher(EditText editText , ColorPickerView.OnColorChangedListener onColorChangedListener){
+			this.editText = editText;
+			this.oriTextColor = editText.getCurrentTextColor();
+			this.onColorChangedListener = onColorChangedListener;
+		}
+
+		@Override
+		public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4){
+		}
+
+		@Override
+		public void onTextChanged(CharSequence p1, int p2, int p3, int p4){
+		}
+
+		@Override
+		public void afterTextChanged(Editable p1)
+		{
+			try
+			{
+				onColorChangedListener.onColorChanged(ColorUtil.convertToColorInt(p1.toString()));
+				editText.setTextColor(oriTextColor);//小心白色，导致白色主题无色
+			}
+			catch (Exception e)
+			{
+				editText.setTextColor(Utilities.ErrorTextColor);
+			}
+		}
+	}
+
+	
+	private class sizeEditTextWatcher implements android.text.TextWatcher{
+		EditText editText;
+		int oriTextColor;
+		Utilities.FloatChangeListener floatChangeListener;
+		sizeEditTextWatcher(EditText editText , Utilities.FloatChangeListener floatChangeListener){
+			this.editText = editText;
+			this.oriTextColor = editText.getCurrentTextColor();
+			this.floatChangeListener = floatChangeListener;
+		}
+
+		@Override
+		public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4){
+		}
+
+		@Override
+		public void onTextChanged(CharSequence p1, int p2, int p3, int p4){
+		}
+
+		@Override
+		public void afterTextChanged(Editable p1)
+		{
+			try{
+				float f = Float.valueOf(p1.toString());
+				if(f >= 1.0f || f < 0 || !floatChangeListener.onFloatChange(f)){//注意此时是短路或
+					editText.setTextColor(Utilities.ErrorTextColor);
+					return;
+				}
+				editText.setTextColor(oriTextColor);
+			}catch(Exception ignored){
+				editText.setTextColor(Utilities.ErrorTextColor);
+			}
+		}
+	}
+
+	
+	private class nameEditTextWatcher implements android.text.TextWatcher{
+		EditText editText;
+		OverviewButton button;
+		nameEditTextWatcher(EditText editText , OverviewButton button){
+			this.editText = editText;
+			this.button = button;
+		}
+
+		@Override
+		public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4){
+		}
+
+		@Override
+		public void onTextChanged(CharSequence p1, int p2, int p3, int p4){
+		}
+
+		@Override
+		public void afterTextChanged(Editable p1)
+		{
+			button.setText(p1);
+		}
+	}
+	
     
     private class CreatFloatButton extends Button implements Runnable , android.widget.PopupMenu.OnDismissListener ,android.widget.PopupMenu.OnMenuItemClickListener
     {
-        Context context;
         WindowManager windowManager;
         WindowManager.LayoutParams layoutParams;
         PopupMenu popuMenu;
         CreatFloatButton(Context context){//创建button对象 & 为后来的悬浮按钮做准备
             super(context);
-            this.context = context;
             windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
             layoutParams = new WindowManager.LayoutParams();
             popuMenu = new PopupMenu(ModelEditorActivity.this , this);//按钮点击时的菜单
