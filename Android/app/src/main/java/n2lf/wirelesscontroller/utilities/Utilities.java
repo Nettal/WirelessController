@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.widget.Toast;
 import android.view.WindowManager;
 import android.graphics.Color;
+import java.io.File;
 
 public class Utilities
 {
@@ -22,6 +23,7 @@ public class Utilities
     public static int EditorBackgroundColor = Color.argb(255,189,183,107);
     public static int ErrorTextColor = Color.RED;
     
+	
     public static int getScreenWidth(Context context){
         return ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getWidth();
     }
@@ -34,6 +36,8 @@ public class Utilities
     public static int getMinSizeByRatio(Context context , float f){
         return (int) (Math.min(getScreenHeight(context),getScreenWidth(context))*f);
     }
+	
+	
     public static boolean checkAndAllowOverlayPermission(Context context){
         if(Settings.canDrawOverlays(context)){
             return true;
@@ -43,7 +47,16 @@ public class Utilities
             return false;
         }
     }
-    
+	
+	public static boolean writeModelByName(Context context , String fileName){
+		File file = new File(context.getExternalFilesDir("model") , fileName);
+		System.out.println(file);
+		return true;
+	}
+	public static String[] getModelNameList(){
+		return null;
+	}
+	
     public interface FloatChangeListener{
         public boolean onFloatChange(float f)
     }

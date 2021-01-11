@@ -104,7 +104,7 @@ public class ModelEditorActivity extends Activity
         }   
     }
     
-    
+    /**/
     private class OverviewButton extends Button
     {
         private float widthScreenRatio;
@@ -388,7 +388,7 @@ public class ModelEditorActivity extends Activity
 		{
 			try{
 				float f = Float.valueOf(p1.toString());
-				if(f >= 1.0f || f < 0 || !floatChangeListener.onFloatChange(f)){//注意此时是短路或
+				if(f >= 1.2f || f < 0 || !floatChangeListener.onFloatChange(f)){//注意此时是短路或
 					editText.setTextColor(Utilities.ErrorTextColor);
 					return;
 				}
@@ -509,8 +509,9 @@ public class ModelEditorActivity extends Activity
                 if(isOnAddEvent){
                     addFinished();//处理背景变化和 onTouchEvent
                 }else{
+					
                     ModelEditorActivity.this.finish();//此时应该保存模板
-                    }
+                }
             }else if(p1.getTitle().toString()==Utilities.添加界面的按键文字[1]){//添加按钮
                 addButtonStarted();
             }else{//添加触摸板

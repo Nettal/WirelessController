@@ -30,26 +30,15 @@ public class MainActivity extends Activity {
         
         startButton.setOnClickListener(new OnClickListener(){
                 @Override
-                public void onClick(View p1)
-                {
+                public void onClick(View p1){
                     Utilities.checkAndAllowOverlayPermission(MainActivity.this);
                 }
             });
         modelManagerButton.setOnClickListener(new OnClickListener(){
                 @Override
-                public void onClick(View p1)
-                {
+                public void onClick(View p1){
                     startActivity(new Intent(MainActivity.this,ModelEditorActivity.class));
                 }
             });
-    }
-    
-    class mOnClickListener implements OnClickListener
-    {
-        @Override
-        public void onClick(View p1)
-        {
-            
-        } 
     }
 }

@@ -18,6 +18,7 @@ public class SearchableDialog extends AlertDialog.Builder
 	ListView listView;
     public SearchableDialog(Context context , String[] stringList , int index , IndexChangeListener indexChangeListener){
         super(context);
+		ListViewAdapter adapter = new ListViewAdapter(context , stringList , index , indexChangeListener);
 		/*
 		EditText
 		*/
@@ -25,8 +26,8 @@ public class SearchableDialog extends AlertDialog.Builder
         editText.setHint("搜索");
 		editText.setAllCaps(false);
 		editText.setMaxLines(1);
-		ListViewAdapter adapter = new ListViewAdapter(context , stringList , index , indexChangeListener);
 		editText.addTextChangedListener(adapter);
+		editText.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_DONE);
 		editText.setInputType(android.text.InputType.TYPE_CLASS_TEXT);//单行输入的前提
         editText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 		/*
@@ -169,15 +170,24 @@ public class SearchableDialog extends AlertDialog.Builder
 					return;
 				}
 				/*关键字排序*/
-			//	System.out.println(maxLength+":"+editable.length());
-				TempArrayList tempList[] = new TempArrayList[maxLength-editable.length()+1];
+				ArrayList tempList[] = new ArrayList[maxLength-editable.length()+1];
 				for(int i = 0;i<tempList.length;i++){
-					tempList[i]=new TempArrayList<TextView>();
+					tempList[i]=new ArrayList<TextView>();
 				}
 				for(int k = 0;k<textViewArrayList.size();k++){//根据index把item塞入templist
 					int index = ((TextView)textViewArrayList.get(k)).getText().toString().toLowerCase().indexOf(editable.toString().toLowerCase());
 				//	System.out.println(index +":"+ ((CheckedTextView)checkedTextViewArrayList.get(k)).getText().toString() +":"+editable.toString());
-					tempList[index].addWithSort(((TextView)textViewArrayList.get(k)));
+					//添加且排序
+					if(tempList[index].size()==0){
+						tempList[index].add(textViewArrayList.get(k));
+					}else{//判断插入位置
+						for(int i = 0;i<tempList[index].size();i++){
+							if(((TextView)textViewArrayList.get(k)).getText().length()<=(((TextView)tempList[index].get(i)).getText().length())){
+								tempList[index].add(i,textViewArrayList.get(k));
+								break;
+							}
+						}
+					}
 				}
 				textViewArrayList = new ArrayList<TextView>();
 				for(int b = 0;b<tempList.length;b++){//塞入排序过的
@@ -186,24 +196,6 @@ public class SearchableDialog extends AlertDialog.Builder
 			}
 			
 			notifyDataSetChanged();
-		}
-		
-		class TempArrayList<E extends TextView> extends ArrayList
-		{
-			public boolean addWithSort(Object e)
-			{
-				if(size()==0){
-					return super.add(e);
-				}else{//判断插入位置
-					for(int i = 0;i<size();i++){
-						if(((TextView)e).getText().length()<=(((TextView)get(i)).getText().length())){
-							super.add(i,e);
-							return true;
-						}
-					}
-				}
-				return super.add(e);
-			}
 		}
 	}
     
