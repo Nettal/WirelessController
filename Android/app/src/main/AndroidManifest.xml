@@ -19,5 +19,9 @@
         </activity>
         <activity android:name=".activity.ModelManagerActivity">
         </activity>
+		<service android:name=".service.OverlayService">
+		</service>
+		<service android:name=".service.SocketClientService">
+		</service>
 	</application>
 </manifest>

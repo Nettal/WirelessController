@@ -104,16 +104,16 @@ public class ModelEditorActivity extends Activity
         }   
     }
     
-    /**/
-    private class OverviewButton extends Button
+    /*预览按钮*/
+    public class OverviewButton extends Button
     {
         private float widthScreenRatio;
         private float heightScreenRatio;
         private AlertDialog.Builder buttonEditorBuilder;//多次使用
         private AlertDialog.Builder tempBuilder;//每次setView()
         private ColorPickerView colorPickerView;//多次使用
-        private int buttonColor;
         private int keyCodeIndex;
+		private String buttonColorString;
         //dialog 控件
         private Button textColorButton;
         private Button buttonColorButton;
@@ -172,7 +172,7 @@ public class ModelEditorActivity extends Activity
                                     OverviewButton.this.setButtonColor(color);
                                 }
                             });
-                        colorPickerView.setColor(buttonColor == 0 ?  Utilities.DefaultButtonColor : buttonColor);
+                        colorPickerView.setColor(OverviewButton.this.getButtonColorInt());
                         tempBuilder.setView(colorPickerView);
                         int size = Utilities.getMinSizeByRatio(OverviewButton.this.getContext(),Utilities.DialogScreenRatio);
                         AlertDialog alertDialog = tempBuilder.show();
@@ -294,7 +294,7 @@ public class ModelEditorActivity extends Activity
 
         private void setButtonColor(int color)
         {
-            buttonColor = color;
+			buttonColorString = ColorUtil.convertToARGB(color);
             this.getBackground().setAlpha(0);//按钮阴影便会消除
             //   this.setBackgroundColor(color);//不好看
             this.getBackground().setColorFilter(color , android.graphics.PorterDuff.Mode.SRC);
@@ -315,8 +315,34 @@ public class ModelEditorActivity extends Activity
              XOR 同上
             */
         }
-        
-        
+		
+		private int getButtonColorInt(){
+			try
+			{
+				return ColorUtil.convertToColorInt(getButtonColorString());
+			}
+			catch (Exception e)
+			{
+				return Utilities.DefaultButtonColor;
+			}
+		}
+		
+        public String getButtonColorString(){
+			return buttonColorString;//null为未修改
+		}
+		
+		public int getKeyCode(){
+			return KeyCode.getAllKeyCode()[keyCodeIndex];
+		}
+		
+		public float getHeightScreenRatio(){
+			return heightScreenRatio;
+		}
+		
+		public float getWidthScreenRatio(){
+			return widthScreenRatio;
+		}
+		
         public void editThis(){
 			int size = Utilities.getMinSizeByRatio(this.getContext(),Utilities.DialogScreenRatio);
             AlertDialog alertDialog = buttonEditorBuilder.show();

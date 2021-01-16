@@ -11,19 +11,35 @@ import n2lf.wirelesscontroller.utilities.Utilities;
 import android.content.Context;
 import android.content.Intent;
 import n2lf.wirelesscontroller.R;
+import android.text.TextWatcher;
+import android.text.Editable;
+import android.content.SharedPreferences;
+import n2lf.wirelesscontroller.service.SocketClientService;
 
 public class MainActivity extends Activity {
     Button modelManagerButton;
     Button startButton;
-    EditText ip_port_EditText;
+    EditText ipEditText;
+	EditText portEditText;
     Spinner modelListSelector;
     
+	SharedPreferences sharedPreferences;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        modelManagerButton = findViewById(R.id.activity_main_button_modelManager);     
-        ip_port_EditText = findViewById(R.id.activity_main_editText_ip_port);  
+		sharedPreferences = getSharedPreferences("MainActivity_ipEditText_String" , Context.MODE_PRIVATE);
+        modelManagerButton = findViewById(R.id.activity_main_button_modelManager);
+        ipEditText = findViewById(R.id.activity_main_editText_ip);
+		ipEditText.addTextChangedListener(new TextWatcher(){
+				public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4){}
+				public void onTextChanged(CharSequence p1, int p2, int p3, int p4){}
+				@Override
+				public void afterTextChanged(Editable p1){
+					//TODO ip and port
+				}
+			});
         startButton = findViewById(R.id.activity_main_button_start);
         modelListSelector = findViewById(R.id.activity_main_spinner_selector);
         
@@ -31,7 +47,12 @@ public class MainActivity extends Activity {
         startButton.setOnClickListener(new OnClickListener(){
                 @Override
                 public void onClick(View p1){
-                    Utilities.checkAndAllowOverlayPermission(MainActivity.this);
+                    if(Utilities.checkAndAllowOverlayPermission(MainActivity.this)){
+						Intent intent = new Intent(MainActivity.this , SocketClientService.class);
+						intent.putExtra("port" , 37385);
+						intent.putExtra("ip" ,"127.0.0.1");
+						startService(intent);
+					}
                 }
             });
         modelManagerButton.setOnClickListener(new OnClickListener(){
