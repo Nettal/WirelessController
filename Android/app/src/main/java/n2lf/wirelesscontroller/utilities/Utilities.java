@@ -7,6 +7,7 @@ import android.widget.Toast;
 import android.view.WindowManager;
 import android.graphics.Color;
 import java.io.File;
+import android.os.Build;
 
 public class Utilities
 {
@@ -24,6 +25,7 @@ public class Utilities
     public static int EditorBackgroundColor = Color.argb(255,189,183,107);
     public static int ErrorTextColor = Color.RED;
 	public static int DefaultPort = 37385;
+	public static long ThreadSleepTime = 5;
     
 	
     public static int getScreenWidth(Context context){
@@ -39,7 +41,14 @@ public class Utilities
         return (int) (Math.min(getScreenHeight(context),getScreenWidth(context))*f);
     }
 	
-	
+	public static int getLayoutParamsType(){
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+			return WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+		}else{
+			return WindowManager.LayoutParams.TYPE_PHONE;
+		}
+	}
+		
     public static boolean checkAndAllowOverlayPermission(Context context){
         if(Settings.canDrawOverlays(context)){
             return true;

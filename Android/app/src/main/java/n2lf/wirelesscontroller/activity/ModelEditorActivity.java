@@ -506,7 +506,7 @@ public class ModelEditorActivity extends Activity
         @Override
         public void run()
         {
-            layoutParams.type = layoutParams.FIRST_SUB_WINDOW+5;
+            layoutParams.type = layoutParams.TYPE_APPLICATION;
             /*
              如果没有设置FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方不能点击。
              如果设置了FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方能够点击、但是弹窗上的EditText无法输入、键盘也不会弹出来。
@@ -517,9 +517,9 @@ public class ModelEditorActivity extends Activity
             layoutParams.gravity=Gravity.TOP|Gravity.LEFT;
             layoutParams.format= android.graphics.PixelFormat.RGBA_8888;
             layoutParams.alpha= Utilities.DefaultButtonAlpha;
-            layoutParams.x = windowManager.getDefaultDisplay().getWidth()>>1;
-            layoutParams.y = windowManager.getDefaultDisplay().getHeight()>>1;//除2
             layoutParams.width = (layoutParams.height = Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio));
+			layoutParams.x = (windowManager.getDefaultDisplay().getWidth()>>1) - layoutParams.width;
+            layoutParams.y = (windowManager.getDefaultDisplay().getHeight()>>1) - layoutParams.height;//除2
             windowManager.addView(this , layoutParams);
         }  
         

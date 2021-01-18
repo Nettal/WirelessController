@@ -54,7 +54,7 @@ public class ModelManager
 		float buttonPositionX;
 		float buttonPositionY;
 		int buttonTextColor;
-		String buttonColorString;
+		String buttonColorString;//null为未修改
 		int keyCode;
 		ButtonProperties(ModelEditorActivity.OverviewButton overviewButton){
 			buttonName = overviewButton.getText().toString();
