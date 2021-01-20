@@ -50,7 +50,8 @@ public class MainActivity extends Activity {
                     if(Utilities.checkAndAllowOverlayPermission(MainActivity.this)){
 						Intent intent = new Intent(MainActivity.this , SocketClientService.class);
 						intent.putExtra("port" , 37385);
-						intent.putExtra("ip" ,"127.0.0.1");
+						intent.putExtra("ip" , "127.0.0.1");
+						intent.putExtra("modelName" , Utilities.DefaultModelName);
 						startService(intent);
 					}
                 }

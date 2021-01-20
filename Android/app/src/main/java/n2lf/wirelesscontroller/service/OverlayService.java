@@ -5,12 +5,19 @@ import android.os.IBinder;
 
 public class OverlayService extends Service
 {
-
+	SocketClientService.SyncedLinkedList syncedLinkedList;
+	SocketClientService bindedService;
     @Override
-    public IBinder onBind(Intent p1)
-    {
-        // TODO: Implement this method
-        return null;
+    public IBinder onBind(Intent p1){
+        return new android.os.Binder(){
+			public void setSyncedLinkedList(SocketClientService.SyncedLinkedList list){
+				syncedLinkedList = list;
+			}
+			
+			public void setBindedService(SocketClientService service){
+				bindedService = service;
+			}
+		};
     }
 
 }

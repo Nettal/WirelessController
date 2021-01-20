@@ -17,6 +17,7 @@ public class Utilities
     public static float DefaultButtonAlpha = 0.7f;
     public static float DialogScreenRatio = 0.8f;
 	public static String DefaultIp = "127.0.0.1";
+	public static String DefaultModelName ="TempModel";
     public static String[] 添加界面的按键文字 = {"完成","添加按钮","添加触摸板"};//逻辑实现在ModelCreatorActivity
     public static String[] 点击选取位置 = {"点击以选取按钮位置","拖动以划定触摸区域"};
     public static String[] 确定删除 = {"确定","删除"};
