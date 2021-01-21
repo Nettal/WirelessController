@@ -17,21 +17,18 @@ import android.content.ComponentName;
 
 public class SocketClientService extends Service
 {
-	public SyncedLinkedList actionQueue;
 	static final int ACTION_SENDER_ERROR = 128;
     static final int ACTION_SENDER_SUCCESS = 127;
-    static final int ACTION_SENDER_STOPPED = 126;
-	MessageHandler messageHandler;
+	private MessageHandler messageHandler;
+    private ActionSender actionSender;
 	
 	@Override
 	public void onStart(Intent intent, int startId){
-		if(actionQueue == null){
-			actionQueue = new SyncedLinkedList();
-		}
 		if(messageHandler == null){
 			messageHandler = new MessageHandler(this);
 		}
-		new ActionSender(messageHandler ,intent.getStringExtra("ip"), intent.getIntExtra("port" , Utilities.DefaultPort) , intent.getStringExtra("modelName")).startAndGetDialog().show();
+		actionSender = new ActionSender(messageHandler ,intent.getStringExtra("ip"), intent.getIntExtra("port" , Utilities.DefaultPort) , intent.getStringExtra("modelName"));
+        actionSender.startAndGetDialog().show();
 	}
 	
     @Override
@@ -39,16 +36,22 @@ public class SocketClientService extends Service
         return null;
     }
 
-	class ActionSender extends Thread//一一对应原则，一个model一个对象
+    public ActionSender getActionSender(){
+        return actionSender;
+    }
+    
+	private class ActionSender extends Thread//一一对应原则，一个model一个对象
 	{
+        private SyncedLinkedList actionQueue;
 		private Handler handler;
 		private String ip;
 		private int port;
 		private boolean isStopped;
         private boolean isBinded;
 		private ProgressDialog progressDialog;
-		ServiceConnection connection;
-        String modelName;
+		private ServiceConnection connection;
+        private String modelName;
+        private OverlayService overlayService;
         
 		ActionSender(Handler handler , String ip , int port , String modelName){
 			this.handler = handler;
@@ -57,6 +60,7 @@ public class SocketClientService extends Service
 			this.isStopped = false;
             this.isBinded = false;
             this.modelName = modelName;
+            actionQueue = new SyncedLinkedList();
 			progressDialog = new ProgressDialog(getApplicationContext());
 			progressDialog.setTitle("请等待");
 			progressDialog.setMessage("连接中...");
@@ -72,9 +76,11 @@ public class SocketClientService extends Service
 			progressDialog.getWindow().setType(Utilities.getLayoutParamsType());
             connection = new ServiceConnection(){
                 @Override
-                public void onServiceConnected(ComponentName p1, IBinder p2){
+                public void onServiceConnected(ComponentName p1, IBinder p2){//onBind结束才会执行此方法
                     ((OverlayService.OSBinder)p2).setBindedService(SocketClientService.this);
                     ((OverlayService.OSBinder)p2).setSyncedLinkedList(actionQueue);
+                    overlayService = ((OverlayService.OSBinder)p2).getOverlayService();
+                    overlayService.loadOverlay();
                 }
                 @Override
                 public void onServiceDisconnected(ComponentName p1){
@@ -89,10 +95,9 @@ public class SocketClientService extends Service
 				Socket socket = new Socket(ip, port);
 				BufferedWriter bw = new BufferedWriter(new java.io.OutputStreamWriter(socket.getOutputStream()));
 				progressDialog.dismiss();//Success
-                Message message = new Message();
-                message.what = ACTION_SENDER_SUCCESS;
-				handler.sendMessage(message);
-                bindService(new Intent(getApplicationContext() , OverlayService.class) ,connection , 1 );
+                Intent intent = new Intent(getApplicationContext() , OverlayService.class);
+                intent.putExtra("modelName" , modelName);
+                bindService(intent ,connection , 1 );
                 isBinded = true;
 				while(true){
 					if(isStopped){
@@ -115,13 +120,13 @@ public class SocketClientService extends Service
 			}
 			catch (IOException e){
 				progressDialog.dismiss();
-				if(isStopped){//是否意外停止，return为没有意外停止
-                    isStopped = true;
-					return;}
                 if(isBinded){
                     unbindService(connection);
                     isBinded = true;
                 } 
+				if(isStopped){//是否意外停止，return为没有意外停止 比如ProgressDialog点击取消
+                    isStopped = true;
+					return;}
 				Message message = new Message();
 				message.what = ACTION_SENDER_ERROR;
 				message.obj = e;
@@ -143,7 +148,7 @@ public class SocketClientService extends Service
 		}
 	}
 	
-	class MessageHandler extends Handler{
+	private class MessageHandler extends Handler{
 		Context context;
 		MessageHandler(Context context){
 			this.context = context;
@@ -167,8 +172,6 @@ public class SocketClientService extends Service
 					dialog.getWindow().setType(Utilities.getLayoutParamsType());
 					dialog.show();
 					return;
-                case ACTION_SENDER_SUCCESS:
-                    return;
 			}
 		}
 	}

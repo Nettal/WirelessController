@@ -5,6 +5,7 @@ import n2lf.wirelesscontroller.activity.ModelEditorActivity;
 import java.io.File;
 import java.util.ArrayList;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 
 public class ModelManager implements java.io.Serializable
 {
@@ -26,11 +27,9 @@ public class ModelManager implements java.io.Serializable
         return list;
     }
 	public static ModelManager getModelFromFile(Context context , String fileName) 
-        throws Exception{
+        throws FileNotFoundException, ClassNotFoundException, IOException
+        {
             File file = new File(context.getExternalFilesDir("model") , fileName);
-            if(!file.exists()){
-                throw new Exception("Model not found by name");
-            }
             java.io.FileInputStream fis = new java.io.FileInputStream(file);
             java.io.ObjectInputStream ois = new java.io.ObjectInputStream(fis);
             ModelManager manager = (ModelManager)ois.readObject();
