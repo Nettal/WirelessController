@@ -45,6 +45,7 @@ public class SocketClientService extends Service
 		private String ip;
 		private int port;
 		private boolean isStopped;
+        private boolean isBinded;
 		private ProgressDialog progressDialog;
 		ServiceConnection connection;
         String modelName;
@@ -54,6 +55,7 @@ public class SocketClientService extends Service
 			this.ip = ip;
 			this.port = port;
 			this.isStopped = false;
+            this.isBinded = false;
             this.modelName = modelName;
 			progressDialog = new ProgressDialog(getApplicationContext());
 			progressDialog.setTitle("请等待");
@@ -91,6 +93,7 @@ public class SocketClientService extends Service
                 message.what = ACTION_SENDER_SUCCESS;
 				handler.sendMessage(message);
                 bindService(new Intent(getApplicationContext() , OverlayService.class) ,connection , 1 );
+                isBinded = true;
 				while(true){
 					if(isStopped){
 						break;}
@@ -106,14 +109,19 @@ public class SocketClientService extends Service
 				}
 				bw.close();
 				socket.close();
+                unbindService(connection);
+                isBinded = false;
 				stopSelf();
 			}
 			catch (IOException e){
 				progressDialog.dismiss();
-                unbindService(connection);
-				if(isStopped){
+				if(isStopped){//是否意外停止，return为没有意外停止
+                    isStopped = true;
 					return;}
-				isStopped = true;
+                if(isBinded){
+                    unbindService(connection);
+                    isBinded = true;
+                } 
 				Message message = new Message();
 				message.what = ACTION_SENDER_ERROR;
 				message.obj = e;

@@ -15,6 +15,7 @@ import android.text.TextWatcher;
 import android.text.Editable;
 import android.content.SharedPreferences;
 import n2lf.wirelesscontroller.service.SocketClientService;
+import n2lf.wirelesscontroller.utilities.ModelManager;
 
 public class MainActivity extends Activity {
     Button modelManagerButton;
@@ -59,7 +60,9 @@ public class MainActivity extends Activity {
         modelManagerButton.setOnClickListener(new OnClickListener(){
                 @Override
                 public void onClick(View p1){
-                    startActivity(new Intent(MainActivity.this,ModelEditorActivity.class));
+                    Intent intent = new Intent(MainActivity.this,ModelEditorActivity.class);
+                    intent.putExtra("modelName" , Utilities.DefaultModelName);
+                    startActivity(intent);
                 }
             });
     }

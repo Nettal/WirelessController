@@ -29,13 +29,13 @@ import n2lf.wirelesscontroller.utilities.colorpicker.ColorUtil;
 import android.text.Editable;
 import n2lf.wirelesscontroller.utilities.KeyCode;
 import n2lf.wirelesscontroller.utilities.SearchableDialog;
+import n2lf.wirelesscontroller.utilities.ModelManager;
 
 
 public class ModelEditorActivity extends Activity
 {
     private RelativeLayout relativeLayout;
     private TextView onAddTextView;
-    private boolean isOnAddEvent = false;
     
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -44,6 +44,7 @@ public class ModelEditorActivity extends Activity
         this.getActionBar().hide();
         this.setContentView(relativeLayout = new RelativeLayout(this));
         onAddTextView = new TextView(this);
+        onAddTextView.setText("");
         onAddTextView.setTextSize(Utilities.字体大小);
         RelativeLayout.LayoutParams rLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         rLP.addRule(RelativeLayout.CENTER_IN_PARENT);//线性布局在action_down时不会显示button bug?
@@ -53,7 +54,6 @@ public class ModelEditorActivity extends Activity
     
     
     private boolean addButtonStarted(){
-        isOnAddEvent = true;
         onAddTextView.setText(Utilities.点击选取位置[0]);//点击以选取按钮位置
         relativeLayout.setBackgroundColor(Utilities.EditorBackgroundColor);
         relativeLayout.setOnTouchListener(new onButtonAddTouchListener());
@@ -61,7 +61,6 @@ public class ModelEditorActivity extends Activity
     }
     
     private boolean addFinished(){
-        isOnAddEvent = false;
         onAddTextView.setText("");
         relativeLayout.setBackgroundColor(Color.alpha(0));
         relativeLayout.setOnTouchListener(null);//it is ok
@@ -341,7 +340,15 @@ public class ModelEditorActivity extends Activity
 		public float getWidthScreenRatio(){
 			return widthScreenRatio;
 		}
-		
+        
+		public float getXScreenRatio(){
+            return getX()/Utilities.getScreenHeight(getContext());
+        }
+
+        public float getYScreenRatio(){
+            return getY()/Utilities.getScreenWidth(getContext());
+		}
+        
         public void editThis(){
 			int size = Utilities.getMinSizeByRatio(this.getContext(),Utilities.DialogScreenRatio);
             AlertDialog alertDialog = buttonEditorBuilder.show();
@@ -449,7 +456,7 @@ public class ModelEditorActivity extends Activity
 	}
 	
     
-    private class TopButton extends Button implements android.widget.PopupMenu.OnDismissListener ,android.widget.PopupMenu.OnMenuItemClickListener
+    public class TopButton extends Button implements android.widget.PopupMenu.OnDismissListener ,android.widget.PopupMenu.OnMenuItemClickListener
     {
         PopupMenu popuMenu;
         TopButton(Context context , RelativeLayout relativeLayout){//创建button对象 & 为后来的悬浮按钮做准备
@@ -506,10 +513,26 @@ public class ModelEditorActivity extends Activity
         public boolean onMenuItemClick(MenuItem p1)
         {
             if(p1.getTitle().toString()==Utilities.添加界面的按键文字[0]){//完成
-                if(isOnAddEvent){
+                if(onAddTextView.getText().length()!=0){
                     addFinished();//处理背景变化和 onTouchEvent
                 }else{
-					
+					ModelManager model = new ModelManager(relativeLayout , getContext() , getIntent().getStringExtra("modelName"));
+                    Object o = model.saveModelToFile(getContext());
+                    if(o!=null){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setTitle("错误");
+                        builder.setMessage(o.toString());
+                        builder.setCancelable(false);
+                        builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener(){
+                                @Override
+                                public void onClick(android.content.DialogInterface p1, int p2){
+                                    
+                                }
+                            });
+                        AlertDialog dialog = builder.create();
+                        dialog.getWindow().setType(Utilities.getLayoutParamsType());
+                        dialog.show();
+                    }
                     ModelEditorActivity.this.finish();//此时应该保存模板
                 }
             }else if(p1.getTitle().toString()==Utilities.添加界面的按键文字[1]){//添加按钮
@@ -519,5 +542,14 @@ public class ModelEditorActivity extends Activity
             }
             return false;
         }
+        
+        public float getXScreenRatio(){
+            return getX()/Utilities.getScreenHeight(getContext());
+        }
+
+        public float getYScreenRatio(){
+            return getY()/Utilities.getScreenWidth(getContext());
+		}
+        
     }
 }
