@@ -12,13 +12,16 @@ import java.io.IOException;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.ServiceConnection;
+import android.content.ComponentName;
 
 public class SocketClientService extends Service
 {
 	public SyncedLinkedList actionQueue;
 	static final int ACTION_SENDER_ERROR = 128;
+    static final int ACTION_SENDER_SUCCESS = 127;
+    static final int ACTION_SENDER_STOPPED = 126;
 	MessageHandler messageHandler;
-	String modelName;
 	
 	@Override
 	public void onStart(Intent intent, int startId){
@@ -28,8 +31,7 @@ public class SocketClientService extends Service
 		if(messageHandler == null){
 			messageHandler = new MessageHandler(this);
 		}
-		modelName = intent.getStringExtra("modelName");
-		new ActionSender(messageHandler ,intent.getStringExtra("ip"), intent.getIntExtra("port" , Utilities.DefaultPort) , this).startAndGetDialog().show();
+		new ActionSender(messageHandler ,intent.getStringExtra("ip"), intent.getIntExtra("port" , Utilities.DefaultPort) , intent.getStringExtra("modelName")).startAndGetDialog().show();
 	}
 	
     @Override
@@ -37,20 +39,23 @@ public class SocketClientService extends Service
         return null;
     }
 
-	class ActionSender extends Thread
+	class ActionSender extends Thread//一一对应原则，一个model一个对象
 	{
 		private Handler handler;
 		private String ip;
 		private int port;
-		private boolean isOnStopped;
+		private boolean isStopped;
 		private ProgressDialog progressDialog;
-		
-		ActionSender(Handler handler , String ip , int port , Context context){
+		ServiceConnection connection;
+        String modelName;
+        
+		ActionSender(Handler handler , String ip , int port , String modelName){
 			this.handler = handler;
 			this.ip = ip;
 			this.port = port;
-			this.isOnStopped = false;
-			progressDialog = new ProgressDialog(context);
+			this.isStopped = false;
+            this.modelName = modelName;
+			progressDialog = new ProgressDialog(getApplicationContext());
 			progressDialog.setTitle("请等待");
 			progressDialog.setMessage("连接中...");
 			progressDialog.setCancelable(false);
@@ -59,20 +64,35 @@ public class SocketClientService extends Service
 					@Override
 					public void onClick(DialogInterface p1, int p2){
 						progressDialog.dismiss();
-						ActionSender.this.isOnStopped = true;
+						ActionSender.this.isStopped = true;
 					}
 				});
 			progressDialog.getWindow().setType(Utilities.getLayoutParamsType());
+            connection = new ServiceConnection(){
+                @Override
+                public void onServiceConnected(ComponentName p1, IBinder p2){
+                    ((OverlayService.OSBinder)p2).setBindedService(SocketClientService.this);
+                    ((OverlayService.OSBinder)p2).setSyncedLinkedList(actionQueue);
+                }
+                @Override
+                public void onServiceDisconnected(ComponentName p1){
+
+                }};
 		}
 		
 		@Override
 		public void run(){
 			try{
+                System.out.println("ip:"+ip+",port:"+port+",ModelName:"+modelName);
 				Socket socket = new Socket(ip, port);
 				BufferedWriter bw = new BufferedWriter(new java.io.OutputStreamWriter(socket.getOutputStream()));
 				progressDialog.dismiss();//Success
+                Message message = new Message();
+                message.what = ACTION_SENDER_SUCCESS;
+				handler.sendMessage(message);
+                bindService(new Intent(getApplicationContext() , OverlayService.class) ,connection , 1 );
 				while(true){
-					if(isOnStopped){
+					if(isStopped){
 						break;}
 					if(actionQueue.isEmpty()){
 						try{
@@ -90,9 +110,10 @@ public class SocketClientService extends Service
 			}
 			catch (IOException e){
 				progressDialog.dismiss();
-				if(isOnStopped){
+                unbindService(connection);
+				if(isStopped){
 					return;}
-				isOnStopped = true;
+				isStopped = true;
 				Message message = new Message();
 				message.what = ACTION_SENDER_ERROR;
 				message.obj = e;
@@ -105,12 +126,12 @@ public class SocketClientService extends Service
 			return progressDialog;
 		}
 		
-		public boolean isOnStopped(){
-			return isOnStopped;
+		public boolean isStopped(){
+			return isStopped;
 		}
 		
 		public void setToStop(){
-			this.isOnStopped = true;
+			this.isStopped = true;
 		}
 	}
 	
@@ -137,7 +158,9 @@ public class SocketClientService extends Service
 					AlertDialog dialog = builder.create();
 					dialog.getWindow().setType(Utilities.getLayoutParamsType());
 					dialog.show();
-					break;
+					return;
+                case ACTION_SENDER_SUCCESS:
+                    return;
 			}
 		}
 	}

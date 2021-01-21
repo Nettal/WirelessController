@@ -34,7 +34,7 @@ import n2lf.wirelesscontroller.utilities.SearchableDialog;
 public class ModelEditorActivity extends Activity
 {
     private RelativeLayout relativeLayout;
-    private TextView onEditTextView;
+    private TextView onAddTextView;
     private boolean isOnAddEvent = false;
     
     @Override
@@ -43,19 +43,18 @@ public class ModelEditorActivity extends Activity
         super.onCreate(savedInstanceState);
         this.getActionBar().hide();
         this.setContentView(relativeLayout = new RelativeLayout(this));
-        onEditTextView = new TextView(this);
-        onEditTextView.setTextSize(Utilities.字体大小);
-        onEditTextView.setGravity(Gravity.CENTER);
-        RelativeLayout.LayoutParams rLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        rLP.addRule(RelativeLayout.CENTER_VERTICAL);//线性布局在action_down时不会显示button bug？
-        relativeLayout.addView(onEditTextView,rLP);
-        relativeLayout.post(new CreatFloatButton(this));//延时添加按钮，否则会throw
+        onAddTextView = new TextView(this);
+        onAddTextView.setTextSize(Utilities.字体大小);
+        RelativeLayout.LayoutParams rLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        rLP.addRule(RelativeLayout.CENTER_IN_PARENT);//线性布局在action_down时不会显示button bug?
+        relativeLayout.addView(onAddTextView,rLP);
+        new TopButton(this , relativeLayout);
     }
     
     
     private boolean addButtonStarted(){
         isOnAddEvent = true;
-        onEditTextView.setText(Utilities.点击选取位置[0]);//点击以选取按钮位置
+        onAddTextView.setText(Utilities.点击选取位置[0]);//点击以选取按钮位置
         relativeLayout.setBackgroundColor(Utilities.EditorBackgroundColor);
         relativeLayout.setOnTouchListener(new onButtonAddTouchListener());
         return true;
@@ -63,7 +62,7 @@ public class ModelEditorActivity extends Activity
     
     private boolean addFinished(){
         isOnAddEvent = false;
-        onEditTextView.setText("");
+        onAddTextView.setText("");
         relativeLayout.setBackgroundColor(Color.alpha(0));
         relativeLayout.setOnTouchListener(null);//it is ok
         return true;
@@ -450,27 +449,28 @@ public class ModelEditorActivity extends Activity
 	}
 	
     
-    private class CreatFloatButton extends Button implements Runnable , android.widget.PopupMenu.OnDismissListener ,android.widget.PopupMenu.OnMenuItemClickListener
+    private class TopButton extends Button implements android.widget.PopupMenu.OnDismissListener ,android.widget.PopupMenu.OnMenuItemClickListener
     {
-        WindowManager windowManager;
-        WindowManager.LayoutParams layoutParams;
         PopupMenu popuMenu;
-        CreatFloatButton(Context context){//创建button对象 & 为后来的悬浮按钮做准备
+        TopButton(Context context , RelativeLayout relativeLayout){//创建button对象 & 为后来的悬浮按钮做准备
             super(context);
-            windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-            layoutParams = new WindowManager.LayoutParams();
+            RelativeLayout.LayoutParams rLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            rLP.addRule(RelativeLayout.CENTER_IN_PARENT);
+            rLP.height = rLP.width = Utilities.getMinSizeByRatio(context , Utilities.DefaultButtonSizeScreenRatio);
+            relativeLayout.addView(this , rLP);
             popuMenu = new PopupMenu(ModelEditorActivity.this , this);//按钮点击时的菜单
             for(String i :Utilities.添加界面的按键文字){
                 popuMenu.getMenu().add(i);
             }
             popuMenu.setOnDismissListener(this);
             popuMenu.setOnMenuItemClickListener(this);
+            
         }
         
         
         //处理按钮移动和按钮单击操作
-        private int lastX;//你可以用float，但会出现按键漂移问题
-        private int lastY;
+        private float lastX;//你可以用float，但会出现按键漂移问题
+        private float lastY;
         private float onDownX;
         private float onDownY;
         @Override
@@ -478,54 +478,28 @@ public class ModelEditorActivity extends Activity
         {
             switch(event.getAction()){
                 case event.ACTION_DOWN:
-                    lastX = (int) (onDownX = event.getRawX());
-                    lastY = (int) (onDownY = event.getRawY());
+                    lastX = onDownX = event.getRawX();
+                    lastY = onDownY = event.getRawY();
                     return true;
                 case event.ACTION_MOVE:
-                    layoutParams.x -= lastX-event.getRawX();
-                    layoutParams.y -= lastY-event.getRawY();
-                    lastX = (int) event.getRawX();
-                    lastY = (int) event.getRawY();
-                    windowManager.updateViewLayout(this , layoutParams);
+                    this.setX(-(int)lastX+(int)event.getRawX()+(int)this.getX());//转换成int以防止出现过大的误差，导致按钮漂移
+                    this.setY(-(int)lastY+(int)event.getRawY()+(int)this.getY());
+                    lastX = event.getRawX();
+                    lastY = event.getRawY();
                     return true;
                 case event.ACTION_UP:
                     if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.偏移量){//判断是否点击按钮
-                        popuMenu.show();
+                        this.popuMenu.show();
                         return true;
                     }
+                default:
                     return false;
             }
-            return false;
-        }  
-        
-        
-        
-        //implements
-        
-        //运行此方法时添加按键
-        @Override
-        public void run()
-        {
-            layoutParams.type = layoutParams.TYPE_APPLICATION;
-            /*
-             如果没有设置FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方不能点击。
-             如果设置了FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方能够点击、但是弹窗上的EditText无法输入、键盘也不会弹出来。
-             如果设置了FLAG_NOT_TOUCH_MODAL，那么屏幕上弹窗之外的地方能够点击、弹窗上的EditText也可以输入、键盘能够弹出来。
-             FLAG_FULLSCREEN Activity窗口全屏，状态栏不显示。
-            */
-            layoutParams.flags = layoutParams.FLAG_NOT_TOUCH_MODAL|layoutParams.FLAG_NOT_FOCUSABLE|layoutParams.FLAG_FULLSCREEN;
-            layoutParams.gravity=Gravity.TOP|Gravity.LEFT;
-            layoutParams.format= android.graphics.PixelFormat.RGBA_8888;
-            layoutParams.alpha= Utilities.DefaultButtonAlpha;
-            layoutParams.width = (layoutParams.height = Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio));
-			layoutParams.x = (windowManager.getDefaultDisplay().getWidth()>>1) - layoutParams.width;
-            layoutParams.y = (windowManager.getDefaultDisplay().getHeight()>>1) - layoutParams.height;//除2
-            windowManager.addView(this , layoutParams);
         }  
         
         @Override
-        public void onDismiss(PopupMenu p1)
-        {
+        public void onDismiss(PopupMenu p1){
+            p1.dismiss();
         }
         
         @Override
