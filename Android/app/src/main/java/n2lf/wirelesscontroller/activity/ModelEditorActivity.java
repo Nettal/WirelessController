@@ -36,6 +36,7 @@ public class ModelEditorActivity extends Activity
 {
     private RelativeLayout relativeLayout;
     private TextView onAddTextView;
+    private ToolButton toolButton;
     
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -49,7 +50,7 @@ public class ModelEditorActivity extends Activity
         RelativeLayout.LayoutParams rLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         rLP.addRule(RelativeLayout.CENTER_IN_PARENT);//线性布局在action_down时不会显示button bug?
         relativeLayout.addView(onAddTextView,rLP);
-        new ToolButton(this , relativeLayout);
+        toolButton = new ToolButton(this , relativeLayout);
     }
     
     
@@ -88,6 +89,7 @@ public class ModelEditorActivity extends Activity
                     keyCodeButton.setX(onDownX-buttonSize/2);//否则按钮会在点击位置的右下角
                     keyCodeButton.setY(onDownY-buttonSize/2);    
                     relativeLayout.addView(keyCodeButton,buttonSize,buttonSize);
+                    toolButton.bringToFront();//置于等层
                     return true;
                 case event.ACTION_MOVE:
                     keyCodeButton.setX(event.getX()-buttonSize/2);
@@ -464,7 +466,7 @@ public class ModelEditorActivity extends Activity
             RelativeLayout.LayoutParams rLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
             rLP.addRule(RelativeLayout.CENTER_IN_PARENT);
             rLP.height = rLP.width = Utilities.getMinSizeByRatio(context , Utilities.DefaultButtonSizeScreenRatio);
-            relativeLayout.addView(this , rLP);
+            relativeLayout.addView(this, rLP);
             popuMenu = new PopupMenu(ModelEditorActivity.this , this);//按钮点击时的菜单
             for(String i :Utilities.添加界面的按键文字){
                 popuMenu.getMenu().add(i);
