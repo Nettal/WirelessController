@@ -1,15 +1,16 @@
 package n2lf.wirelesscontroller.utilities;
 import android.content.Context;
 import android.view.ViewGroup;
-import n2lf.wirelesscontroller.activity.ModelEditorActivity;
 import java.io.File;
-import java.util.ArrayList;
-import java.io.IOException;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import n2lf.wirelesscontroller.activity.ModelEditorActivity;
+import n2lf.wirelesscontroller.service.OverlayService;
+
 
 public class ModelManager implements java.io.Serializable
 {
-    private static final long serialVersionUID = -8485794206615001973L;
     public static ArrayList getAllModelFileName(Context context , boolean deleteIllegalFile){
         ArrayList list = new ArrayList<String>();
         File file = context.getExternalFilesDir("model");
@@ -37,21 +38,21 @@ public class ModelManager implements java.io.Serializable
 	}
 	
     
-	private ArrayList buttonList;
+	private ArrayList keyCodeButtonPropList;
 	private String modelName;
+    private ToolButtonProperties toolButtinProp;
     int screenWidth;
     int screenHeight;
 	public ModelManager(ViewGroup viewGroup , int screenWidth , int screenHeight ,  String modelName){
 		this.modelName = modelName;
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
-		buttonList = new ArrayList<ButtonProperties>();
+		keyCodeButtonPropList = new ArrayList<KeyCodeButtonProperties>();
 		for(int i = 0; i < viewGroup.getChildCount(); i++){
-			if(viewGroup.getChildAt(i) instanceof ModelEditorActivity.OverviewButton){
-				buttonList.add(new ButtonProperties((ModelEditorActivity.OverviewButton)viewGroup.getChildAt(i)));
-			}else if(viewGroup.getChildAt(i) instanceof ModelEditorActivity.TopButton){
-               TopbuttonXScreenRatio = ((ModelEditorActivity.TopButton)viewGroup.getChildAt(i)).getXScreenRatio();
-                TopbuttonYScreenRatio = ((ModelEditorActivity.TopButton)viewGroup.getChildAt(i)).getYScreenRatio();
+			if(viewGroup.getChildAt(i) instanceof ModelEditorActivity.KeyCodeButton){
+			    keyCodeButtonPropList.add(new KeyCodeButtonProperties((ModelEditorActivity.KeyCodeButton)viewGroup.getChildAt(i)));
+			}else if(viewGroup.getChildAt(i) instanceof ModelEditorActivity.ToolButton){
+                toolButtinProp = new ToolButtonProperties((ModelEditorActivity.ToolButton)viewGroup.getChildAt(i));
             }
 		}
 	}
@@ -59,11 +60,6 @@ public class ModelManager implements java.io.Serializable
     public ModelManager(ViewGroup viewGroup , Context context , String modelName){
         this(viewGroup , Utilities.getScreenWidth(context) , Utilities.getScreenHeight(context) , modelName);
     }
-	
-	public void loadModelForViewGroup(ViewGroup viewGroup){
-        
-		
-	}
 	
     public String getModelName(){
         return modelName;
@@ -96,33 +92,95 @@ public class ModelManager implements java.io.Serializable
         }
 		return null;
 	}
-    
-    float TopbuttonXScreenRatio;
-    float TopbuttonYScreenRatio;
 
-    @Override
-    public String toString(){
-        return new String("Contain "+buttonList.size()+"Button Properties");
+    public void updateToolButtonProp(OverlayService.ToolButton button){
+        toolButtinProp = new ToolButtonProperties(button);
     }
     
-	class ButtonProperties implements java.io.Serializable{
-		String buttonName;
-		float buttonWidthScreenRatio;
-		float buttonHeightScreenRatio;
-		float buttonXScreenRatio;
-		float buttonYScreenRatio;
-		int buttonTextColor;
+     public KeyCodeButtonProperties[] getKeyCodeButtonPropList(){
+         KeyCodeButtonProperties[] propList = new KeyCodeButtonProperties[keyCodeButtonPropList.size()];
+        return (KeyCodeButtonProperties[])keyCodeButtonPropList.toArray(propList);
+    }
+    
+    public ToolButtonProperties getToolButtonProp(){
+        return toolButtinProp;
+    }
+    
+	public class KeyCodeButtonProperties implements java.io.Serializable{
+		String buttonName;//nullable
+		float widthScreenRatio;
+		float heightScreenRatio;
+		float XScreenRatio;
+		float YScreenRatio;
+		int textColor;
 		String buttonColorString;//null为未修改
 		int keyCode;
-		ButtonProperties(ModelEditorActivity.OverviewButton overviewButton){
-			buttonName = overviewButton.getText().toString();
-			buttonWidthScreenRatio = overviewButton.getWidthScreenRatio();
-			buttonHeightScreenRatio = overviewButton.getHeightScreenRatio();
-			buttonXScreenRatio = overviewButton.getXScreenRatio();
-			buttonYScreenRatio = overviewButton.getYScreenRatio();
-			buttonTextColor = overviewButton.getTextColors().getDefaultColor();
-			buttonColorString = overviewButton.getButtonColorString();
-			keyCode = overviewButton.getKeyCode();
+		KeyCodeButtonProperties(ModelEditorActivity.KeyCodeButton keyCodeButton){
+			buttonName = keyCodeButton.getText().toString();
+			widthScreenRatio = keyCodeButton.getWidthScreenRatio();
+			heightScreenRatio = keyCodeButton.getHeightScreenRatio();
+			XScreenRatio = keyCodeButton.getXScreenRatio();
+			YScreenRatio = keyCodeButton.getYScreenRatio();
+			textColor = keyCodeButton.getTextColors().getDefaultColor();
+			buttonColorString = keyCodeButton.getButtonColorString();
+			keyCode = keyCodeButton.getKeyCode();
 		}
+        
+        public int getKeyCode(){
+            return keyCode;
+        }
+        
+        public int getTextColor(){
+            return textColor;
+        }
+        
+        public String getButtonName(){
+            return buttonName;//nullable
+        }
+        
+        public String getButtonColorString(){
+            return buttonColorString;
+        }
+        
+        public int getWidth(Context context){
+            return (int)(Utilities.getScreenWidth(context)*widthScreenRatio);
+        }
+
+        public int getHeight(Context context){
+            return (int)(Utilities.getScreenHeight(context)*heightScreenRatio);
+        }
+        
+        public float getX(Context context){
+            return Utilities.getScreenHeight(context)*XScreenRatio;
+        }
+
+        public float getY(Context context){
+            return Utilities.getScreenWidth(context)*YScreenRatio;
+        }
+        
+        public boolean isMouseKeyCode(){
+            return KeyCode.isMouseKeyCode(keyCode);
+        }
 	}
+    
+    public class ToolButtonProperties implements java.io.Serializable{
+        private float ToolbuttonXScreenRatio;
+        private float ToolbuttonYScreenRatio;
+        ToolButtonProperties(ModelEditorActivity.ToolButton button){
+            ToolbuttonXScreenRatio = button.getXScreenRatio();
+            ToolbuttonYScreenRatio = button.getYScreenRatio();
+        }
+        ToolButtonProperties(OverlayService.ToolButton button){
+            ToolbuttonXScreenRatio = button.getXScreenRatio();
+            ToolbuttonYScreenRatio = button.getYScreenRatio();
+        }
+        
+        public float getX(Context context){
+            return Utilities.getScreenHeight(context)*ToolbuttonXScreenRatio;
+        }
+        
+        public float getY(Context context){
+            return Utilities.getScreenWidth(context)*ToolbuttonYScreenRatio;
+        }
+    }
 }

@@ -49,7 +49,7 @@ public class ModelEditorActivity extends Activity
         RelativeLayout.LayoutParams rLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         rLP.addRule(RelativeLayout.CENTER_IN_PARENT);//线性布局在action_down时不会显示button bug?
         relativeLayout.addView(onAddTextView,rLP);
-        new TopButton(this , relativeLayout);
+        new ToolButton(this , relativeLayout);
     }
     
     
@@ -74,7 +74,7 @@ public class ModelEditorActivity extends Activity
         private int lastY;
         private float onDownX;
         private float onDownY;
-        OverviewButton overviewButton;
+        KeyCodeButton keyCodeButton;
         int buttonSize;
         @Override
         public boolean onTouch(View p1, MotionEvent event)
@@ -83,18 +83,18 @@ public class ModelEditorActivity extends Activity
                 case event.ACTION_DOWN:
                     lastX = (int) (onDownX = event.getX());
                     lastY = (int) (onDownY = event.getY());
-                    overviewButton = new OverviewButton(ModelEditorActivity.this);
+                    keyCodeButton = new KeyCodeButton(ModelEditorActivity.this);
                     buttonSize = Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio);
-                    overviewButton.setX(onDownX-buttonSize/2);//否则按钮会在点击位置的右下角
-                    overviewButton.setY(onDownY-buttonSize/2);    
-                    relativeLayout.addView(overviewButton,buttonSize,buttonSize);
+                    keyCodeButton.setX(onDownX-buttonSize/2);//否则按钮会在点击位置的右下角
+                    keyCodeButton.setY(onDownY-buttonSize/2);    
+                    relativeLayout.addView(keyCodeButton,buttonSize,buttonSize);
                     return true;
                 case event.ACTION_MOVE:
-                    overviewButton.setX(event.getX()-buttonSize/2);
-                    overviewButton.setY(event.getY()-buttonSize/2);
+                    keyCodeButton.setX(event.getX()-buttonSize/2);
+                    keyCodeButton.setY(event.getY()-buttonSize/2);
                     return true;
                 case event.ACTION_UP:
-                    overviewButton.editThis();//must edit at once
+                    keyCodeButton.editThis();//must edit at once
                     return true;
                 default:
                     return false;
@@ -103,10 +103,8 @@ public class ModelEditorActivity extends Activity
     }
     
     /*预览按钮*/
-    public class OverviewButton extends Button
+    public class KeyCodeButton extends Button
     {
-        private float widthScreenRatio;
-        private float heightScreenRatio;
         private AlertDialog.Builder buttonEditorBuilder;//多次使用
         private AlertDialog.Builder tempBuilder;//每次setView()
         private ColorPickerView colorPickerView;//多次使用
@@ -123,11 +121,10 @@ public class ModelEditorActivity extends Activity
         private EditText stringARGBEditText;
         private TextView titleTextView;
         
-        OverviewButton(Context context){
+        KeyCodeButton(Context context){
             super(context);
             keyCodeIndex = -1;
             //原生按钮
-            this.widthScreenRatio = this.heightScreenRatio = Utilities.DefaultButtonSizeScreenRatio;
             this.setAllCaps(false);//字母自动大写
             this.setAutoSizeTextTypeWithDefaults(Button.AUTO_SIZE_TEXT_TYPE_UNIFORM);//根据文字多少改变字体大小
             //颜色选择
@@ -147,12 +144,12 @@ public class ModelEditorActivity extends Activity
                                 @Override
                                 public void onColorChanged(int color){
                                     stringARGBEditText.setText(ColorUtil.convertToARGB(color).toString());
-                                    OverviewButton.this.setTextColor(color);
+                                    KeyCodeButton.this.setTextColor(color);
                                 }
                             });
-                        colorPickerView.setColor(OverviewButton.this.getTextColors().getDefaultColor());
+                        colorPickerView.setColor(KeyCodeButton.this.getTextColors().getDefaultColor());
                         tempBuilder.setView(colorPickerView);
-                        int size = Utilities.getMinSizeByRatio(OverviewButton.this.getContext(),Utilities.DialogScreenRatio);
+                        int size = Utilities.getMinSizeByRatio(KeyCodeButton.this.getContext(),Utilities.DialogScreenRatio);
                         AlertDialog alertDialog = tempBuilder.show();
 						alertDialog.getWindow().setDimAmount(0f);//去除黑色遮罩;
 						alertDialog.getWindow().setLayout(size , size);
@@ -167,12 +164,12 @@ public class ModelEditorActivity extends Activity
                                 @Override
                                 public void onColorChanged(int color){
                                     buttonARGBEditText.setText(ColorUtil.convertToARGB(color).toString());
-                                    OverviewButton.this.setButtonColor(color);
+                                    KeyCodeButton.this.setButtonColor(color);
                                 }
                             });
-                        colorPickerView.setColor(OverviewButton.this.getButtonColorInt());
+                        colorPickerView.setColor(KeyCodeButton.this.getButtonColorInt());
                         tempBuilder.setView(colorPickerView);
-                        int size = Utilities.getMinSizeByRatio(OverviewButton.this.getContext(),Utilities.DialogScreenRatio);
+                        int size = Utilities.getMinSizeByRatio(KeyCodeButton.this.getContext(),Utilities.DialogScreenRatio);
                         AlertDialog alertDialog = tempBuilder.show();
 						alertDialog.getWindow().setDimAmount(0f);//去除黑色遮罩;
 						alertDialog.getWindow().setLayout(size , size);
@@ -183,7 +180,7 @@ public class ModelEditorActivity extends Activity
                 new OnClickListener(){
                     @Override
                     public void onClick(View p1){
-                        new SearchableDialog(OverviewButton.this.getContext() , KeyCode.getAllKeyName() , keyCodeIndex , new SearchableDialog.IndexChangeListener(){
+                        new SearchableDialog(KeyCodeButton.this.getContext() , KeyCode.getAllKeyName() , keyCodeIndex , new SearchableDialog.IndexChangeListener(){
 								@Override
 								public void onIndexChange(int index){
 									keyCodeIndex = index;
@@ -199,9 +196,9 @@ public class ModelEditorActivity extends Activity
                 new sizeEditTextWatcher(buttonWidthEditText , new Utilities.FloatChangeListener(){
                         @Override
                         public boolean onFloatChange(float f){
-                            if(f*Utilities.getScreenWidth(OverviewButton.this.getContext())>=Utilities.getMinSizeByRatio(OverviewButton.this.getContext(),Utilities.MiniButtonSizeScreenRatio)){//判断是否过小
-                            widthScreenRatio = f;  /*不能太小，不然不会显示，此处为大小合适*/
-                            relativeLayout.updateViewLayout(OverviewButton.this , new RelativeLayout.LayoutParams((int)(f*Utilities.getScreenWidth(OverviewButton.this.getContext())),OverviewButton.this.getHeight()));
+                            if(f*Utilities.getScreenWidth(KeyCodeButton.this.getContext())>=Utilities.getMinSizeByRatio(KeyCodeButton.this.getContext(),Utilities.MiniButtonSizeScreenRatio)){//判断是否过小
+                            /*不能太小，不然不会显示，此处为大小合适*/
+                            relativeLayout.updateViewLayout(KeyCodeButton.this , new RelativeLayout.LayoutParams((int)(f*Utilities.getScreenWidth(KeyCodeButton.this.getContext())),KeyCodeButton.this.getHeight()));
                             return true;}
                             return false;
                         }
@@ -211,9 +208,9 @@ public class ModelEditorActivity extends Activity
                 new sizeEditTextWatcher(buttonHeightEditText , new Utilities.FloatChangeListener(){
                         @Override
                         public boolean onFloatChange(float f){
-                            if(f*Utilities.getScreenHeight(OverviewButton.this.getContext())>=Utilities.getMinSizeByRatio(OverviewButton.this.getContext(),Utilities.MiniButtonSizeScreenRatio)){//判断是否过小
-                            heightScreenRatio = f;   /*不能太小，此时大小合适*/
-                            relativeLayout.updateViewLayout(OverviewButton.this , new RelativeLayout.LayoutParams(OverviewButton.this.getWidth(),(int)(f*Utilities.getScreenHeight(OverviewButton.this.getContext()))));
+                            if(f*Utilities.getScreenHeight(KeyCodeButton.this.getContext())>=Utilities.getMinSizeByRatio(KeyCodeButton.this.getContext(),Utilities.MiniButtonSizeScreenRatio)){//判断是否过小
+                            /*不能太小，此时大小合适*/
+                            relativeLayout.updateViewLayout(KeyCodeButton.this , new RelativeLayout.LayoutParams(KeyCodeButton.this.getWidth(),(int)(f*Utilities.getScreenHeight(KeyCodeButton.this.getContext()))));
                             return true;}
                             return false;
                         }
@@ -225,7 +222,7 @@ public class ModelEditorActivity extends Activity
                 new argbEditTextWatcher(buttonARGBEditText, new ColorPickerView.OnColorChangedListener(){
                         @Override
                         public void onColorChanged(int color){
-                            OverviewButton.this.setButtonColor(color);
+                            KeyCodeButton.this.setButtonColor(color);
                         }
                     }));
 			
@@ -233,7 +230,7 @@ public class ModelEditorActivity extends Activity
                 new argbEditTextWatcher(stringARGBEditText, new ColorPickerView.OnColorChangedListener(){
                         @Override
                         public void onColorChanged(int color){
-                            OverviewButton.this.setTextColor(color);
+                            KeyCodeButton.this.setTextColor(color);
                         }
                     }));
 			
@@ -255,7 +252,7 @@ public class ModelEditorActivity extends Activity
                 new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface p1, int p2){
-                        relativeLayout.removeView(ModelEditorActivity.OverviewButton.this);
+                        relativeLayout.removeView(ModelEditorActivity.KeyCodeButton.this);
                     }
                 });
         }
@@ -330,23 +327,26 @@ public class ModelEditorActivity extends Activity
 		}
 		
 		public int getKeyCode(){
+            if(keyCodeIndex==-1){
+                return -1;
+            }
 			return KeyCode.getAllKeyCode()[keyCodeIndex];
 		}
 		
 		public float getHeightScreenRatio(){
-			return heightScreenRatio;
+			return (float)getHeight()/(float)Utilities.getScreenHeight(getContext());
 		}
 		
 		public float getWidthScreenRatio(){
-			return widthScreenRatio;
+			return (float)getWidth()/(float)Utilities.getScreenWidth(getContext());
 		}
         
 		public float getXScreenRatio(){
-            return getX()/Utilities.getScreenHeight(getContext());
+            return (float)getX()/(float)Utilities.getScreenHeight(getContext());
         }
 
         public float getYScreenRatio(){
-            return getY()/Utilities.getScreenWidth(getContext());
+            return (float)getY()/(float)Utilities.getScreenWidth(getContext());
 		}
         
         public void editThis(){
@@ -434,8 +434,8 @@ public class ModelEditorActivity extends Activity
 	
 	private class nameEditTextWatcher implements android.text.TextWatcher{
 		EditText editText;
-		OverviewButton button;
-		nameEditTextWatcher(EditText editText , OverviewButton button){
+		KeyCodeButton button;
+		nameEditTextWatcher(EditText editText , KeyCodeButton button){
 			this.editText = editText;
 			this.button = button;
 		}
@@ -456,10 +456,10 @@ public class ModelEditorActivity extends Activity
 	}
 	
     
-    public class TopButton extends Button implements android.widget.PopupMenu.OnDismissListener ,android.widget.PopupMenu.OnMenuItemClickListener
+    public class ToolButton extends Button implements android.widget.PopupMenu.OnDismissListener ,android.widget.PopupMenu.OnMenuItemClickListener
     {
         PopupMenu popuMenu;
-        TopButton(Context context , RelativeLayout relativeLayout){//创建button对象 & 为后来的悬浮按钮做准备
+        ToolButton(Context context , RelativeLayout relativeLayout){//创建button对象 & 为后来的悬浮按钮做准备
             super(context);
             RelativeLayout.LayoutParams rLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
             rLP.addRule(RelativeLayout.CENTER_IN_PARENT);
@@ -544,11 +544,11 @@ public class ModelEditorActivity extends Activity
         }
         
         public float getXScreenRatio(){
-            return getX()/Utilities.getScreenHeight(getContext());
+            return (float)getX()/(float)Utilities.getScreenHeight(getContext());
         }
 
         public float getYScreenRatio(){
-            return getY()/Utilities.getScreenWidth(getContext());
+            return (float)getY()/(float)Utilities.getScreenWidth(getContext());
 		}
         
     }

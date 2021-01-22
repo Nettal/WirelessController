@@ -716,8 +716,7 @@ public class KeyCode {
         }
         
         public static boolean isMouseKeyCode(int keycode){
-        if(
-            (keycode == 1<<6) ||
+        if( (keycode == 1<<6) ||
             (keycode == 1<<7) ||
             (keycode == 1<<8) ||
             (keycode == 1<<9) ||
@@ -741,8 +740,7 @@ public class KeyCode {
             (keycode == 1<<27) ||
             (keycode == 1<<28) ||
             (keycode == 1<<29) ||
-            (keycode == 1<<30))
-        {
+            (keycode == 1<<30) ){
             return true;
         }
         return false;

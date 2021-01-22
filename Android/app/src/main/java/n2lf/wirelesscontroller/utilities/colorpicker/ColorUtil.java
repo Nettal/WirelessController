@@ -35,17 +35,16 @@ public class ColorUtil {
      * For custom purposes. Not used by ColorPickerPreferrence
      * 
      * @param argb
-     * @throws Exception
+     * @throws RuntimeException
      * @author 37385
      */
-    public static int convertToColorInt(String argb)
-    throws Exception {
+    public static int convertToColorInt(String argb){
         if (argb.startsWith("#")) {
             argb = argb.replace("#", "");
         }
 
         if(argb.length() != 8 && argb.length() != 6 || argb.replaceAll("\\d+","").replaceAll("[a-fA-F]","").length() != 0){
-            throw new Exception("IllegaARGBString");
+            throw new RuntimeException("IllegaARGBString");
         }
 
         int alpha = -1, red = -1, green = -1, blue = -1;
