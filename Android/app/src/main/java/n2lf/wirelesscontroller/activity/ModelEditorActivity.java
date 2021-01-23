@@ -30,6 +30,7 @@ import android.text.Editable;
 import n2lf.wirelesscontroller.utilities.KeyCode;
 import n2lf.wirelesscontroller.utilities.SearchableDialog;
 import n2lf.wirelesscontroller.utilities.ModelManager;
+import java.io.IOException;
 
 
 public class ModelEditorActivity extends Activity
@@ -51,6 +52,18 @@ public class ModelEditorActivity extends Activity
         rLP.addRule(RelativeLayout.CENTER_IN_PARENT);//线性布局在action_down时不会显示button bug?
         relativeLayout.addView(onAddTextView,rLP);
         toolButton = new ToolButton(this , relativeLayout);
+		try{
+			ModelManager modelManager = ModelManager.getModelFromFile(this , getIntent().getStringExtra("modelName"));
+			for(int i =0 ; i<modelManager.getKeyCodeButtonPropList().length ; i++){
+				new KeyCodeButton(relativeLayout , modelManager.getKeyCodeButtonPropList()[i]);
+			}
+		}
+		catch (ClassNotFoundException e){
+			e.printStackTrace();
+		}
+		catch (IOException e){
+			e.printStackTrace();
+		}
     }
     
     
@@ -258,7 +271,25 @@ public class ModelEditorActivity extends Activity
                     }
                 });
         }
-        
+		
+		KeyCodeButton(ViewGroup viewGroup, ModelManager.KeyCodeButtonProperties prop){
+			this(viewGroup.getContext());
+			this.keyCodeIndex = prop.getKeyCodeIndex();
+			this.setTextColor(prop.getTextColor());
+			stringARGBEditText.setText(ColorUtil.convertToARGB(prop.getTextColor()));
+			this.setX(prop.getX(getContext()));
+			this.setY(prop.getY(getContext()));
+			if(prop.getButtonColorString()!=null){
+                this.setButtonColor(ColorUtil.convertToColorInt(prop.getButtonColorString()));
+				buttonARGBEditText.setText(prop.getButtonColorString());
+            }
+            if(prop.getButtonName()!=null){
+                this.setText(prop.getButtonName());
+				buttonNameEditText.setText(prop.getButtonName());
+            }
+            this.setAutoSizeTextTypeWithDefaults(android.widget.Button.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+            viewGroup.addView(this , prop.getWidth(getContext()) , prop.getHeight(getContext()));
+		}
         
         private float lastX;
         private float lastY;
@@ -335,6 +366,10 @@ public class ModelEditorActivity extends Activity
 			return KeyCode.getAllKeyCode()[keyCodeIndex];
 		}
 		
+		public int getKeyCodeIndex(){
+			return keyCodeIndex;
+		}
+		
 		public float getHeightScreenRatio(){
 			return (float)getHeight()/(float)Utilities.getScreenHeight(getContext());
 		}
@@ -353,10 +388,12 @@ public class ModelEditorActivity extends Activity
         
         public void editThis(){
             if(buttonHeightEditText.getText()==null || buttonHeightEditText.getText().length()==0){
-                buttonHeightEditText.setText(String.valueOf(getHeightScreenRatio()));
+				int buttonSize = Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio);
+                buttonHeightEditText.setText(String.valueOf((float)buttonSize/(float)Utilities.getScreenHeight(getContext())));
             }
             if(buttonWidthEditText.getText()==null || buttonWidthEditText.getText().length()==0){
-                buttonWidthEditText.setText(String.valueOf(getWidthScreenRatio()));
+				int buttonSize = Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio);
+                buttonWidthEditText.setText(String.valueOf((float)buttonSize/(float)Utilities.getScreenWidth(getContext())));
             }
 			int size = Utilities.getMinSizeByRatio(this.getContext(),Utilities.DialogScreenRatio);
             AlertDialog alertDialog = buttonEditorBuilder.show();

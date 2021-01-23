@@ -115,6 +115,7 @@ public class ModelManager implements java.io.Serializable
 		int textColor;
 		String buttonColorString;//null为未修改
 		int keyCode;
+		int KeyCodeIndex;
 		KeyCodeButtonProperties(ModelEditorActivity.KeyCodeButton keyCodeButton){
 			buttonName = keyCodeButton.getText().toString();
 			widthScreenRatio = keyCodeButton.getWidthScreenRatio();
@@ -124,12 +125,17 @@ public class ModelManager implements java.io.Serializable
 			textColor = keyCodeButton.getTextColors().getDefaultColor();
 			buttonColorString = keyCodeButton.getButtonColorString();
 			keyCode = keyCodeButton.getKeyCode();
+			KeyCodeIndex = keyCodeButton.getKeyCodeIndex();
 		}
         
         public int getKeyCode(){
             return keyCode;
         }
         
+		public int getKeyCodeIndex(){
+			return KeyCodeIndex;
+		}
+		
         public int getTextColor(){
             return textColor;
         }

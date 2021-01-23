@@ -56,8 +56,9 @@ public class OverlayService extends Service
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         windowManagerLP = new WindowManager.LayoutParams();
         relativeLayout = new RelativeLayout(OverlayService.this);
+		new TouchPadButton(relativeLayout , syncedLinkedList);
         for(int i = 0 ; i< modelManager.getKeyCodeButtonPropList().length ; i++){
-            new KeyButton(relativeLayout , modelManager.getKeyCodeButtonPropList()[i] , syncedLinkedList);
+            new KeyButton(relativeLayout , modelManager.getKeyCodeButtonPropList()[i] , syncedLinkedList).bringToFront();
         }
         windowManagerLP.type = Utilities.getLayoutParamsType();
         /**
@@ -96,8 +97,8 @@ public class OverlayService extends Service
         SocketClientService.SyncedLinkedList list;
         int keyCode;
         boolean isMouseKeyCode;
-        KeyButton(ViewGroup viewgroup , ModelManager.KeyCodeButtonProperties prop , SocketClientService.SyncedLinkedList list){
-            super(viewgroup.getContext());
+        KeyButton(ViewGroup viewGroup , ModelManager.KeyCodeButtonProperties prop , SocketClientService.SyncedLinkedList list){
+            super(viewGroup.getContext());
             this.list = list;
             keyCode = prop.getKeyCode();
             isMouseKeyCode = prop.isMouseKeyCode();
@@ -112,7 +113,7 @@ public class OverlayService extends Service
             this.setX(prop.getX(getContext()));
             this.setY(prop.getY(getContext()));
             this.setAutoSizeTextTypeWithDefaults(android.widget.Button.AUTO_SIZE_TEXT_TYPE_UNIFORM);
-            viewgroup.addView(this , prop.getWidth(getContext()) , prop.getHeight(getContext()));
+            viewGroup.addView(this , prop.getWidth(getContext()) , prop.getHeight(getContext()));
         }
         
         @Override
@@ -122,17 +123,19 @@ public class OverlayService extends Service
             }
             switch(event.getAction()){
                 case MotionEvent.ACTION_DOWN:
+					System.out.println("actionDown");
                     if(isMouseKeyCode){
                         list.addFirst("OMP"+keyCode);
                     }else{
                         list.addFirst("OKP"+keyCode);
                     }
                     return true;
-                case MotionEvent.ACTION_UP | MotionEvent.ACTION_CANCEL:
+                case MotionEvent.ACTION_UP:
+					System.out.println("actionUp");
                     if(isMouseKeyCode){
                         list.addFirst("OMR"+keyCode);
                     }else{
-                        list.addFirst("OKP"+keyCode);
+                        list.addFirst("OKR"+keyCode);
                     }
                     return true;
                 default:
@@ -140,6 +143,38 @@ public class OverlayService extends Service
             }
         }
     }
+	
+	public class TouchPadButton extends android.widget.Button{
+		SocketClientService.SyncedLinkedList list;
+		TouchPadButton(ViewGroup viewgroup , SocketClientService.SyncedLinkedList list){
+			super(viewgroup.getContext());
+			this.list = list;
+			this.setAlpha(0f);
+			ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.MATCH_PARENT);
+			viewgroup.addView(this , layoutParams);
+		}
+
+		float lastX , lastY;
+		@Override
+		public boolean onTouchEvent(MotionEvent event){
+			switch(event.getAction()){
+                case MotionEvent.ACTION_DOWN:
+                    lastX = event.getX();
+					lastY = event.getY();
+                    return true;
+				case MotionEvent.ACTION_MOVE:
+					list.addFirst("OMM"+(int)(event.getX()-lastX)+","+(int)(event.getY()-lastY));
+					lastX=event.getX();
+					lastY=event.getY();
+					return true;
+                case MotionEvent.ACTION_UP:
+                    
+                    return true;
+                default:
+                    return false;
+            }
+		}
+	}
     
     public class ToolButton extends android.widget.Button implements android.widget.PopupMenu.OnMenuItemClickListener , ModelManager.ToolButtonPropInterface{
         PopupMenu popuMenu;
@@ -235,7 +270,7 @@ public class OverlayService extends Service
 		}
     }
     
-    
+	
     public class OSBinder extends android.os.Binder{
         public void setSyncedLinkedList(SocketClientService.SyncedLinkedList list){
             syncedLinkedList = list;

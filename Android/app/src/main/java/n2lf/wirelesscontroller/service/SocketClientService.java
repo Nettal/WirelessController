@@ -108,6 +108,7 @@ public class SocketClientService extends Service
 						catch (InterruptedException e){
 							e.printStackTrace();}
 					}else{
+						//System.out.println(actionQueue.getLast());
 						bw.write(actionQueue.getAndRemoveLast());
 						bw.flush();
 					}
