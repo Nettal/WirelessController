@@ -31,6 +31,7 @@ import n2lf.wirelesscontroller.utilities.KeyCode;
 import n2lf.wirelesscontroller.utilities.SearchableDialog;
 import n2lf.wirelesscontroller.utilities.ModelManager;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 
 
 public class ModelEditorActivity extends Activity
@@ -58,11 +59,14 @@ public class ModelEditorActivity extends Activity
 				new KeyCodeButton(relativeLayout , modelManager.getKeyCodeButtonPropList()[i]);
 			}
 		}
-		catch (ClassNotFoundException e){
+		catch(FileNotFoundException e){
 			e.printStackTrace();
 		}
+		catch (ClassNotFoundException e){
+			showError(e);
+		}
 		catch (IOException e){
-			e.printStackTrace();
+			showError(e);
 		}
     }
     
@@ -81,6 +85,22 @@ public class ModelEditorActivity extends Activity
         return true;
     }
     
+	
+	private void showError(Object o){
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("错误");
+		builder.setMessage(o.toString());
+		builder.setCancelable(false);
+		builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener(){
+				@Override
+				public void onClick(android.content.DialogInterface p1, int p2){
+
+				}
+			});
+		AlertDialog dialog = builder.create();
+		//dialog.getWindow().setType(Utilities.getLayoutParamsType());
+		dialog.show();
+	}
     
     private class onButtonAddTouchListener implements OnTouchListener
     {
@@ -564,19 +584,7 @@ public class ModelEditorActivity extends Activity
 					ModelManager model = new ModelManager(relativeLayout , getContext() , getIntent().getStringExtra("modelName"));
                     Object o = model.saveModelToFile(getContext());
                     if(o!=null){
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                        builder.setTitle("错误");
-                        builder.setMessage(o.toString());
-                        builder.setCancelable(false);
-                        builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener(){
-                                @Override
-                                public void onClick(android.content.DialogInterface p1, int p2){
-                                    
-                                }
-                            });
-                        AlertDialog dialog = builder.create();
-                        dialog.getWindow().setType(Utilities.getLayoutParamsType());
-                        dialog.show();
+                        showError(o);
                     }
                     ModelEditorActivity.this.finish();//此时应该保存模板
                 }

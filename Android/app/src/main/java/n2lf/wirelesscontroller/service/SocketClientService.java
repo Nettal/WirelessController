@@ -91,7 +91,7 @@ public class SocketClientService extends Service
 		@Override
 		public void run(){
 			try{
-                System.out.println("ip:"+ip+",port:"+port+",ModelName:"+modelName);
+               // System.out.println("ip:"+ip+",port:"+port+",ModelName:"+modelName);
 				Socket socket = new Socket(ip, port);
 				BufferedWriter bw = new BufferedWriter(new java.io.OutputStreamWriter(socket.getOutputStream()));
 				progressDialog.dismiss();//Success

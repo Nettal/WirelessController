@@ -16,7 +16,7 @@ public class ModelManager implements java.io.Serializable
         File file = context.getExternalFilesDir("model");
         for(int i= 0;i< file.list().length ; i++){
             File childFile = new File(file , file.list()[i]);
-            if(childFile.getName().length()>3 && childFile.getName().substring(childFile.getName().length()-4).equals(".obj")){
+            if(childFile.getName().length()>5 && childFile.getName().substring(childFile.getName().length()-6).equals(".model")){
                 list.add(childFile.getName());
             }else{
                 if(deleteIllegalFile){
@@ -30,10 +30,11 @@ public class ModelManager implements java.io.Serializable
 	public static ModelManager getModelFromFile(Context context , String fileName) 
         throws FileNotFoundException, ClassNotFoundException, IOException
         {
-            File file = new File(context.getExternalFilesDir("model") , fileName);
+            File file = new File(context.getExternalFilesDir("model") , fileName+".model");
             java.io.FileInputStream fis = new java.io.FileInputStream(file);
             java.io.ObjectInputStream ois = new java.io.ObjectInputStream(fis);
             ModelManager manager = (ModelManager)ois.readObject();
+			fis.close();
             return manager;
 	}
 	
@@ -73,7 +74,7 @@ public class ModelManager implements java.io.Serializable
     }
     
 	public Exception saveModelToFile(Context context){
-        File file = new File(context.getExternalFilesDir("model") , modelName);
+        File file = new File(context.getExternalFilesDir("model") , modelName+".model");
         try{
             if(file.exists()){
                 file.delete();

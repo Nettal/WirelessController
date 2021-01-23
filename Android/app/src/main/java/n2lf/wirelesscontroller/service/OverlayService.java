@@ -123,7 +123,6 @@ public class OverlayService extends Service
             }
             switch(event.getAction()){
                 case MotionEvent.ACTION_DOWN:
-					System.out.println("actionDown");
                     if(isMouseKeyCode){
                         list.addFirst("OMP"+keyCode);
                     }else{
@@ -131,7 +130,6 @@ public class OverlayService extends Service
                     }
                     return true;
                 case MotionEvent.ACTION_UP:
-					System.out.println("actionUp");
                     if(isMouseKeyCode){
                         list.addFirst("OMR"+keyCode);
                     }else{
