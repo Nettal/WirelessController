@@ -1,17 +1,18 @@
 package n2lf.wirelesscontroller.service;
 import android.app.AlertDialog;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.view.MotionEvent;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.PopupMenu;
 import n2lf.wirelesscontroller.service.SocketClientService;
 import n2lf.wirelesscontroller.utilities.ModelManager;
 import n2lf.wirelesscontroller.utilities.Utilities;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorUtil;
-import android.widget.LinearLayout;
-import android.view.ViewGroup;
-import android.graphics.Color;
+import android.view.MenuItem;
+import android.widget.RelativeLayout;
+import android.content.Context;
 
 public class OverlayService extends Service
 {
@@ -20,8 +21,9 @@ public class OverlayService extends Service
     String modelName;
     WindowManager windowManager;
     WindowManager.LayoutParams windowManagerLP;
-    LinearLayout linearLayout;
-    
+    RelativeLayout relativeLayout;
+    ToolButton toolButton;
+	
     @Override
     public android.os.IBinder onBind(Intent intent){
         modelName = intent.getStringExtra("modelName");
@@ -53,26 +55,42 @@ public class OverlayService extends Service
         }
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         windowManagerLP = new WindowManager.LayoutParams();
-        linearLayout = new LinearLayout(OverlayService.this);
+        relativeLayout = new RelativeLayout(OverlayService.this);
         for(int i = 0 ; i< modelManager.getKeyCodeButtonPropList().length ; i++){
-            KeyButton button = new KeyButton(linearLayout , modelManager.getKeyCodeButtonPropList()[i] , syncedLinkedList);
+            new KeyButton(relativeLayout , modelManager.getKeyCodeButtonPropList()[i] , syncedLinkedList);
         }
-        //ToolButton MUST be the least
-        ToolButton toolButton = new ToolButton(linearLayout, modelManager.getToolButtonProp());
-        linearLayout.addView(toolButton);
         windowManagerLP.type = Utilities.getLayoutParamsType();
         /**
          如果没有设置FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方不能点击。
          如果设置了FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方能够点击、但是弹窗上的EditText无法输入、键盘也不会弹出来。
          如果设置了FLAG_NOT_TOUCH_MODAL，那么屏幕上弹窗之外的地方能够点击、弹窗上的EditText也可以输入、键盘能够弹出来。
          FLAG_FULLSCREEN Activity窗口全屏，状态栏不显示。
+		// SOFT_INPUT_ADJUST_NOTHING 软键盘不调整任何
         **/ 
-        windowManagerLP.flags = windowManagerLP.FLAG_NOT_TOUCH_MODAL|windowManagerLP.FLAG_NOT_FOCUSABLE|windowManagerLP.FLAG_FULLSCREEN;
+        windowManagerLP.flags = windowManagerLP.FLAG_NOT_TOUCH_MODAL|windowManagerLP.FLAG_NOT_FOCUSABLE|windowManagerLP.FLAG_FULLSCREEN|windowManagerLP.FLAG_LAYOUT_IN_SCREEN;
         windowManagerLP.alpha = 1f;
-        windowManagerLP.format= android.graphics.PixelFormat.RGBA_8888;
-        windowManagerLP.gravity=android.view.Gravity.TOP|android.view.Gravity.LEFT;
-        windowManager.addView(linearLayout , windowManagerLP);
+        windowManagerLP.format = android.graphics.PixelFormat.RGBA_8888;
+        windowManagerLP.gravity = android.view.Gravity.TOP|android.view.Gravity.LEFT;
+        windowManager.addView(relativeLayout , windowManagerLP);
+		toolButton = new ToolButton(OverlayService.this , windowManager, modelManager.getToolButtonProp());
+		toolButton.bringToFront();
+		//为什么？？
+		windowManagerLP.flags = windowManagerLP.FLAG_NOT_TOUCH_MODAL|windowManagerLP.FLAG_NOT_FOCUSABLE|windowManagerLP.FLAG_FULLSCREEN|windowManagerLP.FLAG_LAYOUT_IN_SCREEN;
     }
+	
+	public void stopOverlay(){
+		if(windowManager!=null && relativeLayout!=null){
+			windowManager.removeView(relativeLayout);
+		}
+		if(windowManager!=null && toolButton!=null){
+			windowManager.removeView(toolButton);
+		}
+		if(socketClientService!=null){
+			socketClientService.getActionSender().setToStop();
+		}
+		//setToStop会unbind这个
+		this.stopSelf();
+	}
     
     public class KeyButton extends android.widget.Button{
         SocketClientService.SyncedLinkedList list;
@@ -99,6 +117,9 @@ public class OverlayService extends Service
         
         @Override
         public boolean onTouchEvent(MotionEvent event){
+            if(keyCode==-1){//没有设置Keycode
+                return false;
+            }
             switch(event.getAction()){
                 case MotionEvent.ACTION_DOWN:
                     if(isMouseKeyCode){
@@ -120,13 +141,35 @@ public class OverlayService extends Service
         }
     }
     
-    public class ToolButton extends android.widget.Button{
-        ToolButton(ViewGroup viewGroup , ModelManager.ToolButtonProperties toolButtonProp){
-            super(viewGroup.getContext());
-            this.setX(toolButtonProp.getX(getContext()));
-            this.setY(toolButtonProp.getY(getContext()));
-            int size = Utilities.getMinSizeByRatio(getContext() , Utilities.DefaultButtonSizeScreenRatio);
-            viewGroup.addView(this , size , size);
+    public class ToolButton extends android.widget.Button implements android.widget.PopupMenu.OnMenuItemClickListener , ModelManager.ToolButtonPropInterface{
+        PopupMenu popuMenu;
+		WindowManager.LayoutParams layoutParams;
+		WindowManager windowManager;
+        ToolButton(Context context ,WindowManager manager , ModelManager.ToolButtonProperties toolButtonProp){
+            super(context);
+            popuMenu = new PopupMenu(getContext() , this);//按钮点击时的菜单
+            for(String i :Utilities.悬浮界面的按键文字){
+                popuMenu.getMenu().add(i);
+            }
+            popuMenu.setOnMenuItemClickListener(this);
+			windowManager = manager;
+			layoutParams = new WindowManager.LayoutParams();
+			layoutParams.type = Utilities.getLayoutParamsType();
+			/**
+			 如果没有设置FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方不能点击。
+			 如果设置了FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方能够点击、但是弹窗上的EditText无法输入、键盘也不会弹出来。
+			 如果设置了FLAG_NOT_TOUCH_MODAL，那么屏幕上弹窗之外的地方能够点击、弹窗上的EditText也可以输入、键盘能够弹出来。
+			 FLAG_FULLSCREEN Activity窗口全屏，状态栏不显示。
+			 // SOFT_INPUT_ADJUST_NOTHING 软键盘不调整任何
+			 **/ 
+			layoutParams.flags = windowManagerLP.FLAG_NOT_TOUCH_MODAL|windowManagerLP.FLAG_NOT_FOCUSABLE|windowManagerLP.FLAG_FULLSCREEN|windowManagerLP.FLAG_LAYOUT_IN_SCREEN;
+			layoutParams.alpha = 1f;
+			layoutParams.format = android.graphics.PixelFormat.RGBA_8888;
+			layoutParams.gravity = android.view.Gravity.TOP|android.view.Gravity.LEFT;
+			layoutParams.x = (int) toolButtonProp.getX(getContext());
+			layoutParams.y = (int) toolButtonProp.getY(getContext());
+			layoutParams.width = layoutParams.height = Utilities.getMinSizeByRatio(getContext() , Utilities.DefaultButtonSizeScreenRatio);
+			manager.addView(this , layoutParams);
         }
         
         //处理按钮移动和按钮单击操作
@@ -143,14 +186,15 @@ public class OverlayService extends Service
                     lastY = onDownY = event.getRawY();
                     return true;
                 case event.ACTION_MOVE:
-                    this.setX(-(int)lastX+(int)event.getRawX()+(int)this.getX());//转换成int以防止出现过大的误差，导致按钮漂移
-                    this.setY(-(int)lastY+(int)event.getRawY()+(int)this.getY());
+                    layoutParams.x =(-(int)lastX+(int)event.getRawX()+layoutParams.x);//转换成int以防止出现过大的误差，导致按钮漂移
+                    layoutParams.y =(-(int)lastY+(int)event.getRawY()+layoutParams.y);
                     lastX = event.getRawX();
                     lastY = event.getRawY();
+					windowManager.updateViewLayout(this , layoutParams);
                     return true;
                 case event.ACTION_UP:
-                    if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.偏移量){//判断是否点击按钮
-                        //TODO
+                    if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.DEFAULT_TEXT_SIZE){//判断是否点击按钮
+                        popuMenu.show();
                         return true;
                     }
                 default:
@@ -158,10 +202,34 @@ public class OverlayService extends Service
             }
         }
         
-        public float getXScreenRatio(){
-            return (float)getX()/(float)Utilities.getScreenHeight(getContext());
+        @Override
+        public boolean onMenuItemClick(MenuItem p1){
+            if(p1.getTitle().toString()==Utilities.悬浮界面的按键文字[0]){//关闭
+				popuMenu.dismiss();
+				OverlayService.this.stopOverlay();
+			}else if(p1.getTitle().toString()==Utilities.悬浮界面的按键文字[1]){//禁用/启用
+				if(windowManagerLP.flags == (windowManagerLP.FLAG_NOT_TOUCH_MODAL|windowManagerLP.FLAG_NOT_FOCUSABLE|windowManagerLP.FLAG_FULLSCREEN|windowManagerLP.FLAG_LAYOUT_IN_SCREEN)){
+					windowManagerLP.flags = windowManagerLP.FLAG_NOT_FOCUSABLE|windowManagerLP.FLAG_NOT_TOUCHABLE;
+				}else{
+					windowManagerLP.flags = windowManagerLP.FLAG_NOT_TOUCH_MODAL|windowManagerLP.FLAG_NOT_FOCUSABLE|windowManagerLP.FLAG_FULLSCREEN|windowManagerLP.FLAG_LAYOUT_IN_SCREEN;
+				}
+				windowManager.updateViewLayout(relativeLayout , windowManagerLP);
+			}
+            return false;
         }
 
+		@Override
+		public void bringToFront(){
+			super.bringToFront();
+			windowManager.updateViewLayout(this , layoutParams);
+		}
+		
+		@Override
+        public float getXScreenRatio(){
+            return (float)getX()/(float)Utilities.getScreenWidth(getContext());
+        }
+
+		@Override
         public float getYScreenRatio(){
             return (float)getY()/(float)Utilities.getScreenWidth(getContext());
 		}

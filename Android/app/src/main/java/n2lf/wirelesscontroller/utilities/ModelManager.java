@@ -93,7 +93,7 @@ public class ModelManager implements java.io.Serializable
 		return null;
 	}
 
-    public void updateToolButtonProp(OverlayService.ToolButton button){
+    public void updateToolButtonProp(ToolButtonPropInterface button){
         toolButtinProp = new ToolButtonProperties(button);
     }
     
@@ -166,15 +166,11 @@ public class ModelManager implements java.io.Serializable
     public class ToolButtonProperties implements java.io.Serializable{
         private float ToolbuttonXScreenRatio;
         private float ToolbuttonYScreenRatio;
-        ToolButtonProperties(ModelEditorActivity.ToolButton button){
+        ToolButtonProperties(ToolButtonPropInterface button){
             ToolbuttonXScreenRatio = button.getXScreenRatio();
             ToolbuttonYScreenRatio = button.getYScreenRatio();
         }
-        ToolButtonProperties(OverlayService.ToolButton button){
-            ToolbuttonXScreenRatio = button.getXScreenRatio();
-            ToolbuttonYScreenRatio = button.getYScreenRatio();
-        }
-        
+		
         public float getX(Context context){
             return Utilities.getScreenHeight(context)*ToolbuttonXScreenRatio;
         }
@@ -183,4 +179,9 @@ public class ModelManager implements java.io.Serializable
             return Utilities.getScreenWidth(context)*ToolbuttonYScreenRatio;
         }
     }
+	
+	public interface ToolButtonPropInterface{
+		public float getXScreenRatio();
+		public float getYScreenRatio();
+	}
 }

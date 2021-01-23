@@ -46,7 +46,7 @@ public class ModelEditorActivity extends Activity
         this.setContentView(relativeLayout = new RelativeLayout(this));
         onAddTextView = new TextView(this);
         onAddTextView.setText("");
-        onAddTextView.setTextSize(Utilities.字体大小);
+        onAddTextView.setTextSize(Utilities.DEFAULT_TEXT_SIZE);
         RelativeLayout.LayoutParams rLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         rLP.addRule(RelativeLayout.CENTER_IN_PARENT);//线性布局在action_down时不会显示button bug?
         relativeLayout.addView(onAddTextView,rLP);
@@ -279,7 +279,7 @@ public class ModelEditorActivity extends Activity
                     lastY = event.getRawY();
                     return true;
                 case event.ACTION_UP:
-                    if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.偏移量){//判断是否点击按钮
+                    if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.OFFSET){//判断是否点击按钮
                         this.editThis();//call edit dialog
                         return true;
                     }
@@ -352,6 +352,12 @@ public class ModelEditorActivity extends Activity
 		}
         
         public void editThis(){
+            if(buttonHeightEditText.getText()==null || buttonHeightEditText.getText().length()==0){
+                buttonHeightEditText.setText(String.valueOf(getHeightScreenRatio()));
+            }
+            if(buttonWidthEditText.getText()==null || buttonWidthEditText.getText().length()==0){
+                buttonWidthEditText.setText(String.valueOf(getWidthScreenRatio()));
+            }
 			int size = Utilities.getMinSizeByRatio(this.getContext(),Utilities.DialogScreenRatio);
             AlertDialog alertDialog = buttonEditorBuilder.show();
 			alertDialog.getWindow().setDimAmount(0f);//去除黑色遮罩;
@@ -458,7 +464,7 @@ public class ModelEditorActivity extends Activity
 	}
 	
     
-    public class ToolButton extends Button implements android.widget.PopupMenu.OnDismissListener ,android.widget.PopupMenu.OnMenuItemClickListener
+    public class ToolButton extends Button implements android.widget.PopupMenu.OnDismissListener ,android.widget.PopupMenu.OnMenuItemClickListener , ModelManager.ToolButtonPropInterface
     {
         PopupMenu popuMenu;
         ToolButton(Context context , RelativeLayout relativeLayout){//创建button对象 & 为后来的悬浮按钮做准备
@@ -467,7 +473,7 @@ public class ModelEditorActivity extends Activity
             rLP.addRule(RelativeLayout.CENTER_IN_PARENT);
             rLP.height = rLP.width = Utilities.getMinSizeByRatio(context , Utilities.DefaultButtonSizeScreenRatio);
             relativeLayout.addView(this, rLP);
-            popuMenu = new PopupMenu(ModelEditorActivity.this , this);//按钮点击时的菜单
+            popuMenu = new PopupMenu(getContext() , this);//按钮点击时的菜单
             for(String i :Utilities.添加界面的按键文字){
                 popuMenu.getMenu().add(i);
             }
@@ -497,7 +503,7 @@ public class ModelEditorActivity extends Activity
                     lastY = event.getRawY();
                     return true;
                 case event.ACTION_UP:
-                    if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.偏移量){//判断是否点击按钮
+                    if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.OFFSET){//判断是否点击按钮
                         this.popuMenu.show();
                         return true;
                     }
@@ -545,10 +551,12 @@ public class ModelEditorActivity extends Activity
             return false;
         }
         
+		@Override
         public float getXScreenRatio(){
             return (float)getX()/(float)Utilities.getScreenHeight(getContext());
         }
 
+		@Override
         public float getYScreenRatio(){
             return (float)getY()/(float)Utilities.getScreenWidth(getContext());
 		}

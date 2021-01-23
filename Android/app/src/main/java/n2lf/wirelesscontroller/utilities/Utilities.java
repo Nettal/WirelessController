@@ -11,17 +11,18 @@ import android.os.Build;
 
 public class Utilities
 {
-    public static float 偏移量 = 5;
+    public static float OFFSET = 5;
     public static float DefaultButtonSizeScreenRatio = 0.12f;
     public static float MiniButtonSizeScreenRatio = 0.04f;
     public static float DefaultButtonAlpha = 0.7f;
     public static float DialogScreenRatio = 0.8f;
 	public static String DefaultIp = "127.0.0.1";
 	public static String DefaultModelName ="TempModel";
-    public static String[] 添加界面的按键文字 = {"完成","添加按钮","添加触摸板"};//逻辑实现在ModelCreatorActivity
+    public static String[] 添加界面的按键文字 = {"完成","添加按钮","添加触摸板"};//逻辑实现在ModelEditorActivity
+    public static String[] 悬浮界面的按键文字 = {"关闭","禁用/启用"};//逻辑实现在OverlayService
     public static String[] 点击选取位置 = {"点击以选取按钮位置","拖动以划定触摸区域"};
     public static String[] 确定删除 = {"确定","删除"};
-    public static int 字体大小 = 25;
+    public static int DEFAULT_TEXT_SIZE = 25;
     public static int DefaultButtonColor = Color.argb(0xff,36,00,0xff);
     public static int EditorBackgroundColor = Color.argb(255,189,183,107);
     public static int ErrorTextColor = Color.RED;
