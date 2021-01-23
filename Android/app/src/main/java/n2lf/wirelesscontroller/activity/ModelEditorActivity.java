@@ -60,7 +60,7 @@ public class ModelEditorActivity extends Activity
 			}
 		}
 		catch(FileNotFoundException e){
-			e.printStackTrace();
+			System.out.println(e);
 		}
 		catch (ClassNotFoundException e){
 			showError(e);
@@ -155,7 +155,7 @@ public class ModelEditorActivity extends Activity
         private EditText buttonARGBEditText;
         private EditText stringARGBEditText;
         private TextView titleTextView;
-        
+		
         KeyCodeButton(Context context){
             super(context);
             keyCodeIndex = -1;
@@ -391,11 +391,11 @@ public class ModelEditorActivity extends Activity
 		}
 		
 		public float getHeightScreenRatio(){
-			return (float)getHeight()/(float)Utilities.getScreenHeight(getContext());
+			return ((float)getHeight()==0 ? Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio) : getHeight())/(float)Utilities.getScreenHeight(getContext());
 		}
 		
 		public float getWidthScreenRatio(){
-			return (float)getWidth()/(float)Utilities.getScreenWidth(getContext());
+			return (float)(getWidth()==0 ? Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio) : getWidth())/(float)Utilities.getScreenWidth(getContext());
 		}
         
 		public float getXScreenRatio(){
@@ -408,12 +408,10 @@ public class ModelEditorActivity extends Activity
         
         public void editThis(){
             if(buttonHeightEditText.getText()==null || buttonHeightEditText.getText().length()==0){
-				int buttonSize = Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio);
-                buttonHeightEditText.setText(String.valueOf((float)buttonSize/(float)Utilities.getScreenHeight(getContext())));
+                buttonHeightEditText.setText(String.valueOf(getHeightScreenRatio()));
             }
             if(buttonWidthEditText.getText()==null || buttonWidthEditText.getText().length()==0){
-				int buttonSize = Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio);
-                buttonWidthEditText.setText(String.valueOf((float)buttonSize/(float)Utilities.getScreenWidth(getContext())));
+                buttonWidthEditText.setText(String.valueOf(getWidthScreenRatio()));
             }
 			int size = Utilities.getMinSizeByRatio(this.getContext(),Utilities.DialogScreenRatio);
             AlertDialog alertDialog = buttonEditorBuilder.show();

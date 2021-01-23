@@ -115,6 +115,7 @@ public class SocketClientService extends Service
 				}
 				bw.close();
 				socket.close();
+				overlayService.stopOverlay();
                 unbindService(connection);
                 isBinded = false;
 				stopSelf();
@@ -122,6 +123,7 @@ public class SocketClientService extends Service
 			catch (IOException e){
 				progressDialog.dismiss();
                 if(isBinded){
+					overlayService.stopOverlay();
                     unbindService(connection);
                     isBinded = true;
                 } 
