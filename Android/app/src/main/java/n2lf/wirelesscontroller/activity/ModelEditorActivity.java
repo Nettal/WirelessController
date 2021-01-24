@@ -400,7 +400,7 @@ public class ModelEditorActivity extends Activity
 		public float getWidthScreenRatio(){
 			return (float)(getWidth()==0 ? Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio) : getWidth())/(float)Utilities.getScreenWidth(getContext());
 		}
-        
+		
 		public float getXScreenRatio(){
             return (float)getX()/(float)Utilities.getScreenHeight(getContext());
         }
@@ -408,7 +408,7 @@ public class ModelEditorActivity extends Activity
         public float getYScreenRatio(){
             return (float)getY()/(float)Utilities.getScreenWidth(getContext());
 		}
-        
+		
         public void editThis(){
             if(buttonHeightEditText.getText()==null || buttonHeightEditText.getText().length()==0){
                 buttonHeightEditText.setText(String.valueOf(getHeightScreenRatio()));
@@ -597,12 +597,12 @@ public class ModelEditorActivity extends Activity
             return false;
         }
         
-		@Override
-        public float getXScreenRatio(){
+        @Override
+		public float getXScreenRatio(){
             return (float)getX()/(float)Utilities.getScreenHeight(getContext());
         }
 
-		@Override
+        @Override
         public float getYScreenRatio(){
             return (float)getY()/(float)Utilities.getScreenWidth(getContext());
 		}

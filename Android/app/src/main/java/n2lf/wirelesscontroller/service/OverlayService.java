@@ -259,7 +259,7 @@ public class OverlayService extends Service
 		
 		@Override
         public float getXScreenRatio(){
-            return (float)getX()/(float)Utilities.getScreenWidth(getContext());
+            return (float)getX()/(float)Utilities.getScreenHeight(getContext());
         }
 
 		@Override

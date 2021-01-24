@@ -52,8 +52,8 @@ public class ModelManager implements java.io.Serializable
 		for(int i = 0; i < viewGroup.getChildCount(); i++){
 			if(viewGroup.getChildAt(i) instanceof ModelEditorActivity.KeyCodeButton){
 			    keyCodeButtonPropList.add(new KeyCodeButtonProperties((ModelEditorActivity.KeyCodeButton)viewGroup.getChildAt(i)));
-			}else if(viewGroup.getChildAt(i) instanceof ModelEditorActivity.ToolButton){
-                toolButtinProp = new ToolButtonProperties((ModelEditorActivity.ToolButton)viewGroup.getChildAt(i));
+			}else if(viewGroup.getChildAt(i) instanceof ToolButtonPropInterface){
+                toolButtinProp = new ToolButtonProperties((ToolButtonPropInterface)viewGroup.getChildAt(i));
             }
 		}
 	}
