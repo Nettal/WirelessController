@@ -21,16 +21,17 @@ public class SocketClientService extends Service
     static final int ACTION_SENDER_SUCCESS = 127;
 	private MessageHandler messageHandler;
     private ActionSender actionSender;
-	
+
 	@Override
-	public void onStart(Intent intent, int startId){
+	public int onStartCommand(Intent intent, int flags, int startId)
+	{
 		if(messageHandler == null){
 			messageHandler = new MessageHandler(this);
 		}
 		actionSender = new ActionSender(messageHandler ,intent.getStringExtra("ip"), intent.getIntExtra("port" , Utilities.DefaultPort) , intent.getStringExtra("modelName"));
         actionSender.startAndGetDialog().show();
+		return super.onStartCommand(intent, flags, startId);
 	}
-	
     @Override
     public IBinder onBind(Intent p1){
         return null;
