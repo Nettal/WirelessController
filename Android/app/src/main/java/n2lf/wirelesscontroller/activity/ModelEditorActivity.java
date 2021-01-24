@@ -101,10 +101,6 @@ public class ModelEditorActivity extends Activity
     
     private class onButtonAddTouchListener implements OnTouchListener
     {
-        private int lastX;//你可以用float，但会出现按键漂移问题
-        private int lastY;
-        private float onDownX;
-        private float onDownY;
         KeyCodeButton keyCodeButton;
         int buttonSize;
         @Override
@@ -112,20 +108,20 @@ public class ModelEditorActivity extends Activity
         {
             switch(event.getAction()){
                 case MotionEvent.ACTION_DOWN:
-                    lastX = (int) (onDownX = event.getX());
-                    lastY = (int) (onDownY = event.getY());
                     keyCodeButton = new KeyCodeButton(ModelEditorActivity.this);
                     buttonSize = Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio);
-                    keyCodeButton.setX(onDownX-buttonSize/2);//否则按钮会在点击位置的右下角
-                    keyCodeButton.setY(onDownY-buttonSize/2);
+                    keyCodeButton.setX(event.getX()-buttonSize/2);//否则按钮会在点击位置的右下角
+                    keyCodeButton.setY(event.getY()-buttonSize/2);
                     relativeLayout.addView(keyCodeButton,buttonSize,buttonSize);
-                    toolButton.bringToFront();//置于等层
+                    toolButton.bringToFront();
                     return true;
                 case MotionEvent.ACTION_MOVE:
                     keyCodeButton.setX(event.getX()-buttonSize/2);
                     keyCodeButton.setY(event.getY()-buttonSize/2);
                     return true;
                 case MotionEvent.ACTION_UP:
+                    keyCodeButton.setX(event.getX()-buttonSize/2);
+                    keyCodeButton.setY(event.getY()-buttonSize/2);
                     keyCodeButton.editThis();//must edit at once
                     return true;
                 default:
@@ -480,7 +476,7 @@ public class ModelEditorActivity extends Activity
 		public void afterTextChanged(Editable p1)
 		{
 			try{
-				float f = Float.valueOf(p1.toString());
+				float f = Float.parseFloat(p1.toString());
 				if(f >= 1.2f || f < 0 || !floatChangeListener.onFloatChange(f)){//注意此时是短路或
 					editText.setTextColor(Utilities.ErrorTextColor);
 					return;
@@ -515,8 +511,7 @@ public class ModelEditorActivity extends Activity
 			button.setText(p1);
 		}
 	}
-	
-    
+
     public class ToolButton extends Button implements android.widget.PopupMenu.OnDismissListener ,android.widget.PopupMenu.OnMenuItemClickListener , ModelManager.ToolButtonPropInterface
     {
         PopupMenu popuMenu;
@@ -573,7 +568,7 @@ public class ModelEditorActivity extends Activity
         @Override
         public boolean onMenuItemClick(MenuItem p1)
         {
-            if(p1.getTitle().toString()==Utilities.添加界面的按键文字[0]){//完成
+            if(p1.getTitle().toString().equals(Utilities.添加界面的按键文字[0])){//完成
                 if(onAddTextView.getText().length()!=0){
                     addFinished();//处理背景变化和 onTouchEvent
                 }else{
@@ -584,10 +579,10 @@ public class ModelEditorActivity extends Activity
                     }
                     ModelEditorActivity.this.finish();//此时应该保存模板
                 }
-            }else if(p1.getTitle().toString()==Utilities.添加界面的按键文字[1]){//添加按钮
+            }else if(p1.getTitle().toString().equals(Utilities.添加界面的按键文字[1])){//添加按钮
                 addButtonStarted();
             }else{//添加触摸板
-                
+
             }
             return false;
         }
