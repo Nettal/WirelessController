@@ -98,7 +98,9 @@ public class ModelEditorActivity extends Activity
 				}
 			});
 		AlertDialog dialog = builder.create();
-		//dialog.getWindow().setType(Utilities.getLayoutParamsType());
+		if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.O){//安卓7的待遇
+			dialog.getWindow().setType(android.view.WindowManager.LayoutParams.TYPE_PHONE);
+		}
 		dialog.show();
 	}
     
@@ -140,9 +142,8 @@ public class ModelEditorActivity extends Activity
     /*预览按钮*/
     public class KeyCodeButton extends Button
     {
-        private AlertDialog.Builder buttonEditorBuilder;//多次使用
+        private AlertDialog buttonEditorDialog;
         private AlertDialog.Builder tempBuilder;//每次setView()
-        private ColorPickerView colorPickerView;//多次使用
         private int keyCodeIndex;
 		private String buttonColorString;
         //dialog 控件
@@ -161,20 +162,19 @@ public class ModelEditorActivity extends Activity
             keyCodeIndex = -1;
             //原生按钮
             this.setAllCaps(false);//字母自动大写
-            this.setAutoSizeTextTypeWithDefaults(Button.AUTO_SIZE_TEXT_TYPE_UNIFORM);//根据文字多少改变字体大小
-            //颜色选择
-            colorPickerView = new ColorPickerView(context);
-            colorPickerView.setAlphaSliderVisible(true);//这个不能去掉，否则会出现error
-            tempBuilder = new AlertDialog.Builder(context);
-            buttonEditorBuilder = new AlertDialog.Builder(context);
-            
+			if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){//安卓8+的待遇
+				this.setAutoSizeTextTypeWithDefaults(Button.AUTO_SIZE_TEXT_TYPE_UNIFORM);//根据文字多少改变字体大小
+			}
+			tempBuilder = new AlertDialog.Builder(context);
             //获取编辑dialog的控件
             View dialogView = getLayoutInflater().inflate(R.layout.dialog_modelEditor_buttton,null);
-            
             (textColorButton = dialogView.findViewById(R.id.dialog_editor_button_textColor)).setOnClickListener(
                 new OnClickListener(){
                     @Override
                     public void onClick(View p1){
+						//颜色选择
+						ColorPickerView colorPickerView = new ColorPickerView(getContext());
+						colorPickerView.setAlphaSliderVisible(true);//这个不能去掉，否则会出现error
                         colorPickerView.setOnColorChangedListener(new ColorPickerView.OnColorChangedListener(){
                                 @Override
                                 public void onColorChanged(int color){
@@ -195,6 +195,8 @@ public class ModelEditorActivity extends Activity
                 new OnClickListener(){
                     @Override
                     public void onClick(View p1){
+						ColorPickerView colorPickerView = new ColorPickerView(getContext());
+						colorPickerView.setAlphaSliderVisible(true);
                         colorPickerView.setOnColorChangedListener(new ColorPickerView.OnColorChangedListener(){
                                 @Override
                                 public void onColorChanged(int color){
@@ -270,9 +272,10 @@ public class ModelEditorActivity extends Activity
                     }));
 			
             titleTextView = dialogView.findViewById(R.id.dialog_editor_textView_title);
-            /*
-            dialog 编辑按钮
-            */
+			/*
+			 dialog 编辑按钮
+			 */
+			AlertDialog.Builder buttonEditorBuilder = new AlertDialog.Builder(context);
             ScrollView scrollView = new ScrollView(context);//使其可以上下滚动
             scrollView.addView(dialogView);
             buttonEditorBuilder.setView(scrollView);
@@ -280,7 +283,7 @@ public class ModelEditorActivity extends Activity
                 new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface p1, int p2){
-                        buttonEditorBuilder.create().dismiss();
+                        KeyCodeButton.this.buttonEditorDialog.dismiss();
                     }
                 });
             buttonEditorBuilder.setNegativeButton(Utilities.确定删除[1],//删除
@@ -290,6 +293,7 @@ public class ModelEditorActivity extends Activity
                         relativeLayout.removeView(ModelEditorActivity.KeyCodeButton.this);
                     }
                 });
+			buttonEditorDialog = buttonEditorBuilder.create();
         }
 		
 		KeyCodeButton(ViewGroup viewGroup, ModelManager.KeyCodeButtonProperties prop){
@@ -307,7 +311,6 @@ public class ModelEditorActivity extends Activity
                 this.setText(prop.getButtonName());
 				buttonNameEditText.setText(prop.getButtonName());
             }
-            this.setAutoSizeTextTypeWithDefaults(android.widget.Button.AUTO_SIZE_TEXT_TYPE_UNIFORM);
             viewGroup.addView(this , prop.getWidth(getContext()) , prop.getHeight(getContext()));
 		}
         
@@ -414,9 +417,9 @@ public class ModelEditorActivity extends Activity
                 buttonWidthEditText.setText(String.valueOf(getWidthScreenRatio()));
             }
 			int size = Utilities.getMinSizeByRatio(this.getContext(),Utilities.DialogScreenRatio);
-            AlertDialog alertDialog = buttonEditorBuilder.show();
-			alertDialog.getWindow().setDimAmount(0f);//去除黑色遮罩;
-			alertDialog.getWindow().setLayout(size , size);
+            buttonEditorDialog.show();
+			buttonEditorDialog.getWindow().setDimAmount(0f);//去除黑色遮罩;
+			buttonEditorDialog.getWindow().setLayout(size , size);
         }
     }
     

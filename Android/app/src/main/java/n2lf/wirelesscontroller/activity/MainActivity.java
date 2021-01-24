@@ -60,8 +60,13 @@ public class MainActivity extends Activity {
         modelManagerButton.setOnClickListener(new OnClickListener(){
                 @Override
                 public void onClick(View p1){
+					if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.O){//安卓7-的待遇
+						if(!Utilities.checkAndAllowOverlayPermission(MainActivity.this)){
+							return;
+						}
+					}
                     Intent intent = new Intent(MainActivity.this,ModelEditorActivity.class);
-                    intent.putExtra("modelName" , Utilities.DefaultModelName);
+                 	intent.putExtra("modelName" , Utilities.DefaultModelName);
                     startActivity(intent);
                 }
             });
