@@ -53,6 +53,7 @@ public class ModelEditorActivity extends Activity
 			for(int i =0 ; i<modelManager.getKeyCodeButtonPropList().length ; i++){
 				new KeyCodeButton(relativeLayout , modelManager.getKeyCodeButtonPropList()[i]);
 			}
+			toolButton.bringToFront();
 		}
 		catch(FileNotFoundException e){
 			System.out.println(e);
