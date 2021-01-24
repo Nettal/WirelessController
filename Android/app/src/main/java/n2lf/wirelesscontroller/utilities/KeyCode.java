@@ -3,7 +3,7 @@ package n2lf.wirelesscontroller.utilities;
 public class KeyCode {
     
     public static String[] getAllKeyName(){
-        String string[] = new String[KeyCode.getKeyBoardCodeList().length+KeyCode.getMouseCodeList().length];
+        String[] string = new String[KeyCode.getKeyBoardCodeList().length+KeyCode.getMouseCodeList().length];
         for(int i = 0;i<KeyCode.getKeyBoardCodeList().length;i++){
             string[i] = KeyCode.getKeyBoardKeyName(KeyCode.getKeyBoardCodeList()[i]);
         }
@@ -609,7 +609,7 @@ public class KeyCode {
                 }
             }
         public static int[] getKeyBoardCodeList(){
-            int codeList[] = {'\n','\b','\t',3,12,16,17,18,19,20,27,32,33,34,35,36,
+            int[] codeList = {'\n','\b','\t',3,12,16,17,18,19,20,27,32,33,34,35,36,
             37,38,39,40,44,45,46,47,48,49,50,51,52,53,54,55,56,57,59,61,65,66,67,68,
             69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,
             93,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,127,144,145,
@@ -716,33 +716,30 @@ public class KeyCode {
         }
         
         public static boolean isMouseKeyCode(int keycode){
-        if( (keycode == 1<<6) ||
-            (keycode == 1<<7) ||
-            (keycode == 1<<8) ||
-            (keycode == 1<<9) ||
-            (keycode == 1<<10) || 
-            (keycode == 1<<11) ||
-            (keycode == 1<<12) ||
-            (keycode == 1<<13) ||
-            (keycode == 1<<14) ||
-            (keycode == 1<<15) ||
-            (keycode == 1<<16) ||
-            (keycode == 1<<17) ||
-            (keycode == 1<<18) ||
-            (keycode == 1<<19) ||
-            (keycode == 1<<20) ||
-            (keycode == 1<<21) ||
-            (keycode == 1<<22) ||
-            (keycode == 1<<23) ||
-            (keycode == 1<<24) ||
-            (keycode == 1<<25) ||
-            (keycode == 1<<26) ||
-            (keycode == 1<<27) ||
-            (keycode == 1<<28) ||
-            (keycode == 1<<29) ||
-            (keycode == 1<<30) ){
-            return true;
+            return (keycode == 1 << 6) ||
+                    (keycode == 1 << 7) ||
+                    (keycode == 1 << 8) ||
+                    (keycode == 1 << 9) ||
+                    (keycode == 1 << 10) ||
+                    (keycode == 1 << 11) ||
+                    (keycode == 1 << 12) ||
+                    (keycode == 1 << 13) ||
+                    (keycode == 1 << 14) ||
+                    (keycode == 1 << 15) ||
+                    (keycode == 1 << 16) ||
+                    (keycode == 1 << 17) ||
+                    (keycode == 1 << 18) ||
+                    (keycode == 1 << 19) ||
+                    (keycode == 1 << 20) ||
+                    (keycode == 1 << 21) ||
+                    (keycode == 1 << 22) ||
+                    (keycode == 1 << 23) ||
+                    (keycode == 1 << 24) ||
+                    (keycode == 1 << 25) ||
+                    (keycode == 1 << 26) ||
+                    (keycode == 1 << 27) ||
+                    (keycode == 1 << 28) ||
+                    (keycode == 1 << 29) ||
+                    (keycode == 1 << 30);
         }
-        return false;
-    }
 }

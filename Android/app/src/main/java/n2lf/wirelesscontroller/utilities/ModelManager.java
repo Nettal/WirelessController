@@ -16,7 +16,7 @@ public class ModelManager implements java.io.Serializable
         File file = context.getExternalFilesDir("model");
         for(int i= 0;i< file.list().length ; i++){
             File childFile = new File(file , file.list()[i]);
-            if(childFile.getName().length()>5 && childFile.getName().substring(childFile.getName().length()-6).equals(".model")){
+            if(childFile.getName().length()>5 && childFile.getName().endsWith(".model")){
                 list.add(childFile.getName());
             }else{
                 if(deleteIllegalFile){
@@ -28,7 +28,7 @@ public class ModelManager implements java.io.Serializable
         return list;
     }
 	public static ModelManager getModelFromFile(Context context , String fileName) 
-        throws FileNotFoundException, ClassNotFoundException, IOException
+        throws ClassNotFoundException, IOException
         {
             File file = new File(context.getExternalFilesDir("model") , fileName+".model");
             java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -39,8 +39,8 @@ public class ModelManager implements java.io.Serializable
 	}
 	
     
-	private ArrayList keyCodeButtonPropList;
-	private String modelName;
+	private final ArrayList keyCodeButtonPropList;
+	private final String modelName;
     private ToolButtonProperties toolButtinProp;
     int screenWidth;
     int screenHeight;
@@ -67,10 +67,7 @@ public class ModelManager implements java.io.Serializable
     }
 	
     public boolean isHorizontal(){
-        if(screenHeight < screenWidth){
-            return true;
-        }
-        return false;
+        return screenHeight < screenWidth;
     }
     
 	public Exception saveModelToFile(Context context){
@@ -171,8 +168,8 @@ public class ModelManager implements java.io.Serializable
 	}
     
     public class ToolButtonProperties implements java.io.Serializable{
-        private float ToolbuttonXScreenRatio;
-        private float ToolbuttonYScreenRatio;
+        private final float ToolbuttonXScreenRatio;
+        private final float ToolbuttonYScreenRatio;
         ToolButtonProperties(ToolButtonPropInterface button){
             ToolbuttonXScreenRatio = button.getXScreenRatio();
             ToolbuttonYScreenRatio = button.getYScreenRatio();
@@ -188,7 +185,7 @@ public class ModelManager implements java.io.Serializable
     }
 	
 	public interface ToolButtonPropInterface{
-		public float getXScreenRatio();
-		public float getYScreenRatio();
+		float getXScreenRatio();
+		float getYScreenRatio();
 	}
 }

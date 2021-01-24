@@ -66,7 +66,7 @@ public class Utilities
 	}
 	
     public interface FloatChangeListener{
-        public boolean onFloatChange(float f)
+        boolean onFloatChange(float f);
     }
     
 }

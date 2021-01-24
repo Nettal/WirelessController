@@ -3,15 +3,11 @@ package n2lf.wirelesscontroller.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.MotionEvent;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.view.View.OnTouchListener;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.PopupMenu;
-import android.view.Menu;
 import android.view.MenuItem;
 import n2lf.wirelesscontroller.utilities.Utilities;
 import android.widget.TextView;
@@ -22,7 +18,6 @@ import android.app.AlertDialog;
 import n2lf.wirelesscontroller.R;
 import android.content.DialogInterface;
 import android.widget.ScrollView;
-import android.view.LayoutInflater;
 import android.widget.EditText;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorPickerView;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorUtil;
@@ -116,21 +111,21 @@ public class ModelEditorActivity extends Activity
         public boolean onTouch(View p1, MotionEvent event)
         {
             switch(event.getAction()){
-                case event.ACTION_DOWN:
+                case MotionEvent.ACTION_DOWN:
                     lastX = (int) (onDownX = event.getX());
                     lastY = (int) (onDownY = event.getY());
                     keyCodeButton = new KeyCodeButton(ModelEditorActivity.this);
                     buttonSize = Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio);
                     keyCodeButton.setX(onDownX-buttonSize/2);//否则按钮会在点击位置的右下角
-                    keyCodeButton.setY(onDownY-buttonSize/2);    
+                    keyCodeButton.setY(onDownY-buttonSize/2);
                     relativeLayout.addView(keyCodeButton,buttonSize,buttonSize);
                     toolButton.bringToFront();//置于等层
                     return true;
-                case event.ACTION_MOVE:
+                case MotionEvent.ACTION_MOVE:
                     keyCodeButton.setX(event.getX()-buttonSize/2);
                     keyCodeButton.setY(event.getY()-buttonSize/2);
                     return true;
-                case event.ACTION_UP:
+                case MotionEvent.ACTION_UP:
                     keyCodeButton.editThis();//must edit at once
                     return true;
                 default:
@@ -142,20 +137,20 @@ public class ModelEditorActivity extends Activity
     /*预览按钮*/
     public class KeyCodeButton extends Button
     {
-        private AlertDialog buttonEditorDialog;
-        private AlertDialog.Builder tempBuilder;//每次setView()
+        private final AlertDialog buttonEditorDialog;
+        private final AlertDialog.Builder tempBuilder;//每次setView()
         private int keyCodeIndex;
 		private String buttonColorString;
         //dialog 控件
-        private Button textColorButton;
-        private Button buttonColorButton;
-        private Button buttonMappingButton;
-        private EditText buttonHeightEditText;
-        private EditText buttonWidthEditText;
-        private EditText buttonNameEditText;
-        private EditText buttonARGBEditText;
-        private EditText stringARGBEditText;
-        private TextView titleTextView;
+        private final Button textColorButton;
+        private final Button buttonColorButton;
+        private final Button buttonMappingButton;
+        private final EditText buttonHeightEditText;
+        private final EditText buttonWidthEditText;
+        private final EditText buttonNameEditText;
+        private final EditText buttonARGBEditText;
+        private final EditText stringARGBEditText;
+        private final TextView titleTextView;
 		
         KeyCodeButton(Context context){
             super(context);
@@ -167,7 +162,7 @@ public class ModelEditorActivity extends Activity
 			}
 			tempBuilder = new AlertDialog.Builder(context);
             //获取编辑dialog的控件
-            View dialogView = getLayoutInflater().inflate(R.layout.dialog_modelEditor_buttton,null);
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_modeleditor_buttton,null);
             (textColorButton = dialogView.findViewById(R.id.dialog_editor_button_textColor)).setOnClickListener(
                 new OnClickListener(){
                     @Override
@@ -178,7 +173,7 @@ public class ModelEditorActivity extends Activity
                         colorPickerView.setOnColorChangedListener(new ColorPickerView.OnColorChangedListener(){
                                 @Override
                                 public void onColorChanged(int color){
-                                    stringARGBEditText.setText(ColorUtil.convertToARGB(color).toString());
+                                    stringARGBEditText.setText(ColorUtil.convertToARGB(color));
                                     KeyCodeButton.this.setTextColor(color);
                                 }
                             });
@@ -200,7 +195,7 @@ public class ModelEditorActivity extends Activity
                         colorPickerView.setOnColorChangedListener(new ColorPickerView.OnColorChangedListener(){
                                 @Override
                                 public void onColorChanged(int color){
-                                    buttonARGBEditText.setText(ColorUtil.convertToARGB(color).toString());
+                                    buttonARGBEditText.setText(ColorUtil.convertToARGB(color));
                                     KeyCodeButton.this.setButtonColor(color);
                                 }
                             });
@@ -322,17 +317,17 @@ public class ModelEditorActivity extends Activity
         public boolean onTouchEvent(MotionEvent event)//处理按钮移动
         {
             switch(event.getAction()){
-                case event.ACTION_DOWN:
+                case MotionEvent.ACTION_DOWN:
                     lastX = onDownX = event.getRawX();
                     lastY = onDownY = event.getRawY();
                     return true;
-                case event.ACTION_MOVE:
+                case MotionEvent.ACTION_MOVE:
                     this.setX(-(int)lastX+(int)event.getRawX()+(int)this.getX());//转换成int以防止出现过大的误差，导致按钮漂移
                     this.setY(-(int)lastY+(int)event.getRawY()+(int)this.getY());
                     lastX = event.getRawX();
                     lastY = event.getRawY();
                     return true;
-                case event.ACTION_UP:
+                case MotionEvent.ACTION_UP:
                     if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.OFFSET){//判断是否点击按钮
                         this.editThis();//call edit dialog
                         return true;
@@ -550,17 +545,17 @@ public class ModelEditorActivity extends Activity
         public boolean onTouchEvent(MotionEvent event)
         {
             switch(event.getAction()){
-                case event.ACTION_DOWN:
+                case MotionEvent.ACTION_DOWN:
                     lastX = onDownX = event.getRawX();
                     lastY = onDownY = event.getRawY();
                     return true;
-                case event.ACTION_MOVE:
+                case MotionEvent.ACTION_MOVE:
                     this.setX(-(int)lastX+(int)event.getRawX()+(int)this.getX());//转换成int以防止出现过大的误差，导致按钮漂移
                     this.setY(-(int)lastY+(int)event.getRawY()+(int)this.getY());
                     lastX = event.getRawX();
                     lastY = event.getRawY();
                     return true;
-                case event.ACTION_UP:
+                case MotionEvent.ACTION_UP:
                     if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.OFFSET){//判断是否点击按钮
                         this.popuMenu.show();
                         return true;

@@ -1,6 +1,7 @@
 package n2lf.wirelesscontroller.utilities;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.widget.AbsListView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.EditText;
@@ -35,7 +36,7 @@ public class SearchableDialog extends AlertDialog.Builder
 		*/
 		listView = new ListView(context);
 		listView.setAdapter(adapter);
-		listView.setChoiceMode(listView.CHOICE_MODE_SINGLE);
+		listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
 		listView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 		/*
 		LinearLayout
@@ -64,7 +65,7 @@ public class SearchableDialog extends AlertDialog.Builder
 	class ListViewAdapter extends android.widget.BaseAdapter implements TextWatcher{
 		Context context;
 		IndexChangeListener indexChangeListener;
-		TextView textViewList[];
+		TextView[] textViewList;
 		ArrayList textViewArrayList;
 		TextView selectedTextView;
 		int index;
@@ -155,7 +156,7 @@ public class SearchableDialog extends AlertDialog.Builder
 			if(editable != null && editable.length()!=0){//此时输入框不为空
 				/*去除不合格的item*/
 				for(int b = 0; b < textViewArrayList.size();){
-					if((((TextView)textViewArrayList.get(b)).getText().toString().toLowerCase().indexOf(editable.toString().toLowerCase())==-1)){
+					if((!((TextView) textViewArrayList.get(b)).getText().toString().toLowerCase().contains(editable.toString().toLowerCase()))){
 						//此时的item是不合格的
 						textViewArrayList.remove(b);
 					}else{
@@ -170,22 +171,26 @@ public class SearchableDialog extends AlertDialog.Builder
 					return;
 				}
 				/*关键字排序*/
-				ArrayList tempList[] = new ArrayList[maxLength-editable.length()+1];
+				ArrayList[] tempList = new ArrayList[maxLength-editable.length()+1];
 				for(int i = 0;i<tempList.length;i++){
 					tempList[i]=new ArrayList<TextView>();
 				}
 				for(int k = 0;k<textViewArrayList.size();k++){//根据index把item塞入templist
 					int index = ((TextView)textViewArrayList.get(k)).getText().toString().toLowerCase().indexOf(editable.toString().toLowerCase());
-				//	System.out.println(index +":"+ ((CheckedTextView)checkedTextViewArrayList.get(k)).getText().toString() +":"+editable.toString());
 					//添加且排序
 					if(tempList[index].size()==0){
 						tempList[index].add(textViewArrayList.get(k));
 					}else{//判断插入位置
+						boolean isAdded = false;
 						for(int i = 0;i<tempList[index].size();i++){
 							if(((TextView)textViewArrayList.get(k)).getText().length()<=(((TextView)tempList[index].get(i)).getText().length())){
-								tempList[index].add(i,textViewArrayList.get(k));
+								tempList[index].add(i,textViewArrayList.get(k));//有些比列表里的都大
+								isAdded = true;
 								break;
 							}
+						}
+						if(!isAdded){
+							tempList[index].add(textViewArrayList.get(k));
 						}
 					}
 				}

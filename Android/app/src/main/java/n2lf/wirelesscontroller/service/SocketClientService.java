@@ -40,17 +40,17 @@ public class SocketClientService extends Service
         return actionSender;
     }
     
-	private class ActionSender extends Thread//一一对应原则，一个model一个对象
+	public class ActionSender extends Thread//一一对应原则，一个model一个对象
 	{
-        private SyncedLinkedList actionQueue;
-		private Handler handler;
-		private String ip;
-		private int port;
+        private final SyncedLinkedList actionQueue;
+		private final Handler handler;
+		private final String ip;
+		private final int port;
 		private boolean isStopped;
         private boolean isBinded;
-		private ProgressDialog progressDialog;
-		private ServiceConnection connection;
-        private String modelName;
+		private final ProgressDialog progressDialog;
+		private final ServiceConnection connection;
+        private final String modelName;
         private OverlayService overlayService;
         
 		ActionSender(Handler handler , String ip , int port , String modelName){
@@ -97,7 +97,7 @@ public class SocketClientService extends Service
 				progressDialog.dismiss();//Success
                 Intent intent = new Intent(getApplicationContext() , OverlayService.class);
                 intent.putExtra("modelName" , modelName);
-                bindService(intent ,connection , 1 );
+                bindService(intent ,connection , Context.BIND_AUTO_CREATE);
                 isBinded = true;
 				while(true){
 					if(isStopped){

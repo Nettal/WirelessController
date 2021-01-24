@@ -2,9 +2,12 @@ package n2lf.wirelesscontroller.service;
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.PopupMenu;
 import n2lf.wirelesscontroller.service.SocketClientService;
 import n2lf.wirelesscontroller.utilities.ModelManager;
@@ -68,7 +71,7 @@ public class OverlayService extends Service
          FLAG_FULLSCREEN Activity窗口全屏，状态栏不显示。
 		// SOFT_INPUT_ADJUST_NOTHING 软键盘不调整任何
         **/ 
-        windowManagerLP.flags = windowManagerLP.FLAG_NOT_TOUCH_MODAL|windowManagerLP.FLAG_NOT_FOCUSABLE|windowManagerLP.FLAG_FULLSCREEN|windowManagerLP.FLAG_LAYOUT_IN_SCREEN;
+        windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
         windowManagerLP.alpha = 1f;
         windowManagerLP.format = android.graphics.PixelFormat.RGBA_8888;
         windowManagerLP.gravity = android.view.Gravity.TOP|android.view.Gravity.LEFT;
@@ -76,7 +79,7 @@ public class OverlayService extends Service
 		toolButton = new ToolButton(OverlayService.this , windowManager, modelManager.getToolButtonProp());
 		toolButton.bringToFront();
 		//为什么？？
-		windowManagerLP.flags = windowManagerLP.FLAG_NOT_TOUCH_MODAL|windowManagerLP.FLAG_NOT_FOCUSABLE|windowManagerLP.FLAG_FULLSCREEN|windowManagerLP.FLAG_LAYOUT_IN_SCREEN;
+		windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
     }
 	
 	public void stopOverlay(){
@@ -104,7 +107,7 @@ public class OverlayService extends Service
             isMouseKeyCode = prop.isMouseKeyCode();
             if(prop.getButtonColorString()!=null){
                 this.getBackground().setAlpha(0);
-                this.getBackground().setColorFilter(ColorUtil.convertToColorInt(prop.getButtonColorString()) , android.graphics.PorterDuff.Mode.SRC);
+                this.getBackground().setColorFilter(ColorUtil.convertToColorInt(prop.getButtonColorString()) , PorterDuff.Mode.SRC);
             }
             if(prop.getButtonName()!=null){
                 this.setText(prop.getButtonName());
@@ -112,7 +115,9 @@ public class OverlayService extends Service
             this.setTextColor(prop.getTextColor());
             this.setX(prop.getX(getContext()));
             this.setY(prop.getY(getContext()));
-            this.setAutoSizeTextTypeWithDefaults(android.widget.Button.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                this.setAutoSizeTextTypeWithDefaults(Button.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+            }
             viewGroup.addView(this , prop.getWidth(getContext()) , prop.getHeight(getContext()));
         }
         
@@ -195,7 +200,7 @@ public class OverlayService extends Service
 			 FLAG_FULLSCREEN Activity窗口全屏，状态栏不显示。
 			 // SOFT_INPUT_ADJUST_NOTHING 软键盘不调整任何
 			 **/ 
-			layoutParams.flags = windowManagerLP.FLAG_NOT_TOUCH_MODAL|windowManagerLP.FLAG_NOT_FOCUSABLE|windowManagerLP.FLAG_FULLSCREEN|windowManagerLP.FLAG_LAYOUT_IN_SCREEN;
+			layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
 			layoutParams.alpha = 1f;
 			layoutParams.format = android.graphics.PixelFormat.RGBA_8888;
 			layoutParams.gravity = android.view.Gravity.TOP|android.view.Gravity.LEFT;
@@ -214,18 +219,18 @@ public class OverlayService extends Service
         public boolean onTouchEvent(MotionEvent event)
         {
             switch(event.getAction()){
-                case event.ACTION_DOWN:
+                case MotionEvent.ACTION_DOWN:
                     lastX = onDownX = event.getRawX();
                     lastY = onDownY = event.getRawY();
                     return true;
-                case event.ACTION_MOVE:
+                case MotionEvent.ACTION_MOVE:
                     layoutParams.x =(-(int)lastX+(int)event.getRawX()+layoutParams.x);//转换成int以防止出现过大的误差，导致按钮漂移
                     layoutParams.y =(-(int)lastY+(int)event.getRawY()+layoutParams.y);
                     lastX = event.getRawX();
                     lastY = event.getRawY();
 					windowManager.updateViewLayout(this , layoutParams);
                     return true;
-                case event.ACTION_UP:
+                case MotionEvent.ACTION_UP:
                     if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.DEFAULT_TEXT_SIZE){//判断是否点击按钮
                         popuMenu.show();
                         return true;
@@ -241,10 +246,10 @@ public class OverlayService extends Service
 				popuMenu.dismiss();
 				OverlayService.this.stopOverlay();
 			}else if(p1.getTitle().toString()==Utilities.悬浮界面的按键文字[1]){//禁用/启用
-				if(windowManagerLP.flags == (windowManagerLP.FLAG_NOT_TOUCH_MODAL|windowManagerLP.FLAG_NOT_FOCUSABLE|windowManagerLP.FLAG_FULLSCREEN|windowManagerLP.FLAG_LAYOUT_IN_SCREEN)){
-					windowManagerLP.flags = windowManagerLP.FLAG_NOT_FOCUSABLE|windowManagerLP.FLAG_NOT_TOUCHABLE;
+				if(windowManagerLP.flags == (WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)){
+					windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
 				}else{
-					windowManagerLP.flags = windowManagerLP.FLAG_NOT_TOUCH_MODAL|windowManagerLP.FLAG_NOT_FOCUSABLE|windowManagerLP.FLAG_FULLSCREEN|windowManagerLP.FLAG_LAYOUT_IN_SCREEN;
+					windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
 				}
 				windowManager.updateViewLayout(relativeLayout , windowManagerLP);
 			}
