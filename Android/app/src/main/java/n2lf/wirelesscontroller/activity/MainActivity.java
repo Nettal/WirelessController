@@ -62,6 +62,15 @@ public class MainActivity extends Activity {
                 @Override
                 public void onClick(View p1){
                     if(Utilities.checkAndAllowOverlayPermission(MainActivity.this)){
+                        try{
+                            ModelManager modelManager = ModelManager.getModelFromFile(MainActivity.this , Utilities.DefaultModelName);
+                            if(modelManager.isHorizontal()){//是否为横屏
+                                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//横屏
+                            }else{
+                                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
+                            }
+                        }
+                        catch (Exception e){}
 						Intent intent = new Intent(MainActivity.this , SocketClientService.class);
 						intent.putExtra("port" , sharedPreferences.getInt("portEditText_Tnt" , 37385));
 						intent.putExtra("ip" , sharedPreferences.getString("ipEditText_String","127.0.0.1"));

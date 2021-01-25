@@ -16,7 +16,9 @@
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 		</activity>
-		<activity android:name=".activity.ModelEditorActivity"/>
+		<activity 
+            android:name=".activity.ModelEditorActivity"
+            android:screenOrientation="behind"/>
 		<activity android:name=".activity.ModelManagerActivity"/>
 		<service android:name=".service.OverlayService"/>
 		<service android:name=".service.SocketClientService"/>
