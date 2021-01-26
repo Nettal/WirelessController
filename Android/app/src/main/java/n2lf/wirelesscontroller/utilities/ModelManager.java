@@ -11,6 +11,7 @@ import n2lf.wirelesscontroller.service.OverlayService;
 
 public class ModelManager implements java.io.Serializable
 {
+    private static final long serialVersionUID = 16384L;
     public static ArrayList getAllModelFileName(Context context , boolean deleteIllegalFile){
         ArrayList list = new ArrayList<String>();
         File file = context.getExternalFilesDir("model");
@@ -39,11 +40,11 @@ public class ModelManager implements java.io.Serializable
 	}
 	
     
-	private final ArrayList keyCodeButtonPropList;
 	private final String modelName;
+    private final int screenWidth;
+    private final int screenHeight;
     private ToolButtonProperties toolButtinProp;
-    int screenWidth;
-    int screenHeight;
+    private ArrayList keyCodeButtonPropList;
 	public ModelManager(ViewGroup viewGroup , int screenWidth , int screenHeight ,  String modelName){
 		this.modelName = modelName;
         this.screenWidth = screenWidth;
@@ -61,7 +62,7 @@ public class ModelManager implements java.io.Serializable
     public ModelManager(ViewGroup viewGroup , Context context , String modelName){
         this(viewGroup , Utilities.getScreenWidth(context) , Utilities.getScreenHeight(context) , modelName);
     }
-	
+    
     public String getModelName(){
         return modelName;
     }
@@ -91,29 +92,35 @@ public class ModelManager implements java.io.Serializable
 		return null;
 	}
 
-    public void updateToolButtonProp(ToolButtonPropInterface button){
+    public void setToolButtonProp(ToolButtonPropInterface button){
         toolButtinProp = new ToolButtonProperties(button);
-    }
-    
-     public KeyCodeButtonProperties[] getKeyCodeButtonPropList(){
-         KeyCodeButtonProperties[] propList = new KeyCodeButtonProperties[keyCodeButtonPropList.size()];
-        return (KeyCodeButtonProperties[])keyCodeButtonPropList.toArray(propList);
     }
     
     public ToolButtonProperties getToolButtonProp(){
         return toolButtinProp;
     }
     
-	public class KeyCodeButtonProperties implements java.io.Serializable{
-		String buttonName;//nullable
-		float widthScreenRatio;
-		float heightScreenRatio;
-		float XScreenRatio;
-		float YScreenRatio;
-		int textColor;
-		String buttonColorString;//null为未修改
-		int keyCode;
-		int KeyCodeIndex;
+    public void addKeyCodeButtonProp(ModelEditorActivity.KeyCodeButton button){
+        keyCodeButtonPropList.add(new KeyCodeButtonProperties(button));
+    }
+    
+    public KeyCodeButtonProperties[] getKeyCodeButtonPropList(){
+         KeyCodeButtonProperties[] propList = new KeyCodeButtonProperties[keyCodeButtonPropList.size()];
+        return (KeyCodeButtonProperties[])keyCodeButtonPropList.toArray(propList);
+    }
+    
+	public class KeyCodeButtonProperties implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 32768L;
+		private final String buttonName;//nullable
+		private final float widthScreenRatio;
+		private final float heightScreenRatio;
+		private final float XScreenRatio;
+		private final float YScreenRatio;
+		private final int textColor;
+		private final String buttonColorString;//null为未修改
+		private final int keyCode;
+		private final int KeyCodeIndex;
 		KeyCodeButtonProperties(ModelEditorActivity.KeyCodeButton keyCodeButton){
 			buttonName = keyCodeButton.getText().toString();
 			widthScreenRatio = keyCodeButton.getWidthScreenRatio();
@@ -125,7 +132,7 @@ public class ModelManager implements java.io.Serializable
 			keyCode = keyCodeButton.getKeyCode();
 			KeyCodeIndex = keyCodeButton.getKeyCodeIndex();
 		}
-        
+           
         public int getKeyCode(){
             return keyCode;
         }
@@ -168,6 +175,7 @@ public class ModelManager implements java.io.Serializable
 	}
     
     public class ToolButtonProperties implements java.io.Serializable{
+        private static final long serialVersionUID = 65536L;
         private final float ToolbuttonXScreenRatio;
         private final float ToolbuttonYScreenRatio;
         ToolButtonProperties(ToolButtonPropInterface button){
