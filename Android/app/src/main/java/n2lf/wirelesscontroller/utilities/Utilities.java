@@ -19,11 +19,11 @@ public class Utilities
 	public static String DefaultIp = "127.0.0.1";
 	public static String DefaultModelName ="TempModel";
     public static String[] 添加界面的按键文字 = {"完成","添加按钮"};//逻辑实现在ModelEditorActivity
-    public static String[] 悬浮界面的按键文字 = {"关闭","禁用/启用"};//逻辑实现在OverlayService
+    public static String[] 悬浮界面的按键文字 = {"关闭","禁用/启用","剪贴板"};//逻辑实现在OverlayService
     public static String[] 点击选取位置 = {"点击以选取按钮位置","拖动以划定触摸区域"};
     public static String[] 确定删除 = {"确定","删除"};
     public static int DEFAULT_TEXT_SIZE = 25;
-    public static int DefaultButtonColor = Color.argb(0xff,36,00,0xff);
+    public static int DefaultButtonColor = Color.argb(42,00,00,00);
     public static int EditorBackgroundColor = Color.argb(255,189,183,107);
     public static int ErrorTextColor = Color.RED;
 	public static int DefaultPort = 37385;

@@ -16,6 +16,8 @@ import n2lf.wirelesscontroller.utilities.colorpicker.ColorUtil;
 import android.view.MenuItem;
 import android.widget.RelativeLayout;
 import android.content.Context;
+import android.widget.EditText;
+import android.content.DialogInterface;
 
 public class OverlayService extends Service
 {
@@ -252,7 +254,9 @@ public class OverlayService extends Service
 					windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
 				}
 				windowManager.updateViewLayout(relativeLayout , windowManagerLP);
-			}
+			}else if(p1.getTitle().toString()==Utilities.悬浮界面的按键文字[2]){//剪贴板
+                new ClipboardDialog(getContext() , syncedLinkedList).show();
+            }
             return false;
         }
 
@@ -273,6 +277,46 @@ public class OverlayService extends Service
 		}
     }
     
+    public class ClipboardDialog extends AlertDialog.Builder
+    {
+        AlertDialog alertDialog;
+        EditText editText;
+        SocketClientService.SyncedLinkedList linkedList;
+
+        public ClipboardDialog(Context context , SocketClientService.SyncedLinkedList list){
+            super(context);
+            this.linkedList = list;
+            this.setTitle("剪贴板");
+            editText = new EditText(context);
+            editText.setAllCaps(false);
+            editText.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT));
+            this.setView(editText);
+            this.setPositiveButton("发送", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface p1, int p2){
+                        if(editText.getText()==null || editText.getText().length()==0){
+                            return;}
+                        //TODO
+                        //ClipboardDialog.this.linkedList.addFirst();
+                    }
+                });
+            this.setNegativeButton("取消", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface p1, int p2){
+                        ClipboardDialog.this.alertDialog.dismiss();//Useless
+                    }
+                });
+        }
+
+        @Override
+        public AlertDialog show(){
+            alertDialog = super.create();
+            alertDialog.getWindow().setType(Utilities.getLayoutParamsType());
+            alertDialog.show();
+            alertDialog.getWindow().setDimAmount(0f);
+            return alertDialog;
+        }
+    }
 	
     public class OSBinder extends android.os.Binder{
         public void setSyncedLinkedList(SocketClientService.SyncedLinkedList list){
