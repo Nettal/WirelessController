@@ -118,6 +118,12 @@ public class ModelEditorActivity extends Activity
                     buttonSize = Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio);
                     keyCodeButton.setX(event.getX()-buttonSize/2);//否则按钮会在点击位置的右下角
                     keyCodeButton.setY(event.getY()-buttonSize/2);
+					keyCodeButton.post(new Runnable(){
+							@Override
+							public void run(){//当屏幕fps低于手指点击速度时KeyCodeButton便不会出现，使用此以解决消失问题（被动更新View）
+								relativeLayout.updateViewLayout(keyCodeButton , new RelativeLayout.LayoutParams(buttonSize , buttonSize));
+							}
+						});
                     relativeLayout.addView(keyCodeButton,buttonSize,buttonSize);
                     toolButton.bringToFront();
                     return true;
@@ -130,6 +136,9 @@ public class ModelEditorActivity extends Activity
                     keyCodeButton.setY(event.getY()-buttonSize/2);
                     keyCodeButton.editThis();//must edit at once
                     return true;
+				case MotionEvent.ACTION_CANCEL:
+					relativeLayout.removeView(keyCodeButton);
+					return true;
                 default:
                     return false;
             }
