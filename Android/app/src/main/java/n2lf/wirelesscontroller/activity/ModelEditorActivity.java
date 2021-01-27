@@ -134,7 +134,7 @@ public class ModelEditorActivity extends Activity
                 case MotionEvent.ACTION_UP:
                     keyCodeButton.setX(event.getX()-buttonSize/2);
                     keyCodeButton.setY(event.getY()-buttonSize/2);
-                    keyCodeButton.editThis();//must edit at once
+                    keyCodeButton.editThis();
                     return true;
 				case MotionEvent.ACTION_CANCEL:
 					relativeLayout.removeView(keyCodeButton);

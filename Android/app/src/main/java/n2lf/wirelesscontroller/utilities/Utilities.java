@@ -27,6 +27,7 @@ public class Utilities
     public static int EditorBackgroundColor = Color.argb(255,189,183,107);
     public static int ErrorTextColor = Color.RED;
 	public static int DefaultPort = 37385;
+    public static float MouseWheelRatio = 0.05f; 
 	public static long ThreadSleepTime = 5;
     
 	

@@ -159,26 +159,36 @@ public class OverlayService extends Service
 			viewgroup.addView(this , layoutParams);
 		}
 
-		float lastX , lastY;
-		@Override
-		public boolean onTouchEvent(MotionEvent event){
-			switch(event.getAction()){
+		float lastX , lastY , mouseWheelY;
+        @Override
+        public boolean onTouchEvent(MotionEvent event){
+            switch(event.getActionMasked()){
                 case MotionEvent.ACTION_DOWN:
                     lastX = event.getX();
-					lastY = event.getY();
+                    lastY = mouseWheelY = event.getY();
                     return true;
-				case MotionEvent.ACTION_MOVE:
-					list.addFirst("OMM"+(int)(event.getX()-lastX)+","+(int)(event.getY()-lastY));
-					lastX=event.getX();
-					lastY=event.getY();
-					return true;
+                case MotionEvent.ACTION_MOVE:
+                    if(event.getPointerCount()==2){//双指：鼠标滚轮
+                        float eventRatio = Utilities.getScreenHeight(getContext())*Utilities.MouseWheelRatio;
+                        for(;event.getY(1)-mouseWheelY>eventRatio;mouseWheelY+=eventRatio){
+                            list.addFirst("OMW"+-1);
+                        }
+                        for(;event.getY(1)-mouseWheelY<-eventRatio;mouseWheelY-=eventRatio){
+                            list.addFirst("OMW"+1);
+                        }
+                    }else{
+                        list.addFirst("OMM"+(int)(event.getX()-lastX)+","+(int)(event.getY()-lastY));
+                        lastX=event.getX();
+                        lastY=event.getY();
+                    }
+                    return true;
                 case MotionEvent.ACTION_UP:
-                    
+
                     return true;
                 default:
                     return false;
             }
-		}
+        }
 	}
     
     public class ToolButton extends android.widget.Button implements android.widget.PopupMenu.OnMenuItemClickListener , ModelManager.ToolButtonPropInterface{
@@ -296,8 +306,7 @@ public class OverlayService extends Service
                     public void onClick(DialogInterface p1, int p2){
                         if(editText.getText()==null || editText.getText().length()==0){
                             return;}
-                        //TODO
-                        //ClipboardDialog.this.linkedList.addFirst();
+                        linkedList.addFirst("SCB"+editText.length()+","+editText.toString());
                     }
                 });
             this.setNegativeButton("取消", new DialogInterface.OnClickListener(){
