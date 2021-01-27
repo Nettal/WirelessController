@@ -65,9 +65,9 @@ public class MainActivity extends Activity {
                         try{
                             ModelManager modelManager = ModelManager.getModelFromFile(MainActivity.this , Utilities.DefaultModelName);
                             if(modelManager.isHorizontal()){//是否为横屏
-                                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//横屏
+                                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);//横屏
                             }else{
-                                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
+                                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);//竖屏
                             }
                         }
                         catch (Exception e){}
