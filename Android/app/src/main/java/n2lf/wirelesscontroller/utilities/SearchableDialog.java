@@ -149,27 +149,27 @@ public class SearchableDialog extends AlertDialog.Builder
 		}
 
 		@Override
-		public void afterTextChanged(final Editable editable)
+		public void afterTextChanged(Editable editable)
 		{
-			int maxLength = 0;
 			textViewArrayList = new ArrayList<TextView>(java.util.Arrays.asList(textViewList));
 			if(editable != null && editable.length()!=0){//此时输入框不为空
+                int maxLength = 0;
 				/*去除不合格的item*/
 				for(int b = 0; b < textViewArrayList.size();){
-					if((!((TextView) textViewArrayList.get(b)).getText().toString().toLowerCase().contains(editable.toString().toLowerCase()))){
-						//此时的item是不合格的
-						textViewArrayList.remove(b);
+					if(((TextView) textViewArrayList.get(b)).getText().toString().toLowerCase().contains(editable.toString().toLowerCase())){
+                        if(((TextView)textViewArrayList.get(b)).getText().length()>=maxLength){
+                            maxLength = ((TextView)textViewArrayList.get(b)).getText().length();
+                        }
+                        b++;
 					}else{
-						if(((TextView)textViewArrayList.get(b)).getText().length()>=maxLength){
-							maxLength = ((TextView)textViewArrayList.get(b)).getText().length();
-						}
-						b++;
+                        //此时的item是不合格的
+						textViewArrayList.remove(b);
 					}
 				}
-				if(textViewArrayList.size()==0){
-					notifyDataSetChanged();
-					return;
-				}
+                if(maxLength-editable.length()+1<0){
+                    notifyDataSetChanged();
+                    return;
+                }
 				/*关键字排序*/
 				ArrayList[] tempList = new ArrayList[maxLength-editable.length()+1];
 				for(int i = 0;i<tempList.length;i++){
@@ -177,21 +177,16 @@ public class SearchableDialog extends AlertDialog.Builder
 				}
 				for(int k = 0;k<textViewArrayList.size();k++){//根据index把item塞入templist
 					int index = ((TextView)textViewArrayList.get(k)).getText().toString().toLowerCase().indexOf(editable.toString().toLowerCase());
-					//添加且排序
-					if(tempList[index].size()==0){
+					boolean isAdded = false;
+					for(int i = 0;i<tempList[index].size();i++){
+						if(((TextView)textViewArrayList.get(k)).getText().length()<=(((TextView)tempList[index].get(i)).getText().length())){
+							tempList[index].add(i,textViewArrayList.get(k));//有些比列表里的都大
+							isAdded = true;
+							break;
+						}
+					}
+					if(!isAdded){
 						tempList[index].add(textViewArrayList.get(k));
-					}else{//判断插入位置
-						boolean isAdded = false;
-						for(int i = 0;i<tempList[index].size();i++){
-							if(((TextView)textViewArrayList.get(k)).getText().length()<=(((TextView)tempList[index].get(i)).getText().length())){
-								tempList[index].add(i,textViewArrayList.get(k));//有些比列表里的都大
-								isAdded = true;
-								break;
-							}
-						}
-						if(!isAdded){
-							tempList[index].add(textViewArrayList.get(k));
-						}
 					}
 				}
 				textViewArrayList = new ArrayList<TextView>();
