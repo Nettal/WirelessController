@@ -84,14 +84,14 @@ public class OverlayService extends Service
 		windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
     }
 	
-	public void stopOverlay(){
+	public void stopOverlay(boolean shouldSetToStop){
 		if(windowManager!=null && relativeLayout!=null){
 			windowManager.removeView(relativeLayout);
 		}
 		if(windowManager!=null && toolButton!=null){
 			windowManager.removeView(toolButton);
 		}
-		if(socketClientService!=null){
+		if(socketClientService!=null && shouldSetToStop){
 			socketClientService.getActionSender().setToStop();
 		}
 		//setToStop会unbind这个
@@ -131,16 +131,16 @@ public class OverlayService extends Service
             switch(event.getAction()){
                 case MotionEvent.ACTION_DOWN:
                     if(isMouseKeyCode){
-                        list.addFirst("OMP"+keyCode);
+                        list.addFirst("OMP:"+keyCode);
                     }else{
-                        list.addFirst("OKP"+keyCode);
+                        list.addFirst("OKP:"+keyCode);
                     }
                     return true;
                 case MotionEvent.ACTION_UP:
                     if(isMouseKeyCode){
-                        list.addFirst("OMR"+keyCode);
+                        list.addFirst("OMR:"+keyCode);
                     }else{
-                        list.addFirst("OKR"+keyCode);
+                        list.addFirst("OKR:"+keyCode);
                     }
                     return true;
                 default:
@@ -171,13 +171,15 @@ public class OverlayService extends Service
                     if(event.getPointerCount()==2){//双指：鼠标滚轮
                         float eventRatio = Utilities.getScreenHeight(getContext())*Utilities.MouseWheelRatio;
                         for(;event.getY(1)-mouseWheelY>eventRatio;mouseWheelY+=eventRatio){
-                            list.addFirst("OMW"+-1);
+                            list.addFirst("OMW:"+-1);
                         }
                         for(;event.getY(1)-mouseWheelY<-eventRatio;mouseWheelY-=eventRatio){
-                            list.addFirst("OMW"+1);
+                            list.addFirst("OMW:"+1);
                         }
                     }else{
-                        list.addFirst("OMM"+(int)(event.getX()-lastX)+","+(int)(event.getY()-lastY));
+                        if((int)(event.getX()-lastX)==0 || (int)(event.getY()-lastY)==0){
+                            return true;}
+                        list.addFirst("OMM:"+(int)(event.getX()-lastX)+";"+(int)(event.getY()-lastY));
                         lastX=event.getX();
                         lastY=event.getY();
                     }
@@ -190,103 +192,7 @@ public class OverlayService extends Service
             }
         }
 	}
-    
-    public class ToolButton extends android.widget.Button implements android.widget.PopupMenu.OnMenuItemClickListener , ModelManager.ToolButtonPropInterface{
-        PopupMenu popuMenu;
-		WindowManager.LayoutParams layoutParams;
-		WindowManager windowManager;
-        ToolButton(Context context ,WindowManager manager , ModelManager.ToolButtonProperties toolButtonProp){
-            super(context);
-            popuMenu = new PopupMenu(getContext() , this);//按钮点击时的菜单
-            for(String i :Utilities.悬浮界面的按键文字){
-                popuMenu.getMenu().add(i);
-            }
-            popuMenu.setOnMenuItemClickListener(this);
-			windowManager = manager;
-			layoutParams = new WindowManager.LayoutParams();
-			layoutParams.type = Utilities.getLayoutParamsType();
-			/**
-			 如果没有设置FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方不能点击。
-			 如果设置了FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方能够点击、但是弹窗上的EditText无法输入、键盘也不会弹出来。
-			 如果设置了FLAG_NOT_TOUCH_MODAL，那么屏幕上弹窗之外的地方能够点击、弹窗上的EditText也可以输入、键盘能够弹出来。
-			 FLAG_FULLSCREEN Activity窗口全屏，状态栏不显示。
-			 // SOFT_INPUT_ADJUST_NOTHING 软键盘不调整任何
-			 **/ 
-			layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
-			layoutParams.alpha = 1f;
-			layoutParams.format = android.graphics.PixelFormat.RGBA_8888;
-			layoutParams.gravity = android.view.Gravity.TOP|android.view.Gravity.LEFT;
-			layoutParams.x = (int) toolButtonProp.getX(getContext());
-			layoutParams.y = (int) toolButtonProp.getY(getContext());
-			layoutParams.width = layoutParams.height = Utilities.getMinSizeByRatio(getContext() , Utilities.DefaultButtonSizeScreenRatio);
-			manager.addView(this , layoutParams);
-        }
-        
-        //处理按钮移动和按钮单击操作
-        private float lastX;//你可以用float，但会出现按键漂移问题
-        private float lastY;
-        private float onDownX;
-        private float onDownY;
-        @Override
-        public boolean onTouchEvent(MotionEvent event)
-        {
-            switch(event.getAction()){
-                case MotionEvent.ACTION_DOWN:
-                    lastX = onDownX = event.getRawX();
-                    lastY = onDownY = event.getRawY();
-                    return true;
-                case MotionEvent.ACTION_MOVE:
-                    layoutParams.x =(-(int)lastX+(int)event.getRawX()+layoutParams.x);//转换成int以防止出现过大的误差，导致按钮漂移
-                    layoutParams.y =(-(int)lastY+(int)event.getRawY()+layoutParams.y);
-                    lastX = event.getRawX();
-                    lastY = event.getRawY();
-					windowManager.updateViewLayout(this , layoutParams);
-                    return true;
-                case MotionEvent.ACTION_UP:
-                    if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.DEFAULT_TEXT_SIZE){//判断是否点击按钮
-                        popuMenu.show();
-                        return true;
-                    }
-                default:
-                    return false;
-            }
-        }
-        
-        @Override
-        public boolean onMenuItemClick(MenuItem p1){
-            if(p1.getTitle().toString()==Utilities.悬浮界面的按键文字[0]){//关闭
-				popuMenu.dismiss();
-				OverlayService.this.stopOverlay();
-			}else if(p1.getTitle().toString()==Utilities.悬浮界面的按键文字[1]){//禁用/启用
-				if(windowManagerLP.flags == (WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)){
-					windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
-				}else{
-					windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
-				}
-				windowManager.updateViewLayout(relativeLayout , windowManagerLP);
-			}else if(p1.getTitle().toString()==Utilities.悬浮界面的按键文字[2]){//剪贴板
-                new ClipboardDialog(getContext() , syncedLinkedList).show();
-            }
-            return false;
-        }
-
-		@Override
-		public void bringToFront(){
-			super.bringToFront();
-			windowManager.updateViewLayout(this , layoutParams);
-		}
-		
-		@Override
-        public float getXScreenRatio(){
-            return (float)getX()/(float)Utilities.getScreenHeight(getContext());
-        }
-
-		@Override
-        public float getYScreenRatio(){
-            return (float)getY()/(float)Utilities.getScreenWidth(getContext());
-		}
-    }
-    
+ 
     public class ClipboardDialog extends AlertDialog.Builder
     {
         AlertDialog alertDialog;
@@ -306,7 +212,8 @@ public class OverlayService extends Service
                     public void onClick(DialogInterface p1, int p2){
                         if(editText.getText()==null || editText.getText().length()==0){
                             return;}
-                        linkedList.addFirst("SCB"+editText.length()+","+editText.toString());
+                        //标识符:字符行数;文本
+                        linkedList.addFirst("SCB:"+editText.getText().toString().split(System.getProperty("line.separator")).length+";"+editText.getText());
                     }
                 });
             this.setNegativeButton("取消", new DialogInterface.OnClickListener(){
@@ -327,6 +234,102 @@ public class OverlayService extends Service
         }
     }
 	
+    public class ToolButton extends android.widget.Button implements android.widget.PopupMenu.OnMenuItemClickListener , ModelManager.ToolButtonPropInterface{
+        PopupMenu popuMenu;
+        WindowManager.LayoutParams layoutParams;
+        WindowManager windowManager;
+        ToolButton(Context context ,WindowManager manager , ModelManager.ToolButtonProperties toolButtonProp){
+            super(context);
+            popuMenu = new PopupMenu(getContext() , this);//按钮点击时的菜单
+            for(String i :Utilities.悬浮界面的按键文字){
+                popuMenu.getMenu().add(i);
+            }
+            popuMenu.setOnMenuItemClickListener(this);
+            windowManager = manager;
+            layoutParams = new WindowManager.LayoutParams();
+            layoutParams.type = Utilities.getLayoutParamsType();
+            /**
+             如果没有设置FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方不能点击。
+             如果设置了FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方能够点击、但是弹窗上的EditText无法输入、键盘也不会弹出来。
+             如果设置了FLAG_NOT_TOUCH_MODAL，那么屏幕上弹窗之外的地方能够点击、弹窗上的EditText也可以输入、键盘能够弹出来。
+             FLAG_FULLSCREEN Activity窗口全屏，状态栏不显示。
+             // SOFT_INPUT_ADJUST_NOTHING 软键盘不调整任何
+             **/ 
+            layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+            layoutParams.alpha = 1f;
+            layoutParams.format = android.graphics.PixelFormat.RGBA_8888;
+            layoutParams.gravity = android.view.Gravity.TOP|android.view.Gravity.LEFT;
+            layoutParams.x = (int) toolButtonProp.getX(getContext());
+            layoutParams.y = (int) toolButtonProp.getY(getContext());
+            layoutParams.width = layoutParams.height = Utilities.getMinSizeByRatio(getContext() , Utilities.DefaultButtonSizeScreenRatio);
+            manager.addView(this , layoutParams);
+        }
+
+        //处理按钮移动和按钮单击操作
+        private float lastX;//你可以用float，但会出现按键漂移问题
+        private float lastY;
+        private float onDownX;
+        private float onDownY;
+        @Override
+        public boolean onTouchEvent(MotionEvent event)
+        {
+            switch(event.getAction()){
+                case MotionEvent.ACTION_DOWN:
+                    lastX = onDownX = event.getRawX();
+                    lastY = onDownY = event.getRawY();
+                    return true;
+                case MotionEvent.ACTION_MOVE:
+                    layoutParams.x =(-(int)lastX+(int)event.getRawX()+layoutParams.x);//转换成int以防止出现过大的误差，导致按钮漂移
+                    layoutParams.y =(-(int)lastY+(int)event.getRawY()+layoutParams.y);
+                    lastX = event.getRawX();
+                    lastY = event.getRawY();
+                    windowManager.updateViewLayout(this , layoutParams);
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    if((  Math.abs(onDownY-event.getRawY()) + Math.abs(onDownX-event.getRawX()) )< Utilities.DEFAULT_TEXT_SIZE){//判断是否点击按钮
+                        popuMenu.show();
+                        return true;
+                    }
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem p1){
+            if(p1.getTitle().toString()==Utilities.悬浮界面的按键文字[0]){//关闭
+                popuMenu.dismiss();
+                OverlayService.this.stopOverlay(true);
+            }else if(p1.getTitle().toString()==Utilities.悬浮界面的按键文字[1]){//禁用/启用
+                if(windowManagerLP.flags == (WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)){
+                    windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+                }else{
+                    windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+                }
+                windowManager.updateViewLayout(relativeLayout , windowManagerLP);
+            }else if(p1.getTitle().toString()==Utilities.悬浮界面的按键文字[2]){//剪贴板
+                new ClipboardDialog(getContext() , syncedLinkedList).show();
+            }
+            return false;
+        }
+
+        @Override
+        public void bringToFront(){
+            super.bringToFront();
+            windowManager.updateViewLayout(this , layoutParams);
+        }
+
+        @Override
+        public float getXScreenRatio(){
+            return (float)getX()/(float)Utilities.getScreenHeight(getContext());
+        }
+
+        @Override
+        public float getYScreenRatio(){
+            return (float)getY()/(float)Utilities.getScreenWidth(getContext());
+        }
+    }
+    
     public class OSBinder extends android.os.Binder{
         public void setSyncedLinkedList(SocketClientService.SyncedLinkedList list){
             syncedLinkedList = list;

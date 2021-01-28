@@ -14,6 +14,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.ServiceConnection;
 import android.content.ComponentName;
+import java.io.OutputStreamWriter;
 
 public class SocketClientService extends Service
 {
@@ -94,11 +95,14 @@ public class SocketClientService extends Service
 			try{
                // System.out.println("ip:"+ip+",port:"+port+",ModelName:"+modelName);
 				Socket socket = new Socket(ip, port);
-				BufferedWriter bw = new BufferedWriter(new java.io.OutputStreamWriter(socket.getOutputStream()));
+                OutputStreamWriter osw = new OutputStreamWriter(socket.getOutputStream());
+				BufferedWriter bw = new BufferedWriter(osw);
 				progressDialog.dismiss();//Success
                 Intent intent = new Intent(getApplicationContext() , OverlayService.class);
                 intent.putExtra("modelName" , modelName);
-                bindService(intent ,connection , Context.BIND_AUTO_CREATE);
+                if(!isBinded){
+                    bindService(intent ,connection , Context.BIND_AUTO_CREATE);
+                }
                 isBinded = true;
 				while(true){
 					if(isStopped){
@@ -111,12 +115,14 @@ public class SocketClientService extends Service
 					}else{
 						//System.out.println(actionQueue.getLast());
 						bw.write(actionQueue.getAndRemoveLast());
+                        bw.newLine();
 						bw.flush();
 					}
 				}
 				bw.close();
+                osw.close();
 				socket.close();
-				overlayService.stopOverlay();
+				overlayService.stopOverlay(true);
                 unbindService(connection);
                 isBinded = false;
 				stopSelf();
@@ -124,12 +130,11 @@ public class SocketClientService extends Service
 			catch (IOException e){
 				progressDialog.dismiss();
                 if(isBinded){
-					overlayService.stopOverlay();
+					overlayService.stopOverlay(false);
                     unbindService(connection);
-                    isBinded = true;
+                    isBinded = false;
                 } 
 				if(isStopped){//是否意外停止，return为没有意外停止 比如ProgressDialog点击取消
-                    isStopped = true;
 					return;}
 				Message message = new Message();
 				message.what = ACTION_SENDER_ERROR;
