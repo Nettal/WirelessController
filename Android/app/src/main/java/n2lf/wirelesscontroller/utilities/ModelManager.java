@@ -28,50 +28,50 @@ public class ModelManager implements java.io.Serializable
         }
         return list;
     }
-	public static ModelManager getModelFromFile(Context context , String fileName) 
-        throws ClassNotFoundException, IOException
-        {
-            File file = new File(context.getExternalFilesDir("model") , fileName+".model");
-            java.io.FileInputStream fis = new java.io.FileInputStream(file);
-            java.io.ObjectInputStream ois = new java.io.ObjectInputStream(fis);
-            ModelManager manager = (ModelManager)ois.readObject();
-			fis.close();
-            return manager;
-	}
-	
-    
-	private final String modelName;
+    public static ModelManager getModelFromFile(Context context , String fileName) 
+    throws ClassNotFoundException, IOException
+    {
+        File file = new File(context.getExternalFilesDir("model") , fileName+".model");
+        java.io.FileInputStream fis = new java.io.FileInputStream(file);
+        java.io.ObjectInputStream ois = new java.io.ObjectInputStream(fis);
+        ModelManager manager = (ModelManager)ois.readObject();
+        fis.close();
+        return manager;
+    }
+
+
+    private final String modelName;
     private final int screenWidth;
     private final int screenHeight;
     private ToolButtonProperties toolButtinProp;
     private ArrayList keyCodeButtonPropList;
-	public ModelManager(ViewGroup viewGroup , int screenWidth , int screenHeight ,  String modelName){
-		this.modelName = modelName;
+    public ModelManager(ViewGroup viewGroup , int screenWidth , int screenHeight ,  String modelName){
+        this.modelName = modelName;
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
-		keyCodeButtonPropList = new ArrayList<KeyCodeButtonProperties>();
-		for(int i = 0; i < viewGroup.getChildCount(); i++){
-			if(viewGroup.getChildAt(i) instanceof ModelEditorActivity.KeyCodeButton){
-			    keyCodeButtonPropList.add(new KeyCodeButtonProperties((ModelEditorActivity.KeyCodeButton)viewGroup.getChildAt(i)));
-			}else if(viewGroup.getChildAt(i) instanceof ToolButtonPropInterface){
+        keyCodeButtonPropList = new ArrayList<KeyCodeButtonProperties>();
+        for(int i = 0; i < viewGroup.getChildCount(); i++){
+            if(viewGroup.getChildAt(i) instanceof ModelEditorActivity.KeyCodeButton){
+                keyCodeButtonPropList.add(new KeyCodeButtonProperties((ModelEditorActivity.KeyCodeButton)viewGroup.getChildAt(i)));
+            }else if(viewGroup.getChildAt(i) instanceof ToolButtonPropInterface){
                 toolButtinProp = new ToolButtonProperties((ToolButtonPropInterface)viewGroup.getChildAt(i));
             }
-		}
-	}
-    
+        }
+    }
+
     public ModelManager(ViewGroup viewGroup , Context context , String modelName){
         this(viewGroup , Utilities.getScreenWidth(context) , Utilities.getScreenHeight(context) , modelName);
     }
-    
+
     public String getModelName(){
         return modelName;
     }
-	
+
     public boolean isHorizontal(){
         return screenHeight < screenWidth;
     }
-    
-	public Exception saveModelToFile(Context context){
+
+    public Exception saveModelToFile(Context context){
         File file = new File(context.getExternalFilesDir("model") , modelName+".model");
         try{
             if(file.exists()){
@@ -89,70 +89,70 @@ public class ModelManager implements java.io.Serializable
             file.delete();
             return e;
         }
-		return null;
-	}
+        return null;
+    }
 
     public void setToolButtonProp(ToolButtonPropInterface button){
         toolButtinProp = new ToolButtonProperties(button);
     }
-    
+
     public ToolButtonProperties getToolButtonProp(){
         return toolButtinProp;
     }
-    
+
     public void addKeyCodeButtonProp(ModelEditorActivity.KeyCodeButton button){
         keyCodeButtonPropList.add(new KeyCodeButtonProperties(button));
     }
-    
+
     public KeyCodeButtonProperties[] getKeyCodeButtonPropList(){
-         KeyCodeButtonProperties[] propList = new KeyCodeButtonProperties[keyCodeButtonPropList.size()];
+        KeyCodeButtonProperties[] propList = new KeyCodeButtonProperties[keyCodeButtonPropList.size()];
         return (KeyCodeButtonProperties[])keyCodeButtonPropList.toArray(propList);
     }
-    
-	public class KeyCodeButtonProperties implements java.io.Serializable
+
+    public class KeyCodeButtonProperties implements java.io.Serializable
     {
         private static final long serialVersionUID = 32768L;
-		private final String buttonName;//nullable
-		private final float widthScreenRatio;
-		private final float heightScreenRatio;
-		private final float XScreenRatio;
-		private final float YScreenRatio;
-		private final int textColor;
-		private final String buttonColorString;//null为未修改
-		private final int keyCode;
-		private final int KeyCodeIndex;
-		KeyCodeButtonProperties(ModelEditorActivity.KeyCodeButton keyCodeButton){
-			buttonName = keyCodeButton.getText().toString();
-			widthScreenRatio = keyCodeButton.getWidthScreenRatio();
-			heightScreenRatio = keyCodeButton.getHeightScreenRatio();
-			XScreenRatio = keyCodeButton.getXScreenRatio();
-			YScreenRatio = keyCodeButton.getYScreenRatio();
-			textColor = keyCodeButton.getTextColors().getDefaultColor();
-			buttonColorString = keyCodeButton.getButtonColorString();
-			keyCode = keyCodeButton.getKeyCode();
-			KeyCodeIndex = keyCodeButton.getKeyCodeIndex();
-		}
-           
+        private final String buttonName;//nullable
+        private final float widthScreenRatio;
+        private final float heightScreenRatio;
+        private final float XScreenRatio;
+        private final float YScreenRatio;
+        private final int textColor;
+        private final String buttonColorString;//null为未修改
+        private final int keyCode;
+        private final int KeyCodeIndex;
+        KeyCodeButtonProperties(ModelEditorActivity.KeyCodeButton keyCodeButton){
+            buttonName = keyCodeButton.getText().toString();
+            widthScreenRatio = keyCodeButton.getWidthScreenRatio();
+            heightScreenRatio = keyCodeButton.getHeightScreenRatio();
+            XScreenRatio = keyCodeButton.getXScreenRatio();
+            YScreenRatio = keyCodeButton.getYScreenRatio();
+            textColor = keyCodeButton.getTextColors().getDefaultColor();
+            buttonColorString = keyCodeButton.getButtonColorString();
+            keyCode = keyCodeButton.getKeyCode();
+            KeyCodeIndex = keyCodeButton.getKeyCodeIndex();
+        }
+
         public int getKeyCode(){
             return keyCode;
         }
-        
-		public int getKeyCodeIndex(){
-			return KeyCodeIndex;
-		}
-		
+
+        public int getKeyCodeIndex(){
+            return KeyCodeIndex;
+        }
+
         public int getTextColor(){
             return textColor;
         }
-        
+
         public String getButtonName(){
             return buttonName;//nullable
         }
-        
+
         public String getButtonColorString(){
             return buttonColorString;
         }
-        
+
         public int getWidth(Context context){
             return (int)(Utilities.getScreenWidth(context)*widthScreenRatio);
         }
@@ -160,7 +160,7 @@ public class ModelManager implements java.io.Serializable
         public int getHeight(Context context){
             return (int)(Utilities.getScreenHeight(context)*heightScreenRatio);
         }
-        
+
         public float getX(Context context){
             return Utilities.getScreenHeight(context)*XScreenRatio;
         }
@@ -168,12 +168,12 @@ public class ModelManager implements java.io.Serializable
         public float getY(Context context){
             return Utilities.getScreenWidth(context)*YScreenRatio;
         }
-        
+
         public boolean isMouseKeyCode(){
             return KeyCode.isMouseKeyCode(keyCode);
         }
-	}
-    
+    }
+
     public class ToolButtonProperties implements java.io.Serializable{
         private static final long serialVersionUID = 65536L;
         private final float ToolbuttonXScreenRatio;
@@ -182,18 +182,18 @@ public class ModelManager implements java.io.Serializable
             ToolbuttonXScreenRatio = button.getXScreenRatio();
             ToolbuttonYScreenRatio = button.getYScreenRatio();
         }
-		
+
         public float getX(Context context){
             return Utilities.getScreenHeight(context)*ToolbuttonXScreenRatio;
         }
-        
+
         public float getY(Context context){
             return Utilities.getScreenWidth(context)*ToolbuttonYScreenRatio;
         }
     }
-	
-	public interface ToolButtonPropInterface{
-		float getXScreenRatio();
-		float getYScreenRatio();
-	}
+
+    public interface ToolButtonPropInterface{
+        float getXScreenRatio();
+        float getYScreenRatio();
+    }
 }

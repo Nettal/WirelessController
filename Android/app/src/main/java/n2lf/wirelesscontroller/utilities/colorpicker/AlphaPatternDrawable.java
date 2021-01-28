@@ -49,13 +49,13 @@ public class AlphaPatternDrawable extends Drawable {
     @Override
     public void setAlpha(int alpha) {
         throw new UnsupportedOperationException(
-                "Alpha is not supported by this drawwable.");
+            "Alpha is not supported by this drawwable.");
     }
 
     @Override
     public void setColorFilter(ColorFilter cf) {
         throw new UnsupportedOperationException(
-                "ColorFilter is not supported by this drawwable.");
+            "ColorFilter is not supported by this drawwable.");
     }
 
     @Override
@@ -83,7 +83,7 @@ public class AlphaPatternDrawable extends Drawable {
         }
 
         mBitmap = Bitmap.createBitmap(getBounds().width(),
-                getBounds().height(), Config.ARGB_8888);
+                                      getBounds().height(), Config.ARGB_8888);
         Canvas canvas = new Canvas(mBitmap);
 
         Rect r = new Rect();

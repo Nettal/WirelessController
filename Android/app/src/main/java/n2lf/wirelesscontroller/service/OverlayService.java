@@ -21,14 +21,14 @@ import android.content.DialogInterface;
 
 public class OverlayService extends Service
 {
-	SocketClientService.SyncedLinkedList syncedLinkedList;
-	SocketClientService socketClientService;
+    SocketClientService.SyncedLinkedList syncedLinkedList;
+    SocketClientService socketClientService;
     String modelName;
     WindowManager windowManager;
     WindowManager.LayoutParams windowManagerLP;
     RelativeLayout relativeLayout;
     ToolButton toolButton;
-	
+
     @Override
     public android.os.IBinder onBind(Intent intent){
         modelName = intent.getStringExtra("modelName");
@@ -61,7 +61,7 @@ public class OverlayService extends Service
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         windowManagerLP = new WindowManager.LayoutParams();
         relativeLayout = new RelativeLayout(OverlayService.this);
-		new TouchPadButton(relativeLayout , syncedLinkedList);
+        new TouchPadButton(relativeLayout , syncedLinkedList);
         for(int i = 0 ; i< modelManager.getKeyCodeButtonPropList().length ; i++){
             new KeyButton(relativeLayout , modelManager.getKeyCodeButtonPropList()[i] , syncedLinkedList).bringToFront();
         }
@@ -71,33 +71,33 @@ public class OverlayService extends Service
          如果设置了FLAG_NOT_FOCUSABLE，那么屏幕上弹窗之外的地方能够点击、但是弹窗上的EditText无法输入、键盘也不会弹出来。
          如果设置了FLAG_NOT_TOUCH_MODAL，那么屏幕上弹窗之外的地方能够点击、弹窗上的EditText也可以输入、键盘能够弹出来。
          FLAG_FULLSCREEN Activity窗口全屏，状态栏不显示。
-		// SOFT_INPUT_ADJUST_NOTHING 软键盘不调整任何
-        **/ 
+         // SOFT_INPUT_ADJUST_NOTHING 软键盘不调整任何
+         **/ 
         windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
         windowManagerLP.alpha = 1f;
         windowManagerLP.format = android.graphics.PixelFormat.RGBA_8888;
         windowManagerLP.gravity = android.view.Gravity.TOP|android.view.Gravity.LEFT;
         windowManager.addView(relativeLayout , windowManagerLP);
-		toolButton = new ToolButton(OverlayService.this , windowManager, modelManager.getToolButtonProp());
-		toolButton.bringToFront();
-		//为什么？？
-		windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+        toolButton = new ToolButton(OverlayService.this , windowManager, modelManager.getToolButtonProp());
+        toolButton.bringToFront();
+        //为什么？？
+        windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
     }
-	
-	public void stopOverlay(boolean shouldSetToStop){
-		if(windowManager!=null && relativeLayout!=null){
-			windowManager.removeView(relativeLayout);
-		}
-		if(windowManager!=null && toolButton!=null){
-			windowManager.removeView(toolButton);
-		}
-		if(socketClientService!=null && shouldSetToStop){
-			socketClientService.getActionSender().setToStop();
-		}
-		//setToStop会unbind这个
-		this.stopSelf();
-	}
-    
+
+    public void stopOverlay(boolean shouldSetToStop){
+        if(windowManager!=null && relativeLayout!=null){
+            windowManager.removeView(relativeLayout);
+        }
+        if(windowManager!=null && toolButton!=null){
+            windowManager.removeView(toolButton);
+        }
+        if(socketClientService!=null && shouldSetToStop){
+            socketClientService.getActionSender().setToStop();
+        }
+        //setToStop会unbind这个
+        this.stopSelf();
+    }
+
     public class KeyButton extends android.widget.Button{
         SocketClientService.SyncedLinkedList list;
         int keyCode;
@@ -122,7 +122,7 @@ public class OverlayService extends Service
             }
             viewGroup.addView(this , prop.getWidth(getContext()) , prop.getHeight(getContext()));
         }
-        
+
         @Override
         public boolean onTouchEvent(MotionEvent event){
             if(keyCode==-1){//没有设置Keycode
@@ -148,18 +148,18 @@ public class OverlayService extends Service
             }
         }
     }
-	
-	public class TouchPadButton extends android.widget.Button{
-		SocketClientService.SyncedLinkedList list;
-		TouchPadButton(ViewGroup viewgroup , SocketClientService.SyncedLinkedList list){
-			super(viewgroup.getContext());
-			this.list = list;
-			this.setAlpha(0f);
-			ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.MATCH_PARENT);
-			viewgroup.addView(this , layoutParams);
-		}
 
-		float lastX , lastY , mouseWheelY;
+    public class TouchPadButton extends android.widget.Button{
+        SocketClientService.SyncedLinkedList list;
+        TouchPadButton(ViewGroup viewgroup , SocketClientService.SyncedLinkedList list){
+            super(viewgroup.getContext());
+            this.list = list;
+            this.setAlpha(0f);
+            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.MATCH_PARENT);
+            viewgroup.addView(this , layoutParams);
+        }
+
+        float lastX , lastY , mouseWheelY;
         @Override
         public boolean onTouchEvent(MotionEvent event){
             switch(event.getActionMasked()){
@@ -191,8 +191,8 @@ public class OverlayService extends Service
                     return false;
             }
         }
-	}
- 
+    }
+
     public class ClipboardDialog extends AlertDialog.Builder
     {
         AlertDialog alertDialog;
@@ -233,7 +233,7 @@ public class OverlayService extends Service
             return alertDialog;
         }
     }
-	
+
     public class ToolButton extends android.widget.Button implements android.widget.PopupMenu.OnMenuItemClickListener , ModelManager.ToolButtonPropInterface{
         PopupMenu popuMenu;
         WindowManager.LayoutParams layoutParams;
@@ -329,7 +329,7 @@ public class OverlayService extends Service
             return (float)getY()/(float)Utilities.getScreenWidth(getContext());
         }
     }
-    
+
     public class OSBinder extends android.os.Binder{
         public void setSyncedLinkedList(SocketClientService.SyncedLinkedList list){
             syncedLinkedList = list;
@@ -338,10 +338,10 @@ public class OverlayService extends Service
         public void setBindedService(SocketClientService service){
             socketClientService = service;
         }
-        
+
         public OverlayService getOverlayService(){
             return OverlayService.this;
         }
     }
-    
+
 }
