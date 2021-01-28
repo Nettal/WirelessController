@@ -159,13 +159,13 @@ public class OverlayService extends Service
             viewgroup.addView(this , layoutParams);
         }
 
-        float lastX , lastY , mouseWheelY;
+        float lastX , lastY ,downY, mouseWheelY;
         @Override
         public boolean onTouchEvent(MotionEvent event){
             switch(event.getActionMasked()){
                 case MotionEvent.ACTION_DOWN:
                     lastX = event.getX();
-                    lastY = mouseWheelY = event.getY();
+                    lastY = event.getY();
                     return true;
                 case MotionEvent.ACTION_MOVE:
                     if(event.getPointerCount()==2){//双指：鼠标滚轮
@@ -177,7 +177,7 @@ public class OverlayService extends Service
                             list.addFirst("OMW:"+1);
                         }
                     }else{
-                        if((int)(event.getX()-lastX)==0 || (int)(event.getY()-lastY)==0){
+                        if((int)(event.getX()-lastX)==0 && (int)(event.getY()-lastY)==0){
                             return true;}
                         list.addFirst("OMM:"+(int)(event.getX()-lastX)+";"+(int)(event.getY()-lastY));
                         lastX=event.getX();
@@ -185,7 +185,12 @@ public class OverlayService extends Service
                     }
                     return true;
                 case MotionEvent.ACTION_UP:
-
+                    return true;
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    mouseWheelY = downY = event.getY(1);
+                    return true;
+                case MotionEvent.ACTION_POINTER_UP:
+                    mouseWheelY = downY;
                     return true;
                 default:
                     return false;
