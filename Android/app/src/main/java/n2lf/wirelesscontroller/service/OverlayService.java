@@ -218,7 +218,7 @@ public class OverlayService extends Service
                         if(editText.getText()==null || editText.getText().length()==0){
                             return;}
                         //标识符:字符行数;文本
-                        linkedList.addFirst("SCB:"+editText.getText().toString().split(System.getProperty("line.separator")).length+";"+editText.getText());
+                        linkedList.addFirst("SCB:"+editText.getText().toString().split(System.lineSeparator()).length+";"+editText.getText());
                     }
                 });
             this.setNegativeButton("取消", new DialogInterface.OnClickListener(){

@@ -23,44 +23,45 @@ public class SocketServerService extends Thread{
             Socket socket = serverSocket.accept();
             System.out.println("SocketServerService: Accepting actions...");
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            while (true){
+            while (true){//OMM OKP OKR OMP OMR OMW SCB
                 String string = bufferedReader.readLine();
                 if (string == null) {
                     break;
                 }
-                if (string.startsWith("OMM")) {
+                if (string.charAt(2)=='M') {//OMM
                     handler.handleMouseMove(string.substring(4));
                     continue;
                 }
-                if (string.startsWith("OKP")) {
-                    handler.handleKeyPress(string.substring(4));
-                    continue;
-                }
-                if (string.startsWith("OKR")) {
-                    handler.handleKeyRelease(string.substring(4));
-                    continue;
-                }
-                if (string.startsWith("OMP")) {
-                    handler.handleMousePress(string.substring(4));
-                    continue;
-                }
-                if (string.startsWith("OMR")) {
-                    handler.handleMouseRelease(string.substring(4));
-                    continue;
-                }
-                if (string.startsWith("OMW")) {
-                    handler.handleMouseWheel(string.substring(4));
-                    continue;
-                }
-                if (string.startsWith("SCB")) {
-                    int lines = Integer.parseInt(string.substring(4).split(";")[0]);
-                    String[] stringList = new String[lines];
-                    stringList[0] = string.substring(string.indexOf(";")+1);
-                    //从下标为4的字符开始截取，使用split来以;为分隔符，获取首个以;结尾的数组，便是行数；
-                    for (int i = 1; i < lines; i++) {
-                        stringList[i] = bufferedReader.readLine();
+                if (string.charAt(0)=='O') {
+                    if (string.charAt(1)=='K') {
+                        if (string.charAt(2)=='P') {//OKP
+                            handler.handleKeyPress(string.substring(4));
+                        }else {//OKR
+                            handler.handleKeyRelease(string.substring(4));
+                        }
+                        continue;
                     }
-                    handler.handleSetClipboard(stringList);
+                    if (string.charAt(1)=='M') {
+                        if (string.charAt(2)=='P') {//OMP
+                            handler.handleMousePress(string.substring(4));
+                        }else if (string.charAt(2)=='R'){//OMR
+                            handler.handleMouseRelease(string.substring(4));
+                        }else {//OMW
+                            handler.handleMouseWheel(string.substring(4));
+                        }
+                        //continue;
+                    }
+                }else {//SCB
+                    int lines = Integer.parseInt(string.substring(4).split(";" , 2)[0]);
+                    //从下标为4的字符开始截取，使用split来以;为分隔符，获取首个以;结尾的数组，便是行数；
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append(string.substring(string.indexOf(";")+1));
+                    for (int i = 1; i < lines; i++) {
+                        stringBuilder.append(System.lineSeparator());
+                        stringBuilder.append(bufferedReader.readLine());
+                    }
+                    handler.handleSetClipboard(stringBuilder.toString());
+                    //continue;
                 }
             }
             bufferedReader.close();
@@ -80,6 +81,6 @@ public class SocketServerService extends Thread{
         void handleMousePress(String onMousePress);
         void handleMouseRelease(String onMouseRelease);
         void handleMouseWheel(String onMouseWheel);
-        void handleSetClipboard(String[] strings);
+        void handleSetClipboard(String setClipboard);
     }
 }

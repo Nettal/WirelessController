@@ -44,12 +44,7 @@ public class MessageHandler implements SocketServerService.IMessageHandler {
     }
 
     @Override
-    public void handleSetClipboard(String[] strings) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < strings.length-1; i++) {
-            stringBuilder.append(strings[i]).append(System.lineSeparator());
-        }
-        stringBuilder.append(strings[strings.length-1]);
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(stringBuilder.toString()) , null);
+    public void handleSetClipboard(String setClipboard) {
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(setClipboard) , null);
     }
 }
