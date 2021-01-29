@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 
 
-public class ModelEditorActivity extends Activity
+public class ModelEditorActivity extends Activity implements View.OnSystemUiVisibilityChangeListener
 {
     private RelativeLayout relativeLayout;
     private TextView onAddTextView;
@@ -39,7 +39,17 @@ public class ModelEditorActivity extends Activity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        this.getActionBar().hide();
+        //this.getActionBar().hide();
+        requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN, android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                                                         | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(this);
         this.setContentView(relativeLayout = new RelativeLayout(this));
         onAddTextView = new TextView(this);
         onAddTextView.setText("");
@@ -70,8 +80,18 @@ public class ModelEditorActivity extends Activity
             showError(e);
         }
     }
-
-
+    
+    @Override
+    public void onSystemUiVisibilityChange(int p1){
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                                                         | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+    }
+    
     private boolean addButtonStarted(){
         onAddTextView.setText(Utilities.点击选取位置[0]);//点击以选取按钮位置
         relativeLayout.setBackgroundColor(Utilities.EditorBackgroundColor);
