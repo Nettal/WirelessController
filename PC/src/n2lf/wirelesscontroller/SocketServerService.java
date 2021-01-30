@@ -66,7 +66,7 @@ public class SocketServerService extends Thread{
                         if (string.charAt(i) == ';') {
                             int lines = Integer.parseInt(string , 4 , i  , 10);
                             StringBuilder stringBuilder = new StringBuilder();
-                            stringBuilder.append(string.substring(i+1));
+                            stringBuilder.append(string , i+1 , string.length());
                             for (int k = 1; k < lines; k++) {
                                 stringBuilder.append(System.lineSeparator());
                                 stringBuilder.append(bufferedReader.readLine());
