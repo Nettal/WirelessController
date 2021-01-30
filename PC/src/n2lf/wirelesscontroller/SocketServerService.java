@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URLDecoder;
 
 public class SocketServerService extends Thread{
     final IMessageHandler handler;
@@ -62,20 +63,7 @@ public class SocketServerService extends Thread{
                         //continue;
                     }
                 }else {//SCB
-                    for (int i = 5; i < string.length(); i++) {
-                        if (string.charAt(i) == ';') {
-                            int lines = Integer.parseInt(string , 4 , i  , 10);
-                            StringBuilder stringBuilder = new StringBuilder();
-                            stringBuilder.append(string , i+1 , string.length());
-                            for (int k = 1; k < lines; k++) {
-                                stringBuilder.append(System.lineSeparator());
-                                stringBuilder.append(bufferedReader.readLine());
-                            }
-                            handler.handleSetClipboard(stringBuilder.toString());
-                            break;
-                        }
-                    }
-
+                    handler.handleSetClipboard(URLDecoder.decode(string.substring(4), "UTF-8"));
                     //continue;
                 }
             }

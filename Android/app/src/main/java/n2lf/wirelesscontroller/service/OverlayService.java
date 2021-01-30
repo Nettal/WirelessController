@@ -18,6 +18,8 @@ import android.widget.RelativeLayout;
 import android.content.Context;
 import android.widget.EditText;
 import android.content.DialogInterface;
+import java.net.URLEncoder;
+import java.io.UnsupportedEncodingException;
 
 public class OverlayService extends Service
 {
@@ -217,8 +219,25 @@ public class OverlayService extends Service
                     public void onClick(DialogInterface p1, int p2){
                         if(editText.getText()==null || editText.getText().length()==0){
                             return;}
-                        //标识符:字符行数;文本
-                        linkedList.addFirst("SCB:"+editText.getText().toString().split(System.lineSeparator()).length+";"+editText.getText());
+                        try
+                        {
+                            linkedList.addFirst("SCB:" + URLEncoder.encode(editText.getText().toString(), "UTF-8"));
+                        }
+                        catch (UnsupportedEncodingException e)
+                        {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                            builder.setTitle("错误");
+                            builder.setMessage(e.toString());
+                            builder.setCancelable(false);
+                            builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener(){
+                                    @Override
+                                    public void onClick(android.content.DialogInterface p1, int p2){
+                                    }
+                                });
+                            AlertDialog dialog = builder.create();
+                            dialog.getWindow().setType(Utilities.getLayoutParamsType());
+                            dialog.show();
+                        }
                     }
                 });
             this.setNegativeButton("取消", new DialogInterface.OnClickListener(){
