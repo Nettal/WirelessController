@@ -11,36 +11,33 @@ public class MessageHandler implements SocketServerService.IMessageHandler {
     }
 
     @Override
-    public void handleMouseMove(String onMouseMove) {
-        robot.mouseMove(MouseInfo.getPointerInfo().getLocation().x+
-                        Integer.parseInt(onMouseMove.substring(0,onMouseMove.indexOf(";"))),
-                        MouseInfo.getPointerInfo().getLocation().y+
-                        Integer.parseInt(onMouseMove.substring(onMouseMove.indexOf(";")+1)));
+    public void handleMouseMove(int x, int y) {
+        robot.mouseMove(x, y);
     }
 
     @Override
-    public void handleKeyPress(String onKeyPress) {
-        robot.keyPress(Integer.parseInt(onKeyPress));
+    public void handleKeyPress(int keycode) {
+        robot.keyPress(keycode);
     }
 
     @Override
-    public void handleKeyRelease(String onKeyRelease) {
-        robot.keyRelease(Integer.parseInt(onKeyRelease));
+    public void handleKeyRelease(int keycode) {
+        robot.keyRelease(keycode);
     }
 
     @Override
-    public void handleMousePress(String onMousePress) {
-        robot.mousePress(Integer.parseInt(onMousePress));
+    public void handleMousePress(int buttons) {
+        robot.mousePress(buttons);
     }
 
     @Override
-    public void handleMouseRelease(String onMouseRelease) {
-        robot.mouseRelease(Integer.parseInt(onMouseRelease));
+    public void handleMouseRelease(int buttons) {
+        robot.mouseRelease(buttons);
     }
 
     @Override
-    public void handleMouseWheel(String onMouseWheel) {
-        robot.mouseWheel(Integer.parseInt(onMouseWheel));
+    public void handleMouseWheel(int wheelAmt) {
+        robot.mouseWheel(wheelAmt);
     }
 
     @Override

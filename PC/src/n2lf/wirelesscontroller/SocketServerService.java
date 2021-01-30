@@ -1,5 +1,6 @@
 package n2lf.wirelesscontroller;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,46 +22,60 @@ public class SocketServerService extends Thread{
             ServerSocket serverSocket = new ServerSocket(port);
             System.out.println("SocketServerService: Waiting for connection...");
             Socket socket = serverSocket.accept();
-            System.out.println("SocketServerService: Accepting actions...");
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            System.out.println("SocketServerService: Accepting actions...");
             while (true){//OMM OKP OKR OMP OMR OMW SCB
                 String string = bufferedReader.readLine();
                 if (string == null) {
                     break;
                 }
                 if (string.charAt(2)=='M') {//OMM
-                    handler.handleMouseMove(string.substring(4));
+                    for (int i = 5; i < string.length(); i++) {
+                        if (string.charAt(i) == ';') {
+                            handler.handleMouseMove(MouseInfo.getPointerInfo().getLocation().x +
+                                            Integer.parseInt(string , 4 , i  , 10) ,
+                                                    MouseInfo.getPointerInfo().getLocation().y +
+                                            Integer.parseInt(string , i+1 , string.length() , 10));
+                            break;
+                        }
+                    }
                     continue;
                 }
                 if (string.charAt(0)=='O') {
+                    int parseInt = Integer.parseInt(string, 4, string.length(), 10);
                     if (string.charAt(1)=='K') {
                         if (string.charAt(2)=='P') {//OKP
-                            handler.handleKeyPress(string.substring(4));
+                            handler.handleKeyPress(parseInt);
                         }else {//OKR
-                            handler.handleKeyRelease(string.substring(4));
+                            handler.handleKeyRelease(parseInt);
                         }
                         continue;
                     }
                     if (string.charAt(1)=='M') {
                         if (string.charAt(2)=='P') {//OMP
-                            handler.handleMousePress(string.substring(4));
+                            handler.handleMousePress(parseInt);
                         }else if (string.charAt(2)=='R'){//OMR
-                            handler.handleMouseRelease(string.substring(4));
+                            handler.handleMouseRelease(parseInt);
                         }else {//OMW
-                            handler.handleMouseWheel(string.substring(4));
+                            handler.handleMouseWheel(parseInt);
                         }
                         //continue;
                     }
                 }else {//SCB
-                    int lines = Integer.parseInt(string.substring(4).split(";" , 2)[0]);
-                    //从下标为4的字符开始截取，使用split来以;为分隔符，获取首个以;结尾的数组，便是行数；
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.append(string.substring(string.indexOf(";")+1));
-                    for (int i = 1; i < lines; i++) {
-                        stringBuilder.append(System.lineSeparator());
-                        stringBuilder.append(bufferedReader.readLine());
+                    for (int i = 5; i < string.length(); i++) {
+                        if (string.charAt(i) == ';') {
+                            int lines = Integer.parseInt(string , 4 , i  , 10);
+                            StringBuilder stringBuilder = new StringBuilder();
+                            stringBuilder.append(string.substring(i+1));
+                            for (int k = 1; k < lines; k++) {
+                                stringBuilder.append(System.lineSeparator());
+                                stringBuilder.append(bufferedReader.readLine());
+                            }
+                            handler.handleSetClipboard(stringBuilder.toString());
+                            break;
+                        }
                     }
-                    handler.handleSetClipboard(stringBuilder.toString());
+
                     //continue;
                 }
             }
@@ -75,12 +90,12 @@ public class SocketServerService extends Thread{
     }
 
     public interface IMessageHandler{
-        void handleMouseMove(String onMouseMove);
-        void handleKeyPress(String onKeyPress);
-        void handleKeyRelease(String onKeyRelease);
-        void handleMousePress(String onMousePress);
-        void handleMouseRelease(String onMouseRelease);
-        void handleMouseWheel(String onMouseWheel);
+        void handleMouseMove(int x, int y);
+        void handleKeyPress(int keycode);
+        void handleKeyRelease(int keycode);
+        void handleMousePress(int buttons);
+        void handleMouseRelease(int buttons);
+        void handleMouseWheel(int wheelAmt);
         void handleSetClipboard(String setClipboard);
     }
 }
