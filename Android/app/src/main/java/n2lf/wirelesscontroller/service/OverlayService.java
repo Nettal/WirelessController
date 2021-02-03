@@ -178,6 +178,11 @@ public class OverlayService extends Service
                         for(;event.getY(1)-mouseWheelY<-eventRatio;mouseWheelY-=eventRatio){
                             list.addFirst("OMW:"+1);
                         }
+                        if((int)(event.getX(0)-lastX)==0 && (int)(event.getY(0)-lastY)==0){
+                            return true;}
+                        list.addFirst("OMM:"+(int)(event.getX(0)-lastX)+";"+(int)(event.getY(0)-lastY));
+                        lastX=event.getX(0);
+                        lastY=event.getY(0);
                     }else{
                         if((int)(event.getX()-lastX)==0 && (int)(event.getY()-lastY)==0){
                             return true;}
