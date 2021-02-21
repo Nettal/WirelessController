@@ -2,6 +2,149 @@ package n2lf.wirelesscontroller.utilities;
 
 public class KeyCode {
 
+    public static int findKeyCodeByChar(char i){
+        switch(i){
+            case ' ':
+                return VK_SPACE;
+            case ',':
+                return VK_COMMA;
+            case '_':
+                return VK_UNDERSCORE;
+            case '-':
+                return VK_MINUS;
+            case '#':
+                return VK_NUMBER_SIGN;
+            case '+':
+                return VK_PLUS;
+            case '=': 
+                return VK_EQUALS;
+            case '.':
+                return VK_PERIOD;
+            case '/':
+                return VK_SLASH;
+            case '\\':
+                return VK_BACK_SLASH;
+            case ';': 
+                return VK_SEMICOLON;
+            case ':':
+                return VK_COLON;
+            case '&':
+                return VK_AMPERSAND;
+            case '*':
+                return VK_ASTERISK;
+            case '"':
+                return VK_QUOTEDBL;
+            case '\'':
+                return VK_QUOTE;
+            case '<':
+                return VK_LESS;
+            case '>':
+                return VK_GREATER;
+            case '(':
+                return VK_LEFT_PARENTHESIS;
+            case ')':
+                return VK_RIGHT_PARENTHESIS;
+            case '[':
+                return VK_OPEN_BRACKET;
+            case ']':
+                return VK_CLOSE_BRACKET;
+            case '{':
+                return VK_BRACELEFT;
+            case '}':
+                return VK_BRACERIGHT;
+            case '@':
+                return VK_AT;
+            case '^':
+                return VK_CIRCUMFLEX;
+            case '$':
+                return VK_DOLLAR;
+            case '€':
+                return VK_EURO_SIGN;
+            case '!':
+                return VK_EXCLAMATION_MARK;
+            case '¡':
+                return VK_INVERTED_EXCLAMATION_MARK;
+
+            case '0':
+                return VK_0;
+            case '1':
+                return VK_1;
+            case '2':
+                return VK_2;
+            case '3':
+                return VK_3;
+            case '4':
+                return VK_4;
+            case '5':
+                return VK_5;
+            case '6':
+                return VK_6;
+            case '7':
+                return VK_7;
+            case '8':
+                return VK_8;
+            case '9':
+                return VK_9;
+
+            case 'a':
+                return VK_A;
+            case 'b':
+                return VK_B;
+            case 'c':
+                return VK_C;
+            case 'd':
+                return VK_D;
+            case 'e':
+                return VK_E;
+            case 'f':
+                return VK_F;
+            case 'g':
+                return VK_G;
+            case 'h':
+                return VK_H;
+            case 'i':
+                return VK_I;
+            case 'j':
+                return VK_J;
+            case 'K':
+                return VK_K;
+            case 'l':
+                return VK_L;
+            case 'm':
+                return VK_M;
+            case 'n':
+                return VK_N;
+            case 'o':
+                return VK_O;
+            case 'p':
+                return VK_P;
+            case 'q':
+                return VK_Q;
+            case 'r':
+                return VK_R;
+            case 's':
+                return VK_S;
+            case 't':
+                return VK_T;
+            case 'u':
+                return VK_U;
+            case 'v':
+                return VK_V;
+            case 'w':
+                return VK_W;
+            case 'x':
+                return VK_X;
+            case 'y':
+                return VK_Y;
+            case 'z':
+                return VK_Z;
+
+            default:
+                return -1;
+        }
+    }
+
+    
     public static String[] getAllKeyName(){
         String[] string = new String[KeyCode.getKeyBoardCodeList().length+KeyCode.getMouseCodeList().length];
         for(int i = 0;i<KeyCode.getKeyBoardCodeList().length;i++){
@@ -457,7 +600,7 @@ public class KeyCode {
             case VK_BACK_QUOTE: 
                 return "BackQuote";
             case VK_QUOTE: 
-                return "Quote";
+                return "'";
             case VK_KP_UP: 
                 return "KeyPadUp";//keypad
             case VK_KP_DOWN: 
@@ -499,19 +642,19 @@ public class KeyCode {
             case VK_DEAD_SEMIVOICED_SOUND: 
                 return "DeadSemiVoicedSound";
             case VK_AMPERSAND: 
-                return "Ampersand";
+                return "&";
             case VK_ASTERISK: 
-                return "Asterisk";
+                return "*";
             case VK_QUOTEDBL: 
-                return "Quotedbl";
+                return "\"";
             case VK_LESS: 
-                return "Less";
+                return "<";
             case VK_GREATER: 
-                return "Greater";
+                return ">";
             case VK_BRACELEFT: 
-                return "BraceLeft";
+                return "{";
             case VK_BRACERIGHT: 
-                return "BraceRight";
+                return "}";
             case VK_AT: 
                 return "@";
             case VK_COLON: 
@@ -521,11 +664,11 @@ public class KeyCode {
             case VK_DOLLAR: 
                 return "$";
             case VK_EURO_SIGN: 
-                return "EuroSign";
+                return "€";
             case VK_EXCLAMATION_MARK: 
                 return "!";
             case VK_INVERTED_EXCLAMATION_MARK: 
-                return "InvertedExclamationMark";
+                return "¡";
             case VK_LEFT_PARENTHESIS: 
                 return "(";
             case VK_NUMBER_SIGN: 

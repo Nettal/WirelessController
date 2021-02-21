@@ -420,7 +420,7 @@ public class ModelEditorActivity extends Activity implements View.OnSystemUiVisi
         }
 
         public float getHeightScreenRatio(){
-            return ((float)getHeight()==0 ? Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio) : getHeight())/(float)Utilities.getScreenHeight(getContext());
+            return (float)(getHeight()==0 ? Utilities.getMinSizeByRatio(ModelEditorActivity.this , Utilities.DefaultButtonSizeScreenRatio) : getHeight())/(float)Utilities.getScreenHeight(getContext());
         }
 
         public float getWidthScreenRatio(){
@@ -512,7 +512,7 @@ public class ModelEditorActivity extends Activity implements View.OnSystemUiVisi
         {
             try{
                 float f = Float.parseFloat(p1.toString());
-                if(f >= 1.2f || f < 0 || !floatChangeListener.onFloatChange(f)){//注意此时是短路或
+                if(f >= 1.6f || f < 0 || !floatChangeListener.onFloatChange(f)){//注意此时是短路或
                     editText.setTextColor(Utilities.ErrorTextColor);
                     return;
                 }
