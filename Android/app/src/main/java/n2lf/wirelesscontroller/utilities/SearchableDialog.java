@@ -87,12 +87,12 @@ public class SearchableDialog extends AlertDialog.Builder
                             if(((TextView)p1).isSelected()){
                                 ((TextView)p1).setSelected(false);
                                 ((TextView)p1).setBackgroundColor(android.graphics.Color.alpha(0));
-                                selectedTextView.setBackgroundColor(android.graphics.Color.RED);
+                                selectedTextView.setBackgroundColor(Utilities.SELECTEDCOLOR);
                             }else{//现在被选中
                                 ListViewAdapter.this.setIndex(((TextView)p1).getId());
                                 selectedTextView.setBackgroundColor(android.graphics.Color.alpha(0));
                                 (selectedTextView = (TextView)p1).setSelected(true);
-                                ((TextView)p1).setBackgroundColor(android.graphics.Color.RED);
+                                ((TextView)p1).setBackgroundColor(Utilities.SELECTEDCOLOR);
                             }
                             notifyDataSetChanged();
                         }
@@ -100,7 +100,7 @@ public class SearchableDialog extends AlertDialog.Builder
             }
             if(index >= 0 && index < textViewList.length){
                 textViewList[index].setSelected(true);
-                textViewList[index].setBackgroundColor(android.graphics.Color.RED);
+                textViewList[index].setBackgroundColor(Utilities.SELECTEDCOLOR);
                 selectedTextView = textViewList[index];
             }
             textViewArrayList = new ArrayList<TextView>(java.util.Arrays.asList(textViewList));

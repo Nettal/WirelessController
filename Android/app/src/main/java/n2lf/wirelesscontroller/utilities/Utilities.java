@@ -26,6 +26,7 @@ public class Utilities
     public static int DefaultButtonColor = Color.argb(42,00,00,00);
     public static int EditorBackgroundColor = Color.argb(255,189,183,107);
     public static int ErrorTextColor = Color.RED;
+	public static int SELECTEDCOLOR = Color.rgb(236,44,100);;
 	public static int DefaultPort = 37385;
     public static float MouseWheelRatio = 0.05f; 
 	public static long ThreadSleepTime = 5;
