@@ -2,29 +2,35 @@ package n2lf.wirelesscontroller.service;
 
 import android.app.AlertDialog;
 import android.app.Service;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Build;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import n2lf.wirelesscontroller.utilities.ModelManager;
 import n2lf.wirelesscontroller.utilities.Utilities;
 import n2lf.wirelesscontroller.utilities.colorpicker.ColorUtil;
 
-import android.view.MenuItem;
-import android.widget.RelativeLayout;
-import android.content.Context;
-import android.widget.EditText;
-import android.content.DialogInterface;
-
-import java.net.URLEncoder;
-import java.io.UnsupportedEncodingException;
-
 public class OverlayService extends Service {
+    public static final String ON_MOUSE_PRESS = String.valueOf('A');
+    public static final String ON_MOUSE_RELEASE = String.valueOf('B');
+    public static final String ON_KEY_PRESS = String.valueOf('C');
+    public static final String ON_KEY_RELEASE = String.valueOf('D');
+    public static final String ON_MOUSE_WHEEL = String.valueOf('E');
+    public static final String ON_MOUSE_MOVE = String.valueOf('F');
+    public static final String SET_CLIP_BOARD = String.valueOf('G');
     private SocketClientService.Sender sender;
     private SocketClientService socketClientService;
     private String modelName;
@@ -79,7 +85,7 @@ public class OverlayService extends Service {
         windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
         windowManagerLP.alpha = 1f;
         windowManagerLP.format = android.graphics.PixelFormat.RGBA_8888;
-        windowManagerLP.gravity = android.view.Gravity.TOP | android.view.Gravity.LEFT;
+        windowManagerLP.gravity = android.view.Gravity.TOP | android.view.Gravity.START;
         windowManager.addView(relativeLayout, windowManagerLP);
         toolButton = new ToolButton(OverlayService.this, windowManager, modelManager.getToolButtonProp());
         toolButton.bringToFront();
@@ -141,16 +147,16 @@ public class OverlayService extends Service {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     if (isMouseKeyCode) {
-                        getSender().send("OMP:" + keyCode);
+                        getSender().send(ON_MOUSE_PRESS + keyCode);
                     } else {
-                        getSender().send("OKP:" + keyCode);
+                        getSender().send(ON_KEY_PRESS + keyCode);
                     }
                     return true;
                 case MotionEvent.ACTION_UP:
                     if (isMouseKeyCode) {
-                        getSender().send("OMR:" + keyCode);
+                        getSender().send(ON_MOUSE_RELEASE + keyCode);
                     } else {
-                        getSender().send("OKR:" + keyCode);
+                        getSender().send(ON_KEY_RELEASE + keyCode);
                     }
                     return true;
                 default:
@@ -181,22 +187,22 @@ public class OverlayService extends Service {
                     if (event.getPointerCount() == 2) {//双指：鼠标滚轮
                         float eventRatio = Utilities.getScreenHeight(getContext()) * Utilities.MouseWheelRatio;
                         for (; event.getY(1) - mouseWheelY > eventRatio; mouseWheelY += eventRatio) {
-                            sender.send("OMW:" + -1);
+                            sender.send(ON_MOUSE_WHEEL + -1);
                         }
                         for (; event.getY(1) - mouseWheelY < -eventRatio; mouseWheelY -= eventRatio) {
-                            sender.send("OMW:" + 1);
+                            sender.send(ON_MOUSE_WHEEL + 1);
                         }
                         if ((int) (event.getX(0) - lastX) == 0 && (int) (event.getY(0) - lastY) == 0) {
                             return true;
                         }
-                        sender.send("OMM:" + (int) (event.getX(0) - lastX) + ";" + (int) (event.getY(0) - lastY));
+                        sender.send(ON_MOUSE_MOVE + (int) (event.getX(0) - lastX) + ";" + (int) (event.getY(0) - lastY));
                         lastX = event.getX(0);
                         lastY = event.getY(0);
                     } else {
                         if ((int) (event.getX() - lastX) == 0 && (int) (event.getY() - lastY) == 0) {
                             return true;
                         }
-                        sender.send("OMM:" + (int) (event.getX() - lastX) + ";" + (int) (event.getY() - lastY));
+                        sender.send(ON_MOUSE_MOVE + (int) (event.getX() - lastX) + ";" + (int) (event.getY() - lastY));
                         lastX = event.getX();
                         lastY = event.getY();
                     }
@@ -215,7 +221,7 @@ public class OverlayService extends Service {
         }
     }
 
-    public class ClipboardDialog extends AlertDialog.Builder {
+    public static class ClipboardDialog extends AlertDialog.Builder {
         AlertDialog alertDialog;
         EditText editText;
         SocketClientService.Sender sender;
@@ -235,7 +241,7 @@ public class OverlayService extends Service {
                         return;
                     }
                     try {
-                        sender.send("SCB:" + URLEncoder.encode(editText.getText().toString(), "UTF-8"));
+                        sender.send(SET_CLIP_BOARD + URLEncoder.encode(editText.getText().toString(), "UTF-8"));
                     } catch (UnsupportedEncodingException e) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                         builder.setTitle("错误");
@@ -295,7 +301,7 @@ public class OverlayService extends Service {
             layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
             layoutParams.alpha = 1f;
             layoutParams.format = android.graphics.PixelFormat.RGBA_8888;
-            layoutParams.gravity = android.view.Gravity.TOP | android.view.Gravity.LEFT;
+            layoutParams.gravity = android.view.Gravity.TOP | android.view.Gravity.START;
             layoutParams.x = (int) toolButtonProp.getX(getContext());
             layoutParams.y = (int) toolButtonProp.getY(getContext());
             layoutParams.width = layoutParams.height = Utilities.getMinSizeByRatio(getContext(), Utilities.DefaultButtonSizeScreenRatio);
@@ -334,17 +340,17 @@ public class OverlayService extends Service {
 
         @Override
         public boolean onMenuItemClick(MenuItem p1) {
-            if (p1.getTitle().toString() == Utilities.悬浮界面的按键文字[0]) {//关闭
+            if (p1.getTitle().toString().equals(Utilities.悬浮界面的按键文字[0])) {//关闭
                 popuMenu.dismiss();
                 OverlayService.this.stopOverlay(true);
-            } else if (p1.getTitle().toString() == Utilities.悬浮界面的按键文字[1]) {//禁用/启用
+            } else if (p1.getTitle().toString().equals(Utilities.悬浮界面的按键文字[1])) {//禁用/启用
                 if (windowManagerLP.flags == (WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)) {
                     windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
                 } else {
                     windowManagerLP.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
                 }
                 windowManager.updateViewLayout(relativeLayout, windowManagerLP);
-            } else if (p1.getTitle().toString() == Utilities.悬浮界面的按键文字[2]) {//剪贴板
+            } else if (p1.getTitle().toString().equals(Utilities.悬浮界面的按键文字[2])) {//剪贴板
                 new ClipboardDialog(getContext(), sender).show();
             }
             return false;
@@ -358,12 +364,12 @@ public class OverlayService extends Service {
 
         @Override
         public float getXScreenRatio() {
-            return (float) getX() / (float) Utilities.getScreenHeight(getContext());
+            return getX() / (float) Utilities.getScreenHeight(getContext());
         }
 
         @Override
         public float getYScreenRatio() {
-            return (float) getY() / (float) Utilities.getScreenWidth(getContext());
+            return getY() / (float) Utilities.getScreenWidth(getContext());
         }
     }
 

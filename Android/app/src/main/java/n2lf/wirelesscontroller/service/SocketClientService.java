@@ -1,28 +1,26 @@
 package n2lf.wirelesscontroller.service;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
-import android.os.Handler;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 
-import n2lf.wirelesscontroller.utilities.Utilities;
-
-import java.io.Writer;
-import java.net.Socket;
 import java.io.BufferedWriter;
 import java.io.IOException;
-
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.ServiceConnection;
-import android.content.ComponentName;
-
 import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.Socket;
 import java.util.concurrent.locks.ReentrantLock;
+
+import n2lf.wirelesscontroller.utilities.Utilities;
 
 public class SocketClientService extends Service {
     static final int ACTION_SENDER_ERROR = 128;
@@ -126,7 +124,9 @@ public class SocketClientService extends Service {
         }
 
         public void stop(Exception e) {
-            isStopped=true;
+            if (isStopped)
+                return;
+            isStopped = true;
             if (sender != null)
                 try {
                     sender.flush();
@@ -199,17 +199,16 @@ public class SocketClientService extends Service {
             this.service = service;
         }
 
-        public void send(String s) {
-            lock.lock();
-            new Thread(() -> {
-                try {
-                    write(s);
-                    newLine();
-                    flush();
-                    lock.unlock();
-                } catch (Exception e) {
-                    lock.unlock();
-                    service.getActionSender().stop(e);
+        public void send(final String s) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        write(s + System.lineSeparator());
+                        flush();
+                    } catch (Exception e) {
+                        service.getActionSender().stop(e);
+                    }
                 }
             }).start();
         }
